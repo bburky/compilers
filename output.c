@@ -6,7 +6,7 @@ void init_output(const char *filename) {
     /* TODO: do real file output */
     listing_file = stdout;
     symbol_file = stdout;
-    fprintf(symbol_file, "%-10s%-15s%-25s%s\n", "Line No.", "Lexeme", "TOKEN-TYPE", "ATTRIBUTE");
+    fprintf(symbol_file, "%-10s%-15s%-20s%s\n", "Line No.", "Lexeme", "TOKEN-TYPE", "ATTRIBUTE");
 }
 
 void write_listing_line(int lineno, const char *line) {
@@ -18,29 +18,29 @@ void write_symbol_token(int lineno, token tok) {
     /* line is guaranteed to contain a newline */
     switch (tok.type) {
         case LEXERR_TYPE:
-            /* TODO: output lexical errors */
+            fprintf(symbol_file, "%-10d%-15s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.relop, "...");
             break;
 
         case RELOP_TYPE:
-            fprintf(symbol_file, "%-10d%-15s%-2d %-22s%-2d %s\n", lineno, "...", tok.type, token_type_name[tok.type], tok.attr.relop, relop_attr_name[tok.attr.relop]);
+            fprintf(symbol_file, "%-10d%-15s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.relop, relop_attr_name[tok.attr.relop]);
             break;
 
         case MULOP_TYPE:
-            fprintf(symbol_file, "%-10d%-15s%-2d %-22s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.mulop, mulop_attr_name[tok.attr.mulop]);
+            fprintf(symbol_file, "%-10d%-15s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.mulop, mulop_attr_name[tok.attr.mulop]);
             break;
 
         case ADDOP_TYPE:
-            fprintf(symbol_file, "%-10d%-15s%-2d %-22s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.addop, addop_attr_name[tok.attr.addop]);
+            fprintf(symbol_file, "%-10d%-15s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.addop, addop_attr_name[tok.attr.addop]);
             break;
 
         /* Don't output some lexeme strings */
         case WHITESPACE_TYPE:
         case EOF_TYPE:
-            fprintf(symbol_file, "%-10d%-15s%-2d %-22s%-2d %s\n", lineno, "", tok.type, token_type_name[tok.type], tok.attr.addop, addop_attr_name[tok.attr.addop]);
+            fprintf(symbol_file, "%-10d%-15s%-2d %-17s%-2d %s\n", lineno, "", tok.type, token_type_name[tok.type], tok.attr.addop, addop_attr_name[tok.attr.addop]);
             break;
 
         default:
-            fprintf(symbol_file, "%-10d%-15s%-2d %-22s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], 0, "NULL");
+            fprintf(symbol_file, "%-10d%-15s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], 0, "NULL");
             break;
             
     }
