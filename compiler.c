@@ -66,7 +66,7 @@ char* get_next_line() {
 }
 
 token* get_next_token() {
-    token *(*machines[])() = {whitespace_machine, relop_machine, mulop_machine, longreal_machine, real_machine, int_machine};
+    token *(*machines[])() = {whitespace_machine, addop_machine, relop_machine, mulop_machine, longreal_machine, real_machine, int_machine};
     // token *(*current_machine)() = *machines;
     int current_machine;
     token *matched_token;
@@ -82,7 +82,7 @@ token* get_next_token() {
     }
 
     /* call each machine in order */
-    for (current_machine = 0; current_machine < 6; current_machine++) {
+    for (current_machine = 0; current_machine < 7; current_machine++) {
         matched_token = machines[current_machine]();
         if(matched_token) {
             return matched_token;
@@ -591,6 +591,55 @@ token* mulop_machine() {
         mulop_token->attr.mulop = AND_MULOP;
         bptr = fptr;
         return mulop_token;
+    } else {
+        /* no token matched */
+        return NULL;
+    }
+}
+
+
+token* addop_machine() {
+    token *addop_token;
+    
+    if (*fptr == '+') {
+        fptr++;
+        DEBUG_TOKEN(fptr, bptr, "addop token");
+        addop_token = malloc(sizeof(token));
+        if (!addop_token) {
+            fprintf(stderr, "Out of memory");
+            exit(1);
+        }
+        addop_token->lexeme = NULL;
+        addop_token->type = ADDOP_TYPE;
+        addop_token->attr.addop = PLUS_ADDOP;
+        bptr = fptr;
+        return addop_token;
+    } else if (*fptr == '-') {
+        fptr++;
+        DEBUG_TOKEN(fptr, bptr, "addop token");
+        addop_token = malloc(sizeof(token));
+        if (!addop_token) {
+            fprintf(stderr, "Out of memory");
+            exit(1);
+        }
+        addop_token->lexeme = NULL;
+        addop_token->type = ADDOP_TYPE;
+        addop_token->attr.addop = MINUS_ADDOP;
+        bptr = fptr;
+        return addop_token;
+    } else if (!strncmp(fptr, "or", 2)) {
+        fptr += 2;
+        DEBUG_TOKEN(fptr, bptr, "addop token");
+        addop_token = malloc(sizeof(token));
+        if (!addop_token) {
+            fprintf(stderr, "Out of memory");
+            exit(1);
+        }
+        addop_token->lexeme = NULL;
+        addop_token->type = ADDOP_TYPE;
+        addop_token->attr.addop = OR_ADDOP;
+        bptr = fptr;
+        return addop_token;
     } else {
         /* no token matched */
         return NULL;

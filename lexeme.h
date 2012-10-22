@@ -18,7 +18,7 @@ typedef enum {
     DO_TYPE,
     NOT_TYPE,
     MULOP_TYPE,
-    ADD_TYPE,
+    ADDOP_TYPE,
     RELOP_TYPE
 } TOKEN_TYPE;
 

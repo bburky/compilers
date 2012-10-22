@@ -42,3 +42,4 @@ token* longreal_machine();
 token* real_machine();
 token* int_machine();
 token* mulop_machine();
+token* addop_machine();
