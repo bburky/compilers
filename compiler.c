@@ -89,10 +89,19 @@ token* get_next_token() {
         }
     }
 
-    /* no token matched */
-    /* lexerr */
-    printf("\nNo token matched\n");
-    return NULL;
+    /* lexical error: Unrecognized symbol */
+    fptr++;
+    DEBUG_TOKEN(fptr, bptr, "LEXERR: Unrecognized symbol");
+    matched_token = malloc(sizeof(token));
+    if (!matched_token) {
+        fprintf(stderr, "Out of memory");
+        exit(1);
+    }
+    matched_token->lexeme = NULL;
+    matched_token->type = LEXERR_TYPE;
+    matched_token->attr.errtype = LEX_ERR_UNRECOGNIZED_SYMBOL;
+    bptr = fptr;
+    return matched_token;
 }
 
 token* whitespace_machine() {

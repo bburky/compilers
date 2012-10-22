@@ -1,3 +1,27 @@
+
+/* max line length */
+#define LEX_MAX_LINE 72
+
+/* max id char length */
+#define LEX_MAX_ID 10
+
+/* max int char length */
+#define LEX_MAX_INT 10
+
+/* max real clar length */
+#define LEX_MAX_REALINT 5
+#define LEX_MAX_FRAC 5
+#define LEX_MAX_EXP 2
+
+/* bitfield error types for lexical errors */
+#define LEX_ERR_INT_TOO_LONG        (1 << 0)
+#define LEX_ERR_REALINT_TOO_LONG    (1 << 1)
+#define LEX_ERR_FRAC_TOO_LONG       (1 << 2)
+#define LEX_ERR_EXP_TOO_LONG        (1 << 3)
+#define LEX_ERR_LEADING_ZERO        (1 << 4)
+#define LEX_ERR_ID_TOO_LONG         (1 << 5)
+#define LEX_ERR_UNRECOGNIZED_SYMBOL (1 << 6)
+
 typedef enum {
     LEXERR_TYPE,
     WHITESPACE_TYPE,
