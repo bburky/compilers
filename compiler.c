@@ -92,9 +92,7 @@ token get_next_token() {
 
     /* lexical error: Unrecognized symbol */
     fptr++;
-    lexeme = malloc(fptr-bptr+1);
-    strncpy(lexeme, bptr, fptr-bptr);
-    lexeme[fptr-bptr] = '\0';
+    lexeme = extract_lexeme(fptr, bptr);
     bptr = fptr;
     return (token){ .lexeme = lexeme, .type = LEXERR_TYPE, .attr.errtype = LEX_ERR_UNRECOGNIZED_SYMBOL };
 }

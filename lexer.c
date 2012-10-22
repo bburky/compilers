@@ -32,6 +32,8 @@ char *lex_err_name[] = {
 };
 #undef X
 
+extern inline char* extract_lexeme(const char* fptr, const char* bptr);
+
 token whitespace_machine() {
     char *lexeme;
 
@@ -42,9 +44,7 @@ token whitespace_machine() {
         case '\n':
             /* return whitespace token */
             fptr++;
-            lexeme = malloc(fptr-bptr+1);
-            strncpy(lexeme, bptr, fptr-bptr);
-            lexeme[fptr-bptr] = '\0';
+            lexeme = extract_lexeme(fptr, bptr);
             bptr = fptr;
             return (token){ .lexeme = lexeme, .type = WHITESPACE_TYPE, .attr.ptr = NULL };
         default:
@@ -90,9 +90,7 @@ token relop_machine() {
                     state = NE;
                 } else {
                     /* Return LT RELOP token */
-                    lexeme = malloc(fptr-bptr+1);
-                    strncpy(lexeme, bptr, fptr-bptr);
-                    lexeme[fptr-bptr] = '\0';
+                    lexeme = extract_lexeme(fptr, bptr);
                     bptr = fptr;
                     return (token){ .lexeme = lexeme, .type = RELOP_TYPE, .attr.relop = LT_RELOP };
                 }
@@ -100,17 +98,13 @@ token relop_machine() {
                 
             case LE:
                 /* Return LE RELOP token */
-                lexeme = malloc(fptr-bptr+1);
-                strncpy(lexeme, bptr, fptr-bptr);
-                lexeme[fptr-bptr] = '\0';
+                lexeme = extract_lexeme(fptr, bptr);
                 bptr = fptr;
                 return (token){ .lexeme = lexeme, .type = RELOP_TYPE, .attr.relop = LE_RELOP };
                 
             case NE:
                 /* Return NE RELOP token */
-                lexeme = malloc(fptr-bptr+1);
-                strncpy(lexeme, bptr, fptr-bptr);
-                lexeme[fptr-bptr] = '\0';
+                lexeme = extract_lexeme(fptr, bptr);
                 bptr = fptr;
                 return (token){ .lexeme = lexeme, .type = RELOP_TYPE, .attr.relop = NE_RELOP };
                 
@@ -120,9 +114,7 @@ token relop_machine() {
                     state = EQ;
                 } else {
                     /* Return GT RELOP token */
-                    lexeme = malloc(fptr-bptr+1);
-                    strncpy(lexeme, bptr, fptr-bptr);
-                    lexeme[fptr-bptr] = '\0';
+                    lexeme = extract_lexeme(fptr, bptr);
                     bptr = fptr;
                     return (token){ .lexeme = lexeme, .type = RELOP_TYPE, .attr.relop = GT_RELOP };
                 }
@@ -130,17 +122,13 @@ token relop_machine() {
                 
             case GE:
                 /* Return GE RELOP token */
-                lexeme = malloc(fptr-bptr+1);
-                strncpy(lexeme, bptr, fptr-bptr);
-                lexeme[fptr-bptr] = '\0';
+                lexeme = extract_lexeme(fptr, bptr);
                 bptr = fptr;
                 return (token){ .lexeme = lexeme, .type = RELOP_TYPE, .attr.relop = GE_RELOP };
                 
             case EQ:
                 /* Return EQ RELOP token */
-                lexeme = malloc(fptr-bptr+1);
-                strncpy(lexeme, bptr, fptr-bptr);
-                lexeme[fptr-bptr] = '\0';
+                lexeme = extract_lexeme(fptr, bptr);
                 bptr = fptr;
                 return (token){ .lexeme = lexeme, .type = RELOP_TYPE, .attr.relop = EQ_RELOP };
         }
@@ -263,9 +251,7 @@ token longreal_machine() {
                         return NONE_MATCHED;
                     }
                     /* return longreal token */
-                    lexeme = malloc(fptr-bptr+1);
-                    strncpy(lexeme, bptr, fptr-bptr);
-                    lexeme[fptr-bptr] = '\0';
+                    lexeme = extract_lexeme(fptr, bptr);
                     bptr = fptr;
                     return (token){ .lexeme = lexeme, .type = LONGREAL_TYPE, .attr.ptr = NULL };
                 }
@@ -342,9 +328,7 @@ token real_machine() {
                     }
                     
                     /* return real token */
-                    lexeme = malloc(fptr-bptr+1);
-                    strncpy(lexeme, bptr, fptr-bptr);
-                    lexeme[fptr-bptr] = '\0';
+                    lexeme = extract_lexeme(fptr, bptr);
                     bptr = fptr;
                     return (token){ .lexeme = lexeme, .type = REAL_TYPE, .attr.ptr = NULL };
                 }
@@ -386,9 +370,7 @@ token int_machine() {
             }
             
             /* return int token */
-            lexeme = malloc(fptr-bptr+1);
-            strncpy(lexeme, bptr, fptr-bptr);
-            lexeme[fptr-bptr] = '\0';
+            lexeme = extract_lexeme(fptr, bptr);
             bptr = fptr;
             return (token){ .lexeme = lexeme, .type = INT_TYPE, .attr.ptr = NULL };
         } else {
@@ -425,7 +407,6 @@ token mulop_machine() {
         return NONE_MATCHED;
     }
 }
-
 
 token addop_machine() {
     if (*fptr == '+') {
