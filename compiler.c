@@ -31,6 +31,9 @@ int main(int argc, const char *argv[]) {
     while (tok.type == NONE_TYPE || tok.type != EOF_TYPE) {
         tok = get_next_token();
         write_symbol_token(lineno, tok);
+        if (tok.lexeme) {
+            free(tok.lexeme);
+        }
     }
     return 0;
 }

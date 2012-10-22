@@ -14,6 +14,16 @@ inline char* extract_lexeme(const char* fptr, const char* bptr) {
     return lexeme;
 }
 
+inline char* make_lexeme(const char* str) {
+    char *lexeme = malloc(strlen(str));
+    if (!lexeme) {
+        fprintf(stderr, "Out of memory");
+        exit(1);
+    }
+    strncpy(lexeme, bptr, strlen(str));
+    return lexeme;
+}
+
 token whitespace_machine(void);
 
 token relop_machine(void);
