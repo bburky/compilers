@@ -57,8 +57,7 @@ char* get_next_line() {
     }
     char *newline = strstr(line, "\n"); 
     if (!newline) {
-        fprintf(stderr, "Line greater than 72 chars\n");
-        fprintf(stderr, "Line is %d chars long: %s\n", (int) strlen(line), line);
+        fprintf(stderr, "Line %d is greater than 72 chars\n", lineno);
         exit(1);
     }
     lineno++;
