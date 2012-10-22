@@ -32,10 +32,10 @@ token whitespace_machine() {
         case '\n':
             /* return whitespace token */
             fptr++;
-            bptr = fptr;
             lexeme = malloc(fptr-bptr+1);
             strncpy(lexeme, bptr, fptr-bptr);
             lexeme[fptr-bptr] = '\0';
+            bptr = fptr;
             return (token){ .lexeme = lexeme, .type = WHITESPACE_TYPE, .attr.ptr = NULL };
         default:
             /* no token matched */
