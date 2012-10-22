@@ -33,9 +33,12 @@ void write_symbol_token(int lineno, token tok) {
             fprintf(symbol_file, "%-10d%-15s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.addop, addop_attr_name[tok.attr.addop]);
             break;
 
-        /* Don't output some lexeme strings */
         case WHITESPACE_TYPE:
+            /* Don't output symbol */
+            break;
+            
         case EOF_TYPE:
+            /* Don't output lexeme */
             fprintf(symbol_file, "%-10d%-15s%-2d %-17s%-2d %s\n", lineno, "", tok.type, token_type_name[tok.type], tok.attr.addop, "NULL");
             break;
 
