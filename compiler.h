@@ -25,8 +25,8 @@ char *fptr, *bptr;
 
 void init_lexer(const char*);
 
-char* get_next_line();
+char* get_next_line(void);
 
-token* get_next_token();
+token* get_next_token(void);
 
 #endif

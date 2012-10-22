@@ -82,19 +82,19 @@ typedef struct {
     } attr;
 } token;
 
-token* whitespace_machine();
+token* whitespace_machine(void);
 
-token* relop_machine();
+token* relop_machine(void);
 
-token* longreal_machine();
+token* longreal_machine(void);
 
-token* real_machine();
+token* real_machine(void);
 
-token* int_machine();
+token* int_machine(void);
 
-token* mulop_machine();
+token* mulop_machine(void);
 
-token* addop_machine();
+token* addop_machine(void);
 
 #endif
 

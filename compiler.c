@@ -23,10 +23,12 @@ int main(int argc, const char *argv[]) {
     /* argv[1] is filename */
     init_lexer(argv[1]);
 
-
-    while (tok == NULL || tok->type != EOF_TYPE) {
+    while (tok) {
         tok = get_next_token();
-        /* do nothing */
+        if (tok->type == EOF_TYPE) {
+            free(tok);
+            break;
+        }
         free(tok);
     }
     return 0;
