@@ -66,7 +66,7 @@ char* get_next_line() {
 }
 
 token* get_next_token() {
-    token *(*machines[])() = {whitespace_machine, relop_machine, longreal_machine, real_machine, int_machine};
+    token *(*machines[])() = {whitespace_machine, relop_machine, mulop_machine, longreal_machine, real_machine, int_machine};
     // token *(*current_machine)() = *machines;
     int current_machine;
     token *matched_token;
@@ -82,7 +82,7 @@ token* get_next_token() {
     }
 
     /* call each machine in order */
-    for (current_machine = 0; current_machine < 5; current_machine++) {
+    for (current_machine = 0; current_machine < 6; current_machine++) {
         matched_token = machines[current_machine]();
         if(matched_token) {
             return matched_token;
@@ -521,4 +521,78 @@ token* int_machine() {
         }
     }
 
+}
+
+token* mulop_machine() {
+    token *mulop_token;
+    
+    if (*fptr == '*') {
+        fptr++;
+        DEBUG_TOKEN(fptr, bptr, "mulop token");
+        mulop_token = malloc(sizeof(token));
+        if (!mulop_token) {
+            fprintf(stderr, "Out of memory");
+            exit(1);
+        }
+        mulop_token->lexeme = NULL;
+        mulop_token->type = MULOP_TYPE;
+        mulop_token->attr.mulop = AND_MULOP;
+        bptr = fptr;
+        return mulop_token;
+    } else if (*fptr == '/') {
+        fptr++;
+        DEBUG_TOKEN(fptr, bptr, "mulop token");
+        mulop_token = malloc(sizeof(token));
+        if (!mulop_token) {
+            fprintf(stderr, "Out of memory");
+            exit(1);
+        }
+        mulop_token->lexeme = NULL;
+        mulop_token->type = MULOP_TYPE;
+        mulop_token->attr.mulop = DIV_MULOP;
+        bptr = fptr;
+        return mulop_token;
+    } else if (!strncmp(fptr, "mod", 3)) {
+        fptr += 3;
+        DEBUG_TOKEN(fptr, bptr, "mulop token");
+        mulop_token = malloc(sizeof(token));
+        if (!mulop_token) {
+            fprintf(stderr, "Out of memory");
+            exit(1);
+        }
+        mulop_token->lexeme = NULL;
+        mulop_token->type = MULOP_TYPE;
+        mulop_token->attr.mulop = MOD_MULOP;
+        bptr = fptr;
+        return mulop_token;
+    } else if (!strncmp(fptr, "div", 3)) {
+        fptr += 3;
+        DEBUG_TOKEN(fptr, bptr, "mulop token");
+        mulop_token = malloc(sizeof(token));
+        if (!mulop_token) {
+            fprintf(stderr, "Out of memory");
+            exit(1);
+        }
+        mulop_token->lexeme = NULL;
+        mulop_token->type = MULOP_TYPE;
+        mulop_token->attr.mulop = DIV_MULOP;
+        bptr = fptr;
+        return mulop_token;
+    } else if (!strncmp(fptr, "and", 3)) {
+        fptr += 3;
+        DEBUG_TOKEN(fptr, bptr, "mulop token");
+        mulop_token = malloc(sizeof(token));
+        if (!mulop_token) {
+            fprintf(stderr, "Out of memory");
+            exit(1);
+        }
+        mulop_token->lexeme = NULL;
+        mulop_token->type = MULOP_TYPE;
+        mulop_token->attr.mulop = AND_MULOP;
+        bptr = fptr;
+        return mulop_token;
+    } else {
+        /* no token matched */
+        return NULL;
+    }
 }

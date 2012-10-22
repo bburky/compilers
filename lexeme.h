@@ -17,7 +17,7 @@ typedef enum {
     WHILE_TYPE,
     DO_TYPE,
     NOT_TYPE,
-    MULLOP_TYPE,
+    MULOP_TYPE,
     ADD_TYPE,
     RELOP_TYPE
 } TOKEN_TYPE;
@@ -32,15 +32,15 @@ typedef enum {
 } RELOP_ATTR;
 
 typedef enum {
-    DIV_RELOP,
-    MOD_RELOP,
-    AND_RELOP
-} MULLOP_ATTR;
+    DIV_MULOP,
+    MOD_MULOP,
+    AND_MULOP
+} MULOP_ATTR;   
 
 typedef enum {
-    PLUS_RELOP,
-    MINUS_RELOP,
-    OR_RELOP
+    PLUS_ADDOP,
+    MINUS_ADDOP,
+    OR_ADDOP
 } ADDOP_ATTR;
 
 typedef struct {
@@ -49,7 +49,7 @@ typedef struct {
     union {
         void* ptr;
         ADDOP_ATTR addop;
-        MULLOP_ATTR mullop;
+        MULOP_ATTR mulop;
         RELOP_ATTR relop;
         int errtype;
     } attr;
