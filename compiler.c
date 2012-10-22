@@ -66,7 +66,7 @@ char* get_next_line() {
 }
 
 token* get_next_token() {
-    token *(*machines[])() = {whitespace_machine, relop_machine, };
+    token *(*machines[])() = {whitespace_machine, relop_machine, longreal_machine, real_machine};
     // token *(*current_machine)() = *machines;
     int current_machine;
     token *matched_token;
@@ -82,7 +82,7 @@ token* get_next_token() {
     }
 
     /* call each machine in order */
-    for (current_machine = 0; current_machine < sizeof(machines); current_machine++) {
+    for (current_machine = 0; current_machine < 4; current_machine++) {
         matched_token = machines[current_machine]();
         if(matched_token) {
             return matched_token;
@@ -264,6 +264,8 @@ token* longreal_machine() {
     char *tmpptr = fptr;
     int lexerr = 0;
     bool leadingzero = true;
+    token *longreal_token;
+
 
     /* xx.yyEzz */
     while (1) {
@@ -312,7 +314,8 @@ token* longreal_machine() {
                     lexerr |= LEX_ERR_FRAC_TOO_LONG;
                 }
                 /* don't change state */
-            } else if (*fptr == 'E') {
+            } else if (*fptr == 'E' && fptr != tmpptr) {
+                /* must be at least one character long */
                 fptr++;
                 tmpptr = fptr;
                 leadingzero = true;
@@ -332,7 +335,6 @@ token* longreal_machine() {
                 fptr++;
                 state = EXP;
             } else if (*fptr >= '0' && *fptr <= '9') {
-                fptr--;
                 if (fptr - tmpptr > LEX_MAX_FRAC) {
                     /* lexical error: too long fractional portion */
                     lexerr |= LEX_ERR_FRAC_TOO_LONG;
@@ -355,20 +357,29 @@ token* longreal_machine() {
                 leadingzero = false;
             }
             if (*fptr >= '0' && *fptr <= '9') {
-                fptr--;
+                fptr++;
                 if (fptr - tmpptr > LEX_MAX_FRAC) {
                     /* lexical error: too long fractional portion */
                     lexerr |= LEX_ERR_FRAC_TOO_LONG;
                 }
                 state = EXP;
             } else {
-                fptr--;
                 if (lexerr != 0) {
                     /* return lexerr token */
                     return NULL;
                 }
                 /* return longreal token */
-                return NULL;
+                DEBUG_TOKEN(fptr, bptr, "longreal token");
+                longreal_token = malloc(sizeof(token));
+                if (!longreal_token) {
+                    fprintf(stderr, "Out of memory");
+                    exit(1);
+                }
+                longreal_token->lexeme = NULL;
+                longreal_token->type = LONGREAL_TYPE;
+                longreal_token->attr.ptr = NULL;
+                bptr = fptr;
+                return longreal_token;
             }
         }
     }
@@ -386,6 +397,7 @@ token* real_machine() {
     char *tmpptr = fptr;
     int lexerr = 0;
     bool leadingzero = true;
+    token *real_token;
 
     /* xx.yy */
     while (1) {
@@ -436,13 +448,23 @@ token* real_machine() {
                 /* don't change state */
             } else {
                 /* matched real */
-                fptr--;
                 if (lexerr != 0) {
                     /* return lexerr token */
                     return NULL;
                 }
+                
                 /* return real token */
-                return NULL;
+                DEBUG_TOKEN(fptr, bptr, "real token");
+                real_token = malloc(sizeof(token));
+                if (!real_token) {
+                    fprintf(stderr, "Out of memory");
+                    exit(1);
+                }
+                real_token->lexeme = NULL;
+                real_token->type = REAL_TYPE;
+                real_token->attr.ptr = NULL;
+                bptr = fptr;
+                return real_token;
             }
             break;
         }

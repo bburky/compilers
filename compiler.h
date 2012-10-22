@@ -20,7 +20,7 @@
 #define LEX_MAX_INT 10
 
 /* max real clar length */
-#define LEX_MAX_REALINT 2
+#define LEX_MAX_REALINT 5
 #define LEX_MAX_FRAC 5
 #define LEX_MAX_EXP 2
 

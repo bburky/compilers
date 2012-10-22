@@ -5,6 +5,7 @@ typedef enum {
     VAR_TYPE,
     ARRAY_TYPE,
     INTEGER_TYPE,
+    LONGREAL_TYPE,
     REAL_TYPE,
     PROCEDURE_TYPE,
     BEGIN_TYPE,
