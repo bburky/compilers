@@ -43,7 +43,8 @@ typedef enum {
     NOT_TYPE,
     MULOP_TYPE,
     ADDOP_TYPE,
-    RELOP_TYPE
+    RELOP_TYPE,
+    EOF_TYPE
 } TOKEN_TYPE;
 
 typedef enum {

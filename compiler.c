@@ -14,7 +14,7 @@ char line[80]; /* 78 chars + \n\0 */
 char *fptr = NULL, *bptr = NULL;
 
 int main(int argc, const char *argv[]) {
-    token *tok;
+    token *tok = NULL;
 
     if (argc != 2) {
         fprintf(stderr, "Usage: %s source_file_name\n", argv[0]);
@@ -25,12 +25,8 @@ int main(int argc, const char *argv[]) {
     init_lexer(argv[1]);
 
 
-    while (1) {
+    while (tok == NULL || tok->type != EOF_TYPE) {
         tok = get_next_token();
-        if (!tok) {
-            /* TODO: EOF token */
-            break;
-        }
         /* do nothing */
         free(tok);
     }
@@ -74,8 +70,16 @@ token* get_next_token() {
     /* if first line or end of current line */
     if (fptr == NULL || *fptr == '\0') {
         if (!get_next_line()) {
-            /* return EOF token */
-            return 0;
+            DEBUG_TOKEN(NULL, NULL, "EOF");
+            matched_token = malloc(sizeof(token));
+            if (!matched_token) {
+                fprintf(stderr, "Out of memory");
+                exit(1);
+            }
+            matched_token->lexeme = NULL;
+            matched_token->type = EOF_TYPE;
+            matched_token->attr.ptr = NULL;
+            return matched_token;
         }
         fptr = line;
         bptr = line;
