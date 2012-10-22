@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		25C9F35E1634F2D1002C3BAD /* lexer.c in Sources */ = {isa = PBXBuildFile; fileRef = 25C9F35D1634F2D1002C3BAD /* lexer.c */; };
 		25D9656B1634B38900DB9B61 /* compiler.c in Sources */ = {isa = PBXBuildFile; fileRef = 25D965681634B38900DB9B61 /* compiler.c */; };
 /* End PBXBuildFile section */
 
@@ -23,9 +24,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		25C9F35D1634F2D1002C3BAD /* lexer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lexer.c; sourceTree = "<group>"; };
 		25D965681634B38900DB9B61 /* compiler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = compiler.c; sourceTree = "<group>"; };
 		25D965691634B38900DB9B61 /* compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compiler.h; sourceTree = "<group>"; };
-		25D9656A1634B38900DB9B61 /* lexeme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexeme.h; sourceTree = "<group>"; };
+		25D9656A1634B38900DB9B61 /* lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer.h; sourceTree = "<group>"; };
 		25D965711634BC3900DB9B61 /* real */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = real; sourceTree = "<group>"; };
 		25D965721634BC3900DB9B61 /* relop */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = relop; sourceTree = "<group>"; };
 		25D965741634BC3900DB9B61 /* whitespace */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = whitespace; sourceTree = "<group>"; };
@@ -61,7 +63,8 @@
 				25D965701634BC3900DB9B61 /* test */,
 				25D965681634B38900DB9B61 /* compiler.c */,
 				25D965691634B38900DB9B61 /* compiler.h */,
-				25D9656A1634B38900DB9B61 /* lexeme.h */,
+				25C9F35D1634F2D1002C3BAD /* lexer.c */,
+				25D9656A1634B38900DB9B61 /* lexer.h */,
 				25F23AFB1634A5E50021E595 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -126,6 +129,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				25D9656B1634B38900DB9B61 /* compiler.c in Sources */,
+				25C9F35E1634F2D1002C3BAD /* lexer.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

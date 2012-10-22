@@ -1,3 +1,8 @@
+#ifndef COMPILER_H
+#define COMPILER_H
+
+#include "lexer.h"
+
 #define DEBUG
 
 #define DEBUG_PRINT(fmt, ...) \
@@ -10,14 +15,18 @@
             do { if (DEBUG) fprintf(stderr, "\n%s\nLexeme:%.*s\n", str, (int)(fptr-bptr), bptr); } while (0)
 */
 
+const char *input_filename;
+
+FILE *input_file, *listing_file, *token_file, *symbol_file;
+
+char line[74]; /* 72 chars + \n\0 */
+
+char *fptr, *bptr;
+
 void init_lexer(const char*);
+
 char* get_next_line();
+
 token* get_next_token();
 
-token* whitespace_machine();
-token* relop_machine();
-token* longreal_machine();
-token* real_machine();
-token* int_machine();
-token* mulop_machine();
-token* addop_machine();
+#endif

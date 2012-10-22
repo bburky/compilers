@@ -1,3 +1,5 @@
+#ifndef LEXER_H
+#define LEXER_H
 
 /* max line length */
 #define LEX_MAX_LINE 72
@@ -80,6 +82,19 @@ typedef struct {
     } attr;
 } token;
 
+token* whitespace_machine();
 
+token* relop_machine();
 
+token* longreal_machine();
+
+token* real_machine();
+
+token* int_machine();
+
+token* mulop_machine();
+
+token* addop_machine();
+
+#endif
 
