@@ -27,6 +27,6 @@ void init_lexer(const char*);
 
 char* get_next_line(void);
 
-token* get_next_token(void);
+token get_next_token(void);
 
 #endif

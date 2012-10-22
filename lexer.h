@@ -24,7 +24,11 @@
 #define LEX_ERR_ID_TOO_LONG         (1 << 5)
 #define LEX_ERR_UNRECOGNIZED_SYMBOL (1 << 6)
 
+/* token for machines that do not match symbol */
+#define NONE_MATCHED (token){ .lexeme = NULL, .type = NONE_TYPE, .attr.ptr = NULL }
+
 typedef enum {
+    NONE_TYPE,
     LEXERR_TYPE,
     WHITESPACE_TYPE,
     PROGRAM_TYPE,
@@ -82,19 +86,19 @@ typedef struct {
     } attr;
 } token;
 
-token* whitespace_machine(void);
+token whitespace_machine(void);
 
-token* relop_machine(void);
+token relop_machine(void);
 
-token* longreal_machine(void);
+token longreal_machine(void);
 
-token* real_machine(void);
+token real_machine(void);
 
-token* int_machine(void);
+token int_machine(void);
 
-token* mulop_machine(void);
+token mulop_machine(void);
 
-token* addop_machine(void);
+token addop_machine(void);
 
 #endif
 

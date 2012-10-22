@@ -5,9 +5,7 @@
 
 #include "compiler.h"
 
-token* whitespace_machine() {
-    token *whitespace_token;
-    
+token whitespace_machine() {
     switch (*fptr) {
         case ' ':
         case '\t':
@@ -15,32 +13,23 @@ token* whitespace_machine() {
         case '\n':
             /* return whitespace token */
             DEBUG_TOKEN(fptr, bptr, "whitespace token");
-            whitespace_token = malloc(sizeof(token));
-            if (!whitespace_token) {
-                fprintf(stderr, "Out of memory");
-                exit(1);
-            }
-            whitespace_token->lexeme = NULL;
-            whitespace_token->type = WHITESPACE_TYPE;
-            whitespace_token->attr.ptr = NULL;
             fptr++;
             bptr = fptr;
-            return whitespace_token;
+            return (token){ .lexeme = NULL, .type = WHITESPACE_TYPE, .attr.ptr = NULL };
         default:
             /* no token matched */
-            return NULL;
+            return NONE_MATCHED;
     }
 }
 
 
-token* relop_machine() {
+token relop_machine() {
     typedef enum {
         START, LT, LE, NE, GT, GE, EQ
     } STATE;
     
     STATE state = START;
-    token *relop_token;
-    
+
     /* <= <> < > >= = */
     while (1) {
         switch(state) {
@@ -56,7 +45,7 @@ token* relop_machine() {
                     state = EQ;
                 } else {
                     /* no token matched */
-                    return NULL;
+                    return NONE_MATCHED;
                 }
                 break;
                 
@@ -70,46 +59,22 @@ token* relop_machine() {
                 } else {
                     /* Return LT RELOP token */
                     DEBUG_TOKEN(fptr, bptr, "relop token");
-                    relop_token = malloc(sizeof(token));
-                    if (!relop_token) {
-                        fprintf(stderr, "Out of memory");
-                        exit(1);
-                    }
-                    relop_token->lexeme = NULL;
-                    relop_token->type = RELOP_TYPE;
-                    relop_token->attr.relop = LT_RELOP;
                     bptr = fptr;
-                    return relop_token;
+                    return (token){ .lexeme = NULL, .type = RELOP_TYPE, .attr.relop = LT_RELOP };
                 }
                 break;
                 
             case LE:
                 /* Return LE RELOP token */
                 DEBUG_TOKEN(fptr, bptr, "relop token");
-                relop_token = malloc(sizeof(token));
-                if (!relop_token) {
-                    fprintf(stderr, "Out of memory");
-                    exit(1);
-                }
-                relop_token->lexeme = NULL;
-                relop_token->type = RELOP_TYPE;
-                relop_token->attr.relop = LE_RELOP;
                 bptr = fptr;
-                return relop_token;
+                return (token){ .lexeme = NULL, .type = RELOP_TYPE, .attr.relop = LE_RELOP };
                 
             case NE:
                 /* Return NE RELOP token */
                 DEBUG_TOKEN(fptr, bptr, "relop token");
-                relop_token = malloc(sizeof(token));
-                if (!relop_token) {
-                    fprintf(stderr, "Out of memory");
-                    exit(1);
-                }
-                relop_token->lexeme = NULL;
-                relop_token->type = RELOP_TYPE;
-                relop_token->attr.relop = NE_RELOP;
                 bptr = fptr;
-                return relop_token;
+                return (token){ .lexeme = NULL, .type = RELOP_TYPE, .attr.relop = NE_RELOP };
                 
             case GT:
                 if (*fptr == '=') {
@@ -118,46 +83,22 @@ token* relop_machine() {
                 } else {
                     /* Return GT RELOP token */
                     DEBUG_TOKEN(fptr, bptr, "relop token");
-                    relop_token = malloc(sizeof(token));
-                    if (!relop_token) {
-                        fprintf(stderr, "Out of memory");
-                        exit(1);
-                    }
-                    relop_token->lexeme = NULL;
-                    relop_token->type = RELOP_TYPE;
-                    relop_token->attr.relop = GT_RELOP;
                     bptr = fptr;
-                    return relop_token;
+                    return (token){ .lexeme = NULL, .type = RELOP_TYPE, .attr.relop = GT_RELOP };
                 }
                 break;
                 
             case GE:
                 /* Return GE RELOP token */
                 DEBUG_TOKEN(fptr, bptr, "relop token");
-                relop_token = malloc(sizeof(token));
-                if (!relop_token) {
-                    fprintf(stderr, "Out of memory");
-                    exit(1);
-                }
-                relop_token->lexeme = NULL;
-                relop_token->type = RELOP_TYPE;
-                relop_token->attr.relop = GE_RELOP;
                 bptr = fptr;
-                return relop_token;
+                return (token){ .lexeme = NULL, .type = RELOP_TYPE, .attr.relop = GE_RELOP };
                 
             case EQ:
                 /* Return EQ RELOP token */
                 DEBUG_TOKEN(fptr, bptr, "relop token");
-                relop_token = malloc(sizeof(token));
-                if (!relop_token) {
-                    fprintf(stderr, "Out of memory");
-                    exit(1);
-                }
-                relop_token->lexeme = NULL;
-                relop_token->type = RELOP_TYPE;
-                relop_token->attr.relop = EQ_RELOP;
                 bptr = fptr;
-                return relop_token;
+                return (token){ .lexeme = NULL, .type = RELOP_TYPE, .attr.relop = EQ_RELOP };
         }
     }
 }
@@ -165,7 +106,7 @@ token* relop_machine() {
 /* int : 123 */
 
 /* longreal : exponent 1.0E(+|-)1 */
-token* longreal_machine() {
+token longreal_machine() {
     typedef enum {
         INTDOT, FRACTE, SIGN, EXP
     } STATE;
@@ -174,8 +115,6 @@ token* longreal_machine() {
     char *tmpptr = fptr;
     int lexerr = 0;
     bool leadingzero = true;
-    token *longreal_token;
-    
     
     /* xx.yyEzz */
     while (1) {
@@ -204,7 +143,7 @@ token* longreal_machine() {
                 } else {
                     /* no token matched */
                     fptr = bptr;
-                    return NULL;
+                    return NONE_MATCHED;
                 }
                 break;
                 
@@ -233,7 +172,7 @@ token* longreal_machine() {
                 } else {
                     /* no token matched */
                     fptr = bptr;
-                    return NULL;
+                    return NONE_MATCHED;
                 }
                 break;
                 
@@ -253,7 +192,7 @@ token* longreal_machine() {
                 } else {
                     /* no token matched */
                     fptr = bptr;
-                    return NULL;
+                    return NONE_MATCHED;
                 }
                 break;
                 
@@ -276,20 +215,12 @@ token* longreal_machine() {
                 } else {
                     if (lexerr != 0) {
                         /* return lexerr token */
-                        return NULL;
+                        return NONE_MATCHED;
                     }
                     /* return longreal token */
                     DEBUG_TOKEN(fptr, bptr, "longreal token");
-                    longreal_token = malloc(sizeof(token));
-                    if (!longreal_token) {
-                        fprintf(stderr, "Out of memory");
-                        exit(1);
-                    }
-                    longreal_token->lexeme = NULL;
-                    longreal_token->type = LONGREAL_TYPE;
-                    longreal_token->attr.ptr = NULL;
                     bptr = fptr;
-                    return longreal_token;
+                    return (token){ .lexeme = NULL, .type = LONGREAL_TYPE, .attr.ptr = NULL };
                 }
         }
     }
@@ -297,7 +228,7 @@ token* longreal_machine() {
 }
 
 /* real : 1.0 */
-token* real_machine() {
+token real_machine() {
     
     typedef enum {
         INTDOT, FRACT
@@ -307,8 +238,7 @@ token* real_machine() {
     char *tmpptr = fptr;
     int lexerr = 0;
     bool leadingzero = true;
-    token *real_token;
-    
+
     /* xx.yy */
     while (1) {
         switch(state) {
@@ -336,7 +266,7 @@ token* real_machine() {
                 } else {
                     /* no token matched */
                     fptr = bptr;
-                    return NULL;
+                    return NONE_MATCHED;
                 }
                 break;
                 
@@ -360,21 +290,13 @@ token* real_machine() {
                     /* matched real */
                     if (lexerr != 0) {
                         /* return lexerr token */
-                        return NULL;
+                        return NONE_MATCHED;
                     }
                     
                     /* return real token */
                     DEBUG_TOKEN(fptr, bptr, "real token");
-                    real_token = malloc(sizeof(token));
-                    if (!real_token) {
-                        fprintf(stderr, "Out of memory");
-                        exit(1);
-                    }
-                    real_token->lexeme = NULL;
-                    real_token->type = REAL_TYPE;
-                    real_token->attr.ptr = NULL;
                     bptr = fptr;
-                    return real_token;
+                    return (token){ .lexeme = NULL, .type = REAL_TYPE, .attr.ptr = NULL };
                 }
                 break;
         }
@@ -384,10 +306,9 @@ token* real_machine() {
 
 
 /* int : 123 */
-token* int_machine() {
+token int_machine() {
     int lexerr = 0;
     bool leadingzero = true;
-    token *int_token;
     
     while (1) {
         if (*fptr == '0') {
@@ -410,148 +331,72 @@ token* int_machine() {
             /* matched real */
             if (lexerr != 0) {
                 /* return lexerr token */
-                return NULL;
+                return NONE_MATCHED;
             }
             
             /* return int token */
             DEBUG_TOKEN(fptr, bptr, "int token");
-            int_token = malloc(sizeof(token));
-            if (!int_token) {
-                fprintf(stderr, "Out of memory");
-                exit(1);
-            }
-            int_token->lexeme = NULL;
-            int_token->type = INT_TYPE;
-            int_token->attr.ptr = NULL;
             bptr = fptr;
-            return int_token;
+            return (token){ .lexeme = NULL, .type = INT_TYPE, .attr.ptr = NULL };
         } else {
             /* no token matched */
-            return NULL;
+            return NONE_MATCHED;
         }
     }
     
 }
 
-token* mulop_machine() {
-    token *mulop_token;
-    
+token mulop_machine() {
     if (*fptr == '*') {
         fptr++;
         DEBUG_TOKEN(fptr, bptr, "mulop token");
-        mulop_token = malloc(sizeof(token));
-        if (!mulop_token) {
-            fprintf(stderr, "Out of memory");
-            exit(1);
-        }
-        mulop_token->lexeme = NULL;
-        mulop_token->type = MULOP_TYPE;
-        mulop_token->attr.mulop = AND_MULOP;
         bptr = fptr;
-        return mulop_token;
+        return (token){ .lexeme = NULL, .type = MULOP_TYPE, .attr.mulop = AND_MULOP };
     } else if (*fptr == '/') {
         fptr++;
         DEBUG_TOKEN(fptr, bptr, "mulop token");
-        mulop_token = malloc(sizeof(token));
-        if (!mulop_token) {
-            fprintf(stderr, "Out of memory");
-            exit(1);
-        }
-        mulop_token->lexeme = NULL;
-        mulop_token->type = MULOP_TYPE;
-        mulop_token->attr.mulop = DIV_MULOP;
         bptr = fptr;
-        return mulop_token;
+        return (token){ .lexeme = NULL, .type = MULOP_TYPE, .attr.mulop = DIV_MULOP };
     } else if (!strncmp(fptr, "mod", 3)) {
         fptr += 3;
         DEBUG_TOKEN(fptr, bptr, "mulop token");
-        mulop_token = malloc(sizeof(token));
-        if (!mulop_token) {
-            fprintf(stderr, "Out of memory");
-            exit(1);
-        }
-        mulop_token->lexeme = NULL;
-        mulop_token->type = MULOP_TYPE;
-        mulop_token->attr.mulop = MOD_MULOP;
         bptr = fptr;
-        return mulop_token;
+        return (token){ .lexeme = NULL, .type = MULOP_TYPE, .attr.mulop = MOD_MULOP };
     } else if (!strncmp(fptr, "div", 3)) {
         fptr += 3;
         DEBUG_TOKEN(fptr, bptr, "mulop token");
-        mulop_token = malloc(sizeof(token));
-        if (!mulop_token) {
-            fprintf(stderr, "Out of memory");
-            exit(1);
-        }
-        mulop_token->lexeme = NULL;
-        mulop_token->type = MULOP_TYPE;
-        mulop_token->attr.mulop = DIV_MULOP;
         bptr = fptr;
-        return mulop_token;
+        return (token){ .lexeme = NULL, .type = MULOP_TYPE, .attr.mulop = DIV_MULOP };
     } else if (!strncmp(fptr, "and", 3)) {
         fptr += 3;
         DEBUG_TOKEN(fptr, bptr, "mulop token");
-        mulop_token = malloc(sizeof(token));
-        if (!mulop_token) {
-            fprintf(stderr, "Out of memory");
-            exit(1);
-        }
-        mulop_token->lexeme = NULL;
-        mulop_token->type = MULOP_TYPE;
-        mulop_token->attr.mulop = AND_MULOP;
         bptr = fptr;
-        return mulop_token;
+        return (token){ .lexeme = NULL, .type = MULOP_TYPE, .attr.mulop = AND_MULOP };
     } else {
         /* no token matched */
-        return NULL;
+        return NONE_MATCHED;
     }
 }
 
 
-token* addop_machine() {
-    token *addop_token;
-    
+token addop_machine() {
     if (*fptr == '+') {
         fptr++;
         DEBUG_TOKEN(fptr, bptr, "addop token");
-        addop_token = malloc(sizeof(token));
-        if (!addop_token) {
-            fprintf(stderr, "Out of memory");
-            exit(1);
-        }
-        addop_token->lexeme = NULL;
-        addop_token->type = ADDOP_TYPE;
-        addop_token->attr.addop = PLUS_ADDOP;
         bptr = fptr;
-        return addop_token;
+        return (token){ .lexeme = NULL, .type = ADDOP_TYPE, .attr.addop = PLUS_ADDOP };
     } else if (*fptr == '-') {
         fptr++;
         DEBUG_TOKEN(fptr, bptr, "addop token");
-        addop_token = malloc(sizeof(token));
-        if (!addop_token) {
-            fprintf(stderr, "Out of memory");
-            exit(1);
-        }
-        addop_token->lexeme = NULL;
-        addop_token->type = ADDOP_TYPE;
-        addop_token->attr.addop = MINUS_ADDOP;
         bptr = fptr;
-        return addop_token;
+        return (token){ .lexeme = NULL, .type = ADDOP_TYPE, .attr.addop = MINUS_ADDOP };
     } else if (!strncmp(fptr, "or", 2)) {
         fptr += 2;
         DEBUG_TOKEN(fptr, bptr, "addop token");
-        addop_token = malloc(sizeof(token));
-        if (!addop_token) {
-            fprintf(stderr, "Out of memory");
-            exit(1);
-        }
-        addop_token->lexeme = NULL;
-        addop_token->type = ADDOP_TYPE;
-        addop_token->attr.addop = OR_ADDOP;
         bptr = fptr;
-        return addop_token;
+        return (token){ .lexeme = NULL, .type = ADDOP_TYPE, .attr.addop = OR_ADDOP };
     } else {
         /* no token matched */
-        return NULL;
+        return NONE_MATCHED;
     }
 }
