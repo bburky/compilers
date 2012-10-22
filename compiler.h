@@ -1,8 +1,7 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
-#include "lexer.h"
-#include "output.h"
+#include "lexeme.h"
 
 const char *input_filename;
 

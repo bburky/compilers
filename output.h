@@ -1,6 +1,8 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
+#include "lexeme.h"
+
 FILE *listing_file, *symbol_file;
 
 void init_output(const char *filename);

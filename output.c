@@ -2,6 +2,8 @@
 #include <string.h>
 
 #include "compiler.h"
+#include "output.h"
+#include "lexeme.h"
 
 void init_output(const char *filename) {
     /* TODO: do real file output */

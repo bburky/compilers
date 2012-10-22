@@ -32,6 +32,7 @@
 		25C9F3641634F69F002C3BAD /* lexerr */ = {isa = PBXFileReference; lastKnownFileType = text; path = lexerr; sourceTree = "<group>"; };
 		25C9F3651634F69F002C3BAD /* mulop */ = {isa = PBXFileReference; lastKnownFileType = text; path = mulop; sourceTree = "<group>"; };
 		25C9F366163511F7002C3BAD /* output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = output.h; sourceTree = "<group>"; };
+		25CAC95C1635DF0600771252 /* lexeme.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lexeme.h; sourceTree = "<group>"; };
 		25D965681634B38900DB9B61 /* compiler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = compiler.c; sourceTree = "<group>"; };
 		25D965691634B38900DB9B61 /* compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compiler.h; sourceTree = "<group>"; };
 		25D9656A1634B38900DB9B61 /* lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer.h; sourceTree = "<group>"; };
@@ -71,6 +72,7 @@
 		25F23AEF1634A5E50021E595 = {
 			isa = PBXGroup;
 			children = (
+				25CAC95C1635DF0600771252 /* lexeme.h */,
 				25C9F366163511F7002C3BAD /* output.h */,
 				25C9F3601634F599002C3BAD /* output.c */,
 				25D965681634B38900DB9B61 /* compiler.c */,

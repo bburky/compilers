@@ -4,6 +4,9 @@
 #include <stdbool.h>
 
 #include "compiler.h"
+#include "output.h"
+#include "lexer.h"
+#include "lexeme.h"
 
 const char *input_filename;
 FILE *input_file, *listing_file, *token_file, *symbol_file;

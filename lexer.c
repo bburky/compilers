@@ -4,6 +4,8 @@
 #include <stdbool.h>
 
 #include "compiler.h"
+#include "lexer.h"
+#include "lexeme.h"
 
 /* generate arrays of strings for types and symbols using x-macros */
 #define X(a) #a,
