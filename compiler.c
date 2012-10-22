@@ -72,7 +72,6 @@ token get_next_token() {
     /* if first line or end of current line */
     if (fptr == NULL || *fptr == '\0') {
         if (!get_next_line()) {
-            DEBUG_TOKEN(NULL, NULL, "EOF");
             return (token){ .lexeme = NULL, .type = EOF_TYPE, .attr.ptr = NULL };
         }
         fptr = line;

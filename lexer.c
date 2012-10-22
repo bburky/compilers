@@ -31,7 +31,6 @@ token whitespace_machine() {
         case '\r':
         case '\n':
             /* return whitespace token */
-            DEBUG_TOKEN(fptr, bptr, "whitespace token");
             fptr++;
             bptr = fptr;
             lexeme = malloc(fptr-bptr+1);
@@ -81,7 +80,6 @@ token relop_machine() {
                     state = NE;
                 } else {
                     /* Return LT RELOP token */
-                    DEBUG_TOKEN(fptr, bptr, "relop token");
                     lexeme = malloc(fptr-bptr+1);
                     strncpy(lexeme, bptr, fptr-bptr);
                     lexeme[fptr-bptr] = '\0';
@@ -92,7 +90,6 @@ token relop_machine() {
                 
             case LE:
                 /* Return LE RELOP token */
-                DEBUG_TOKEN(fptr, bptr, "relop token");
                 lexeme = malloc(fptr-bptr+1);
                 strncpy(lexeme, bptr, fptr-bptr);
                 lexeme[fptr-bptr] = '\0';
@@ -101,7 +98,6 @@ token relop_machine() {
                 
             case NE:
                 /* Return NE RELOP token */
-                DEBUG_TOKEN(fptr, bptr, "relop token");
                 lexeme = malloc(fptr-bptr+1);
                 strncpy(lexeme, bptr, fptr-bptr);
                 lexeme[fptr-bptr] = '\0';
@@ -114,7 +110,6 @@ token relop_machine() {
                     state = EQ;
                 } else {
                     /* Return GT RELOP token */
-                    DEBUG_TOKEN(fptr, bptr, "relop token");
                     lexeme = malloc(fptr-bptr+1);
                     strncpy(lexeme, bptr, fptr-bptr);
                     lexeme[fptr-bptr] = '\0';
@@ -125,7 +120,6 @@ token relop_machine() {
                 
             case GE:
                 /* Return GE RELOP token */
-                DEBUG_TOKEN(fptr, bptr, "relop token");
                 lexeme = malloc(fptr-bptr+1);
                 strncpy(lexeme, bptr, fptr-bptr);
                 lexeme[fptr-bptr] = '\0';
@@ -134,7 +128,6 @@ token relop_machine() {
                 
             case EQ:
                 /* Return EQ RELOP token */
-                DEBUG_TOKEN(fptr, bptr, "relop token");
                 lexeme = malloc(fptr-bptr+1);
                 strncpy(lexeme, bptr, fptr-bptr);
                 lexeme[fptr-bptr] = '\0';
@@ -260,7 +253,6 @@ token longreal_machine() {
                         return NONE_MATCHED;
                     }
                     /* return longreal token */
-                    DEBUG_TOKEN(fptr, bptr, "longreal token");
                     lexeme = malloc(fptr-bptr+1);
                     strncpy(lexeme, bptr, fptr-bptr);
                     lexeme[fptr-bptr] = '\0';
@@ -340,7 +332,6 @@ token real_machine() {
                     }
                     
                     /* return real token */
-                    DEBUG_TOKEN(fptr, bptr, "real token");
                     lexeme = malloc(fptr-bptr+1);
                     strncpy(lexeme, bptr, fptr-bptr);
                     lexeme[fptr-bptr] = '\0';
@@ -385,7 +376,6 @@ token int_machine() {
             }
             
             /* return int token */
-            DEBUG_TOKEN(fptr, bptr, "int token");
             lexeme = malloc(fptr-bptr+1);
             strncpy(lexeme, bptr, fptr-bptr);
             lexeme[fptr-bptr] = '\0';
@@ -402,27 +392,22 @@ token int_machine() {
 token mulop_machine() {
     if (*fptr == '*') {
         fptr++;
-        DEBUG_TOKEN(fptr, bptr, "mulop token");
         bptr = fptr;
         return (token){ .lexeme = "*", .type = MULOP_TYPE, .attr.mulop = AND_MULOP };
     } else if (*fptr == '/') {
         fptr++;
-        DEBUG_TOKEN(fptr, bptr, "mulop token");
         bptr = fptr;
         return (token){ .lexeme = "/", .type = MULOP_TYPE, .attr.mulop = DIV_MULOP };
     } else if (!strncmp(fptr, "mod", 3)) {
         fptr += 3;
-        DEBUG_TOKEN(fptr, bptr, "mulop token");
         bptr = fptr;
         return (token){ .lexeme = "mod", .type = MULOP_TYPE, .attr.mulop = MOD_MULOP };
     } else if (!strncmp(fptr, "div", 3)) {
         fptr += 3;
-        DEBUG_TOKEN(fptr, bptr, "mulop token");
         bptr = fptr;
         return (token){ .lexeme = "div", .type = MULOP_TYPE, .attr.mulop = DIV_MULOP };
     } else if (!strncmp(fptr, "and", 3)) {
         fptr += 3;
-        DEBUG_TOKEN(fptr, bptr, "mulop token");
         bptr = fptr;
         return (token){ .lexeme = "and", .type = MULOP_TYPE, .attr.mulop = AND_MULOP };
     } else {
@@ -435,17 +420,14 @@ token mulop_machine() {
 token addop_machine() {
     if (*fptr == '+') {
         fptr++;
-        DEBUG_TOKEN(fptr, bptr, "addop token");
         bptr = fptr;
         return (token){ .lexeme = "+", .type = ADDOP_TYPE, .attr.addop = PLUS_ADDOP };
     } else if (*fptr == '-') {
         fptr++;
-        DEBUG_TOKEN(fptr, bptr, "addop token");
         bptr = fptr;
         return (token){ .lexeme = "-", .type = ADDOP_TYPE, .attr.addop = MINUS_ADDOP };
     } else if (!strncmp(fptr, "or", 2)) {
         fptr += 2;
-        DEBUG_TOKEN(fptr, bptr, "addop token");
         bptr = fptr;
         return (token){ .lexeme = "or", .type = ADDOP_TYPE, .attr.addop = OR_ADDOP };
     } else {
