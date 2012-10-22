@@ -70,7 +70,6 @@ char* get_next_line() {
 
 token get_next_token() {
     token (*machines[])() = { whitespace_machine, addop_machine, relop_machine, mulop_machine, longreal_machine, real_machine, int_machine };
-    /* TODO: token *(*current_machine)() = *machines; */
     int current_machine;
     token matched_token;
     char *lexeme;
@@ -85,7 +84,7 @@ token get_next_token() {
     }
 
     /* call each machine in order */
-    for (current_machine = 0; current_machine < 7; current_machine++) {
+    for (current_machine = 0; current_machine < sizeof(machines)/sizeof(*machines); current_machine++) {
         matched_token = machines[current_machine]();
         if (matched_token.type != NONE_TYPE) {
             return matched_token;

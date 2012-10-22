@@ -23,7 +23,7 @@
 #define LEX_ERR_LEADING_ZERO        (1 << 4)
 #define LEX_ERR_ID_TOO_LONG         (1 << 5)
 #define LEX_ERR_UNRECOGNIZED_SYMBOL (1 << 6)
-#define NUM_LEX_ERR_TYPES           6
+#define NUM_LEX_ERR_TYPES           7
 
 /* token for machines that do not match symbol */
 #define NONE_MATCHED (token){ .lexeme = NULL, .type = NONE_TYPE, .attr.ptr = NULL }

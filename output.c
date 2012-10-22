@@ -24,7 +24,7 @@ void write_symbol_token(int lineno, token tok) {
     /* line is guaranteed to contain a newline */
     switch (tok.type) {
         case LEXERR_TYPE:
-            for (i = 0; i <= NUM_LEX_ERR_TYPES; i++) {
+            for (i = 0; i < NUM_LEX_ERR_TYPES; i++) {
                 if (tok.attr.errtype & (1 << i)) {
                     if (*attrstr != '\0') {
                         strncat(attrstr, ", ", 100);
