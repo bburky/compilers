@@ -27,52 +27,75 @@
 /* token for machines that do not match symbol */
 #define NONE_MATCHED (token){ .lexeme = NULL, .type = NONE_TYPE, .attr.ptr = NULL }
 
+/* define types and attributes with macros to autmatically generate the string and enum versions */
+
+#define TOKEN_TYPE_TABLE \
+X(NONE_TYPE) \
+X(LEXERR_TYPE) \
+X(WHITESPACE_TYPE) \
+X(PROGRAM_TYPE) \
+X(VAR_TYPE) \
+X(ARRAY_TYPE) \
+X(INTEGER_TYPE) \
+X(LONGREAL_TYPE) \
+X(REAL_TYPE) \
+X(INT_TYPE) \
+X(PROCEDURE_TYPE) \
+X(BEGIN_TYPE) \
+X(END_TYPE) \
+X(IF_TYPE) \
+X(THEN_TYPE) \
+X(ELSE_TYPE) \
+X(WHILE_TYPE) \
+X(DO_TYPE) \
+X(NOT_TYPE) \
+X(MULOP_TYPE) \
+X(ADDOP_TYPE) \
+X(RELOP_TYPE) \
+X(EOF_TYPE)
+
+#define RELOP_ATTR_TABLE \
+X(LE_RELOP) \
+X(GE_RELOP) \
+X(GT_RELOP) \
+X(LT_RELOP) \
+X(EQ_RELOP) \
+X(NE_RELOP)
+
+#define MULOP_ATTR_TABLE \
+X(DIV_MULOP) \
+X(MOD_MULOP) \
+X(AND_MULOP)
+
+#define ADDOP_ATTR_TABLE \
+X(PLUS_ADDOP) \
+X(MINUS_ADDOP) \
+X(OR_ADDOP)
+
+
+#define X(a) a,
 typedef enum {
-    NONE_TYPE,
-    LEXERR_TYPE,
-    WHITESPACE_TYPE,
-    PROGRAM_TYPE,
-    VAR_TYPE,
-    ARRAY_TYPE,
-    INTEGER_TYPE,
-    LONGREAL_TYPE,
-    REAL_TYPE,
-    INT_TYPE,
-    PROCEDURE_TYPE,
-    BEGIN_TYPE,
-    END_TYPE,
-    IF_TYPE,
-    THEN_TYPE,
-    ELSE_TYPE,
-    WHILE_TYPE,
-    DO_TYPE,
-    NOT_TYPE,
-    MULOP_TYPE,
-    ADDOP_TYPE,
-    RELOP_TYPE,
-    EOF_TYPE
+    TOKEN_TYPE_TABLE
 } TOKEN_TYPE;
-
 typedef enum {
-    LE_RELOP,
-    GE_RELOP,
-    GT_RELOP,
-    LT_RELOP,
-    EQ_RELOP,
-    NE_RELOP
+    RELOP_ATTR_TABLE
 } RELOP_ATTR;
-
 typedef enum {
-    DIV_MULOP,
-    MOD_MULOP,
-    AND_MULOP
-} MULOP_ATTR;   
-
+    MULOP_ATTR_TABLE
+} MULOP_ATTR;
 typedef enum {
-    PLUS_ADDOP,
-    MINUS_ADDOP,
-    OR_ADDOP
+    ADDOP_ATTR_TABLE
 } ADDOP_ATTR;
+#undef X
+
+char *token_type_name[];
+
+char *relop_attr_name[];
+
+char *mulop_attr_name[];
+
+char *addop_attr_name[];
+
 
 typedef struct {
     char *lexeme;
@@ -101,4 +124,3 @@ token mulop_machine(void);
 token addop_machine(void);
 
 #endif
-

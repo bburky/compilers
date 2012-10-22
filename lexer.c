@@ -5,6 +5,22 @@
 
 #include "compiler.h"
 
+/* generate arrays of strings for types and symbols using x-macros */
+#define X(a) #a,
+char *token_type_name[] = {
+    TOKEN_TYPE_TABLE
+};
+char *relop_attr_name[] = {
+    RELOP_ATTR_TABLE
+};
+char *mulop_attr_name[] = {
+    MULOP_ATTR_TABLE
+};
+char *addop_attr_name[] = {
+    ADDOP_ATTR_TABLE
+};
+#undef X
+
 token whitespace_machine() {
     switch (*fptr) {
         case ' ':

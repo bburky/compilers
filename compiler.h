@@ -2,6 +2,7 @@
 #define COMPILER_H
 
 #include "lexer.h"
+#include "output.h"
 
 #define DEBUG
 
@@ -17,9 +18,7 @@
 
 const char *input_filename;
 
-FILE *input_file, *listing_file, *token_file, *symbol_file;
-
-char line[74]; /* 72 chars + \n\0 */
+FILE *input_file, *token_file;
 
 char *fptr, *bptr;
 

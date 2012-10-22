@@ -8,6 +8,7 @@
 const char *input_filename;
 FILE *input_file, *listing_file, *token_file, *symbol_file;
 char line[74]; /* 72 chars + \n\0 */
+int lineno;
 
 /* Forward and back pointers used in lexer */
 char *fptr = NULL, *bptr = NULL;
@@ -22,14 +23,17 @@ int main(int argc, const char *argv[]) {
 
     /* argv[1] is filename */
     init_lexer(argv[1]);
+    init_output(argv[1]);
 
     while (tok.type == NONE_TYPE || tok.type != EOF_TYPE) {
         tok = get_next_token();
+        write_symbol_token(lineno, tok);
     }
     return 0;
 }
 
 void init_lexer(const char *filename) {
+    lineno = 0;
     input_filename = filename;
     input_file = fopen(input_filename, "r");
     if (!input_file) {
@@ -48,12 +52,14 @@ char* get_next_line() {
             exit(1);
         }
     }
-    char *newline = strstr(line, "\n");
+    char *newline = strstr(line, "\n"); 
     if (!newline) {
         fprintf(stderr, "Line greater than 72 chars\n");
         fprintf(stderr, "Line is %d chars long: %s\n", (int) strlen(line), line);
         exit(1);
     }
+    lineno++;
+    write_listing_line(lineno, line);
     return line;
 }
 
