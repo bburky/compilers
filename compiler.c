@@ -8,7 +8,7 @@
 
 const char *input_filename;
 FILE *input_file, *listing_file, *token_file, *symbol_file;
-char line[80]; /* 78 chars + \n\0 */
+char line[74]; /* 72 chars + \n\0 */
 
 /* Forward and back pointers used in lexer */
 char *fptr = NULL, *bptr = NULL;
@@ -54,7 +54,7 @@ char* get_next_line() {
     }
     char *newline = strstr(line, "\n");
     if (!newline) {
-        fprintf(stderr, "Line greater than 78 chars\n");
+        fprintf(stderr, "Line greater than 72 chars\n");
         fprintf(stderr, "Line is %d chars long: %s\n", (int) strlen(line), line);
         exit(1);
     }
@@ -63,7 +63,7 @@ char* get_next_line() {
 
 token* get_next_token() {
     token *(*machines[])() = {whitespace_machine, addop_machine, relop_machine, mulop_machine, longreal_machine, real_machine, int_machine};
-    // token *(*current_machine)() = *machines;
+    /* TODO: token *(*current_machine)() = *machines; */
     int current_machine;
     token *matched_token;
 
