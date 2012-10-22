@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-
 #include "compiler.h"
 
 /* generate arrays of strings for types and symbols using x-macros */
@@ -19,6 +18,15 @@ char *mulop_attr_name[] = {
 };
 char *addop_attr_name[] = {
     ADDOP_ATTR_TABLE
+};
+char *lex_err_name[] = {
+    "INT_TOO_LONG",
+    "REALINT_TOO_LONG",
+    "FRAC_TOO_LONG",
+    "EXP_TOO_LONG",
+    "LEADING_ZERO",
+    "ID_TOO_LONG",
+    "UNRECOGNIZED_SYMBOL"
 };
 #undef X
 

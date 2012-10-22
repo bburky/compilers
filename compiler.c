@@ -68,6 +68,7 @@ token get_next_token() {
     /* TODO: token *(*current_machine)() = *machines; */
     int current_machine;
     token matched_token;
+    char *lexeme;
 
     /* if first line or end of current line */
     if (fptr == NULL || *fptr == '\0') {
@@ -88,7 +89,10 @@ token get_next_token() {
 
     /* lexical error: Unrecognized symbol */
     fptr++;
+    lexeme = malloc(fptr-bptr+1);
+    strncpy(lexeme, bptr, fptr-bptr);
+    lexeme[fptr-bptr] = '\0';
     bptr = fptr;
-    return (token){ .lexeme = NULL, .type = LEXERR_TYPE, .attr.errtype = LEX_ERR_UNRECOGNIZED_SYMBOL };
+    return (token){ .lexeme = lexeme, .type = LEXERR_TYPE, .attr.errtype = LEX_ERR_UNRECOGNIZED_SYMBOL };
 }
 
