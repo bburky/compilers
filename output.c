@@ -26,15 +26,19 @@ void write_symbol_token(int lineno, token tok) {
             break;
 
         case MULOP_TYPE:
-            fprintf(symbol_file, "%-8d%-15s%-2d %-22s%-2d %s\n", lineno, "...", tok.type, token_type_name[tok.type], tok.attr.mulop, mulop_attr_name[tok.attr.mulop]);
+            fprintf(symbol_file, "%-8d%-15s%-2d %-22s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.mulop, mulop_attr_name[tok.attr.mulop]);
             break;
 
         case ADDOP_TYPE:
-            fprintf(symbol_file, "%-8d%-15s%-2d %-22s%-2d %s\n", lineno, "...", tok.type, token_type_name[tok.type], tok.attr.addop, addop_attr_name[tok.attr.addop]);
+            fprintf(symbol_file, "%-8d%-15s%-2d %-22s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.addop, addop_attr_name[tok.attr.addop]);
+            break;
+
+        case EOF_TYPE:
+            fprintf(symbol_file, "%-8d%-15s%-2d %-22s%-2d %s\n", lineno, "", tok.type, token_type_name[tok.type], tok.attr.addop, addop_attr_name[tok.attr.addop]);
             break;
 
         default:
-            fprintf(symbol_file, "%-8d%-15s%-2d %-22s%-2d %s\n", lineno, "...", tok.type, token_type_name[tok.type], 0, "NULL");
+            fprintf(symbol_file, "%-8d%-15s%-2d %-22s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], 0, "NULL");
             break;
             
     }
