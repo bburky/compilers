@@ -66,7 +66,7 @@ char* get_next_line() {
 }
 
 token* get_next_token() {
-    token *(*machines[])() = {whitespace_machine, relop_machine, longreal_machine, real_machine};
+    token *(*machines[])() = {whitespace_machine, relop_machine, longreal_machine, real_machine, int_machine};
     // token *(*current_machine)() = *machines;
     int current_machine;
     token *matched_token;
@@ -82,7 +82,7 @@ token* get_next_token() {
     }
 
     /* call each machine in order */
-    for (current_machine = 0; current_machine < 4; current_machine++) {
+    for (current_machine = 0; current_machine < 5; current_machine++) {
         matched_token = machines[current_machine]();
         if(matched_token) {
             return matched_token;
@@ -91,7 +91,7 @@ token* get_next_token() {
 
     /* no token matched */
     /* lexerr */
-    printf("No token matched\n");
+    printf("\nNo token matched\n");
     return NULL;
 }
 
@@ -467,6 +467,57 @@ token* real_machine() {
                 return real_token;
             }
             break;
+        }
+    }
+
+}
+
+
+/* int : 123 */
+token* int_machine() {
+    int lexerr = 0;
+    bool leadingzero = true;
+    token *int_token;
+    
+    while (1) {
+        if (*fptr == '0') {
+            if (leadingzero) {
+                /* lexical error: leading zero */
+                lexerr |= LEX_ERR_LEADING_ZERO;
+            }
+        } else {
+            leadingzero = false;
+        }
+        if (*fptr >= '0' && *fptr <= '9') {
+            if (fptr - bptr > LEX_MAX_INT) {
+                /* lexical error: too long fractional portion */
+                lexerr |= LEX_ERR_INT_TOO_LONG;
+            }
+            fptr++;
+            /* don't change state */
+        } else if(fptr != bptr) {
+            /* must match at least one character */
+            /* matched real */
+            if (lexerr != 0) {
+                /* return lexerr token */
+                return NULL;
+            }
+            
+            /* return int token */
+            DEBUG_TOKEN(fptr, bptr, "int token");
+            int_token = malloc(sizeof(token));
+            if (!int_token) {
+                fprintf(stderr, "Out of memory");
+                exit(1);
+            }
+            int_token->lexeme = NULL;
+            int_token->type = INT_TYPE;
+            int_token->attr.ptr = NULL;
+            bptr = fptr;
+            return int_token;
+        } else {
+            /* no token matched */
+            return NULL;
         }
     }
 

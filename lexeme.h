@@ -7,6 +7,7 @@ typedef enum {
     INTEGER_TYPE,
     LONGREAL_TYPE,
     REAL_TYPE,
+    INT_TYPE,
     PROCEDURE_TYPE,
     BEGIN_TYPE,
     END_TYPE,
@@ -50,6 +51,7 @@ typedef struct {
         ADDOP_ATTR addop;
         MULLOP_ATTR mullop;
         RELOP_ATTR relop;
+        int errtype;
     } attr;
 } token;
 
