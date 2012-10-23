@@ -55,6 +55,10 @@ symbol_node* add_symbol(const char *lexeme) {
     }
     newsym->id = lexeme;
     newsym->sym = sym;
+
+    if (!symbol_list) {
+        symbol_list = newsym;
+    }
     return newsym;
 }
 
