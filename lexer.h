@@ -25,6 +25,8 @@ inline char* make_lexeme(const char *str) {
     return lexeme;
 }
 
+token idres_machine(void);
+
 token misc_machine(void);
 
 token relop_machine(void);

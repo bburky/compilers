@@ -33,7 +33,7 @@ int main(int argc, const char *argv[]) {
         tok = get_next_token();
         write_symbol_token(lineno, tok);
         if (tok.lexeme) {
-            free(tok.lexeme);
+//            free(tok.lexeme);
         }
     }
     return 0;
@@ -103,7 +103,7 @@ void init_reserved_words(const char *filename) {
         }
     }
 
-    /* one extra reserved_word will be allocated */
+    node->node = NULL;
     free(reserved_word);
 }
 
@@ -128,7 +128,7 @@ char* get_next_line() {
 }
 
 token get_next_token() {
-    token (*machines[])() = { misc_machine, relop_machine, longreal_machine, real_machine, int_machine };
+    token (*machines[])() = { misc_machine, idres_machine, relop_machine, longreal_machine, real_machine, int_machine };
     int current_machine;
     token matched_token;
     char *lexeme;

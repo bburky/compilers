@@ -133,7 +133,7 @@ typedef struct {
 } token;
 
 typedef struct symbol_node {
-    char *id;
+    const char *id;
     struct symbol_node *sym;
 } symbol_node;
 

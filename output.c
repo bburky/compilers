@@ -35,6 +35,10 @@ void write_symbol_token(int lineno, token tok) {
             fprintf(symbol_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.errtype, attrstr);
             break;
 
+        case ID_TYPE:
+            fprintf(symbol_file, "%-10d%-20s%-2d %-17s%p\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.ptr);
+            break;
+
         case NUM_TYPE:
             fprintf(symbol_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.num, num_attr_name[tok.attr.num]);
             break;

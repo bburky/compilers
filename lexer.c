@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #include "compiler.h"
 #include "lexer.h"
@@ -39,12 +40,11 @@ extern inline char* extract_lexeme(const char *fptr, const char *bptr);
 
 extern inline char* make_lexeme(const char *str);
 
-symbol_node* add_symbol(const char *fptr, const char *bptr) {
+symbol_node* add_symbol(const char *lexeme) {
     symbol_node *sym, *newsym;
-    char *id = extract_lexeme(fptr, bptr);
 
     for (sym = symbol_list; sym != NULL; sym = sym->sym) {
-        if (!strcmp(sym->id, id)) {
+        if (!strcmp(sym->id, lexeme)) {
             return sym;
         }
     }
@@ -53,9 +53,63 @@ symbol_node* add_symbol(const char *fptr, const char *bptr) {
         fprintf(stderr, "Out of memory");
         exit(1);
     }
-    newsym->id = id;
+    newsym->id = lexeme;
     newsym->sym = sym;
     return newsym;
+}
+
+token idres_machine() {
+    typedef enum {
+        START, ALPHA_NUM
+    } STATE;
+
+    STATE state = START;
+    char *lexeme;
+    int lexerr = 0;
+    token_node *cur_reserved_word;
+
+    /* <= <> < > >= = */
+    while (1) {
+        switch(state) {
+            case START:
+                if (isalpha(*fptr)) {
+                    state = ALPHA_NUM;
+                    fptr++;
+                } else {
+                    /* no token matched */
+                    return NONE_MATCHED;
+                }
+                break;
+
+            case ALPHA_NUM:
+                if (isalnum(*fptr)) {
+                    fptr++;
+                    if (fptr - bptr > LEX_MAX_ID) {
+                        lexerr |= LEX_ERR_ID_TOO_LONG;
+                    }
+                    /* don't change state */
+                } else {
+                    lexeme = extract_lexeme(fptr, bptr);
+                    bptr = fptr;
+
+                    if (lexerr != 0) {
+                        /* return lexerr token */
+                        return (token){ .lexeme = lexeme, .type = LEXERR_TYPE, .attr.errtype = lexerr };
+                    }
+
+                    /* check if reserved word */
+                    for (cur_reserved_word = reserved_word_list; cur_reserved_word != NULL; cur_reserved_word = cur_reserved_word->node) {
+                        if (!strcmp(cur_reserved_word->tok->lexeme, lexeme)) {
+                            return *(cur_reserved_word->tok);
+                        }
+                    }
+
+                    /* return id token */
+                    return (token){ .lexeme = lexeme, .type = ID_TYPE, .attr.ptr = add_symbol(lexeme) };
+                }
+                break;
+        }
+    }
 }
 
 token misc_machine() {
