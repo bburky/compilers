@@ -69,7 +69,7 @@ char* get_next_line() {
 }
 
 token get_next_token() {
-    token (*machines[])() = { whitespace_machine, addop_machine, relop_machine, mulop_machine, longreal_machine, real_machine, int_machine };
+    token (*machines[])() = { misc_machine, relop_machine, longreal_machine, real_machine, int_machine };
     int current_machine;
     token matched_token;
     char *lexeme;

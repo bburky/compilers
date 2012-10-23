@@ -36,7 +36,7 @@ extern inline char* extract_lexeme(const char* fptr, const char* bptr);
 
 extern inline char* make_lexeme(const char* str);
 
-token whitespace_machine() {
+token misc_machine() {
     char *lexeme;
 
     switch (*fptr) {
@@ -49,12 +49,72 @@ token whitespace_machine() {
             lexeme = extract_lexeme(fptr, bptr);
             bptr = fptr;
             return (token){ .lexeme = lexeme, .type = WHITESPACE_TYPE, .attr.ptr = NULL };
+
+        case ':':
+            /* return colon token */
+            fptr++;
+            return (token){ .lexeme = make_lexeme(":"), .type = COLON_TYPE, .attr.ptr = NULL };
+
+        case ';':
+            /* return colon token */
+            fptr++;
+            return (token){ .lexeme = make_lexeme(";"), .type = SEMICOLON_TYPE, .attr.ptr = NULL };
+
+        case ',':
+            /* return comma token */
+            fptr++;
+            return (token){ .lexeme = make_lexeme(","), .type = COMMA_TYPE, .attr.ptr = NULL };
+
+        case '.':
+            /* return period token */
+            fptr++;
+            return (token){ .lexeme = make_lexeme("."), .type = PERIOD_TYPE, .attr.ptr = NULL };
+
+        case '(':
+            /* return left parenthesis token */
+            fptr++;
+            return (token){ .lexeme = make_lexeme("("), .type = LPAREN_TYPE, .attr.ptr = NULL };
+
+        case ')':
+            /* return right parenthesis token */
+            fptr++;
+            return (token){ .lexeme = make_lexeme(")"), .type = RPAREN_TYPE, .attr.ptr = NULL };
+
+        case '[':
+            /* return left bracket token */
+            fptr++;
+            return (token){ .lexeme = make_lexeme("["), .type = LBRACKET_TYPE, .attr.ptr = NULL };
+
+        case ']':
+            /* return right bracket token */
+            fptr++;
+            return (token){ .lexeme = make_lexeme("]"), .type = RBRACKET_TYPE, .attr.ptr = NULL };
+
+        case '*':
+            /* return mulop token */
+            fptr++;
+            return (token){ .lexeme = make_lexeme("*"), .type = MULOP_TYPE, .attr.mulop = AND_MULOP };
+
+        case '/':
+            /* return mulop token */
+            fptr++;
+            return (token){ .lexeme = make_lexeme("/"), .type = MULOP_TYPE, .attr.mulop = DIV_MULOP };
+
+        case '+':
+            /* return addop token */
+            fptr++;
+            return (token){ .lexeme = make_lexeme("+"), .type = ADDOP_TYPE, .attr.addop = PLUS_ADDOP };
+
+        case '-':
+            /* return addop token */
+            fptr++;
+            return (token){ .lexeme = make_lexeme("-"), .type = ADDOP_TYPE, .attr.addop = MINUS_ADDOP };
+
         default:
             /* no token matched */
             return NONE_MATCHED;
     }
 }
-
 
 token relop_machine() {
     typedef enum {
@@ -360,50 +420,4 @@ token int_machine() {
         }
     }
     
-}
-
-token mulop_machine() {
-    if (*fptr == '*') {
-        fptr++;
-        bptr = fptr;
-        return (token){ .lexeme = make_lexeme("*"), .type = MULOP_TYPE, .attr.mulop = AND_MULOP };
-    } else if (*fptr == '/') {
-        fptr++;
-        bptr = fptr;
-        return (token){ .lexeme = make_lexeme("/"), .type = MULOP_TYPE, .attr.mulop = DIV_MULOP };
-    } else if (!strncmp(fptr, "mod", 3)) {
-        fptr += 3;
-        bptr = fptr;
-        return (token){ .lexeme = make_lexeme("mod"), .type = MULOP_TYPE, .attr.mulop = MOD_MULOP };
-    } else if (!strncmp(fptr, "div", 3)) {
-        fptr += 3;
-        bptr = fptr;
-        return (token){ .lexeme = make_lexeme("div"), .type = MULOP_TYPE, .attr.mulop = DIV_MULOP };
-    } else if (!strncmp(fptr, "and", 3)) {
-        fptr += 3;
-        bptr = fptr;
-        return (token){ .lexeme = make_lexeme("and"), .type = MULOP_TYPE, .attr.mulop = AND_MULOP };
-    } else {
-        /* no token matched */
-        return NONE_MATCHED;
-    }
-}
-
-token addop_machine() {
-    if (*fptr == '+') {
-        fptr++;
-        bptr = fptr;
-        return (token){ .lexeme = make_lexeme("+"), .type = ADDOP_TYPE, .attr.addop = PLUS_ADDOP };
-    } else if (*fptr == '-') {
-        fptr++;
-        bptr = fptr;
-        return (token){ .lexeme = make_lexeme("-"), .type = ADDOP_TYPE, .attr.addop = MINUS_ADDOP };
-    } else if (!strncmp(fptr, "or", 2)) {
-        fptr += 2;
-        bptr = fptr;
-        return (token){ .lexeme = make_lexeme("or"), .type = ADDOP_TYPE, .attr.addop = OR_ADDOP };
-    } else {
-        /* no token matched */
-        return NONE_MATCHED;
-    }
 }
