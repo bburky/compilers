@@ -122,6 +122,7 @@ token misc_machine() {
         case '\n':
             /* return whitespace token */
             fptr++;
+            bptr = fptr;
             lexeme = extract_lexeme(fptr, bptr);
             bptr = fptr;
             return (token){ .lexeme = lexeme, .type = WHITESPACE_TYPE, .attr.ptr = NULL };
@@ -129,8 +130,10 @@ token misc_machine() {
         case ':':
             /* return colon token */
             fptr++;
+            bptr = fptr;
             if (*fptr == '=') {
                 fptr++;
+                bptr = fptr;
                 return (token){ .lexeme = make_lexeme(":="), .type = ASSIGNOP_TYPE, .attr.ptr = NULL };
             }
             return (token){ .lexeme = make_lexeme(":"), .type = COLON_TYPE, .attr.ptr = NULL };
@@ -138,56 +141,67 @@ token misc_machine() {
         case ';':
             /* return colon token */
             fptr++;
+            bptr = fptr;
             return (token){ .lexeme = make_lexeme(";"), .type = SEMICOLON_TYPE, .attr.ptr = NULL };
 
         case ',':
             /* return comma token */
             fptr++;
+            bptr = fptr;
             return (token){ .lexeme = make_lexeme(","), .type = COMMA_TYPE, .attr.ptr = NULL };
 
         case '.':
             /* return period token */
             fptr++;
+            bptr = fptr;
             return (token){ .lexeme = make_lexeme("."), .type = PERIOD_TYPE, .attr.ptr = NULL };
 
         case '(':
             /* return left parenthesis token */
             fptr++;
+            bptr = fptr;
             return (token){ .lexeme = make_lexeme("("), .type = LPAREN_TYPE, .attr.ptr = NULL };
 
         case ')':
             /* return right parenthesis token */
             fptr++;
+            bptr = fptr;
             return (token){ .lexeme = make_lexeme(")"), .type = RPAREN_TYPE, .attr.ptr = NULL };
 
         case '[':
             /* return left bracket token */
             fptr++;
+            bptr = fptr;
             return (token){ .lexeme = make_lexeme("["), .type = LBRACKET_TYPE, .attr.ptr = NULL };
 
         case ']':
             /* return right bracket token */
             fptr++;
+            bptr = fptr;
             return (token){ .lexeme = make_lexeme("]"), .type = RBRACKET_TYPE, .attr.ptr = NULL };
 
         case '*':
             /* return mulop token */
             fptr++;
+            bptr = fptr;
             return (token){ .lexeme = make_lexeme("*"), .type = MULOP_TYPE, .attr.mulop = AND_MULOP };
 
         case '/':
             /* return mulop token */
             fptr++;
+            bptr = fptr;
             return (token){ .lexeme = make_lexeme("/"), .type = MULOP_TYPE, .attr.mulop = DIV_MULOP };
 
         case '+':
             /* return addop token */
             fptr++;
+            bptr = fptr;
             return (token){ .lexeme = make_lexeme("+"), .type = ADDOP_TYPE, .attr.addop = PLUS_ADDOP };
 
         case '-':
             /* return addop token */
             fptr++;
+            bptr = fptr;
             return (token){ .lexeme = make_lexeme("-"), .type = ADDOP_TYPE, .attr.addop = MINUS_ADDOP };
 
         default:
