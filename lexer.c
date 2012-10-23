@@ -91,7 +91,7 @@ token relop_machine() {
                     fptr++;
                     state = NE;
                 } else {
-                    /* Return LT RELOP token */
+                    /* return LT RELOP token */
                     lexeme = extract_lexeme(fptr, bptr);
                     bptr = fptr;
                     return (token){ .lexeme = lexeme, .type = RELOP_TYPE, .attr.relop = LT_RELOP };
@@ -99,13 +99,13 @@ token relop_machine() {
                 break;
                 
             case LE:
-                /* Return LE RELOP token */
+                /* return LE RELOP token */
                 lexeme = extract_lexeme(fptr, bptr);
                 bptr = fptr;
                 return (token){ .lexeme = lexeme, .type = RELOP_TYPE, .attr.relop = LE_RELOP };
                 
             case NE:
-                /* Return NE RELOP token */
+                /* return NE RELOP token */
                 lexeme = extract_lexeme(fptr, bptr);
                 bptr = fptr;
                 return (token){ .lexeme = lexeme, .type = RELOP_TYPE, .attr.relop = NE_RELOP };
@@ -115,7 +115,7 @@ token relop_machine() {
                     fptr++;
                     state = EQ;
                 } else {
-                    /* Return GT RELOP token */
+                    /* return GT RELOP token */
                     lexeme = extract_lexeme(fptr, bptr);
                     bptr = fptr;
                     return (token){ .lexeme = lexeme, .type = RELOP_TYPE, .attr.relop = GT_RELOP };
@@ -123,13 +123,13 @@ token relop_machine() {
                 break;
                 
             case GE:
-                /* Return GE RELOP token */
+                /* return GE RELOP token */
                 lexeme = extract_lexeme(fptr, bptr);
                 bptr = fptr;
                 return (token){ .lexeme = lexeme, .type = RELOP_TYPE, .attr.relop = GE_RELOP };
                 
             case EQ:
-                /* Return EQ RELOP token */
+                /* return EQ RELOP token */
                 lexeme = extract_lexeme(fptr, bptr);
                 bptr = fptr;
                 return (token){ .lexeme = lexeme, .type = RELOP_TYPE, .attr.relop = EQ_RELOP };
@@ -183,14 +183,6 @@ token longreal_machine() {
                 break;
                 
             case FRACTE:
-                if (*fptr == '0') {
-                    if (leadingzero) {
-                        /* lexical error: leading zero */
-                        lexerr |= LEX_ERR_LEADING_ZERO;
-                    }
-                } else {
-                    leadingzero = false;
-                }
                 if (*fptr >= '0' && *fptr <= '9') {
                     fptr++;
                     if (fptr - tmpptr > LEX_MAX_FRAC) {
@@ -214,15 +206,13 @@ token longreal_machine() {
             case SIGN:
                 if (*fptr == '+') {
                     fptr++;
+                    tmpptr = fptr;
                     state = EXP;
                 } else if (*fptr == '-') {
                     fptr++;
+                    tmpptr = fptr;
                     state = EXP;
                 } else if (*fptr >= '0' && *fptr <= '9') {
-                    if (fptr - tmpptr > LEX_MAX_FRAC) {
-                        /* lexical error: too long fractional portion */
-                        lexerr |= LEX_ERR_FRAC_TOO_LONG;
-                    }
                     state = EXP;
                 } else {
                     /* no token matched */
@@ -242,19 +232,19 @@ token longreal_machine() {
                 }
                 if (*fptr >= '0' && *fptr <= '9') {
                     fptr++;
-                    if (fptr - tmpptr > LEX_MAX_FRAC) {
-                        /* lexical error: too long fractional portion */
-                        lexerr |= LEX_ERR_FRAC_TOO_LONG;
+                    if (fptr - tmpptr > LEX_MAX_EXP) {
+                        /* lexical error: too long exponent portion */
+                        lexerr |= LEX_ERR_EXP_TOO_LONG;
                     }
                     state = EXP;
                 } else {
-                    if (lexerr != 0) {
-                        /* return lexerr token */
-                        return NONE_MATCHED;
-                    }
-                    /* return longreal token */
                     lexeme = extract_lexeme(fptr, bptr);
                     bptr = fptr;
+                    if (lexerr != 0) {
+                        /* return lexerr token */
+                        return (token){ .lexeme = lexeme, .type = LEXERR_TYPE, .attr.errtype = lexerr };
+                    }
+                    /* return longreal token */
                     return (token){ .lexeme = lexeme, .type = LONGREAL_TYPE, .attr.ptr = NULL };
                 }
         }
@@ -307,14 +297,6 @@ token real_machine() {
                 break;
                 
             case FRACT:
-                if (*fptr == '0') {
-                    if (leadingzero) {
-                        /* lexical error: leading zero */
-                        lexerr |= LEX_ERR_LEADING_ZERO;
-                    }
-                } else {
-                    leadingzero = false;
-                }
                 if (*fptr >= '0' && *fptr <= '9') {
                     if (fptr - tmpptr > LEX_MAX_FRAC) {
                         /* lexical error: too long fractional portion */
@@ -323,15 +305,13 @@ token real_machine() {
                     fptr++;
                     /* don't change state */
                 } else {
-                    /* matched real */
-                    if (lexerr != 0) {
-                        /* return lexerr token */
-                        return NONE_MATCHED;
-                    }
-                    
-                    /* return real token */
                     lexeme = extract_lexeme(fptr, bptr);
                     bptr = fptr;
+                    if (lexerr != 0) {
+                        /* return lexerr token */
+                        return (token){ .lexeme = lexeme, .type = LEXERR_TYPE, .attr.errtype = lexerr };
+                    }
+                    /* return real token */
                     return (token){ .lexeme = lexeme, .type = REAL_TYPE, .attr.ptr = NULL };
                 }
                 break;
@@ -365,15 +345,14 @@ token int_machine() {
             /* don't change state */
         } else if(fptr != bptr) {
             /* must match at least one character */
-            /* matched real */
+            lexeme = extract_lexeme(fptr, bptr);
+            bptr = fptr;
             if (lexerr != 0) {
                 /* return lexerr token */
-                return NONE_MATCHED;
+                return (token){ .lexeme = lexeme, .type = LEXERR_TYPE, .attr.errtype = lexerr };
             }
             
             /* return int token */
-            lexeme = extract_lexeme(fptr, bptr);
-            bptr = fptr;
             return (token){ .lexeme = lexeme, .type = INT_TYPE, .attr.ptr = NULL };
         } else {
             /* no token matched */

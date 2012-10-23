@@ -15,12 +15,13 @@ inline char* extract_lexeme(const char* fptr, const char* bptr) {
 }
 
 inline char* make_lexeme(const char* str) {
-    char *lexeme = malloc(strlen(str));
+    char *lexeme = malloc(strlen(str)+1);
     if (!lexeme) {
         fprintf(stderr, "Out of memory");
         exit(1);
     }
-    strncpy(lexeme, bptr, strlen(str));
+    strncpy(lexeme, str, strlen(str)+1);
+    lexeme[strlen(str)] = '\0';
     return lexeme;
 }
 
