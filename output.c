@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "compiler.h"
@@ -6,9 +7,31 @@
 #include "lexeme.h"
 
 void init_output(const char *filename) {
-    /* TODO: do real file output */
-    listing_file = stdout;
-    symbol_file = stdout;
+    size_t len = strlen(filename);
+    char *tmpfilename;
+
+    tmpfilename = malloc(len+5);
+    if (!tmpfilename) {
+        fprintf(stderr, "Out of memory");
+        exit(1);
+    }
+    
+    strcpy(tmpfilename, filename);
+    strcat(tmpfilename, ".lst");
+    listing_file = fopen(tmpfilename, "w");
+    if (!listing_file) {
+        perror(tmpfilename);
+        exit(1);
+    }
+
+    strcpy(tmpfilename, filename);
+    strcat(tmpfilename, ".sym");
+    symbol_file = fopen(tmpfilename, "w");
+    if (!symbol_file) {
+        perror(tmpfilename);
+        exit(1);
+    }
+
     fprintf(symbol_file, "%-10s%-20s%-20s%s\n", "Line No.", "Lexeme", "TOKEN-TYPE", "ATTRIBUTE");
 }
 

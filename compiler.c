@@ -31,7 +31,9 @@ int main(int argc, const char *argv[]) {
 
     while (tok.type == NONE_TYPE || tok.type != EOF_TYPE) {
         tok = get_next_token();
-        write_listing_lexerr(lineno, tok);
+        if (tok.type == LEXERR_TYPE) {
+            write_listing_lexerr(lineno, tok);
+        }
         write_token(lineno, tok);
         if (tok.lexeme) {
 //            free(tok.lexeme);
