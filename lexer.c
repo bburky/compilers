@@ -35,9 +35,28 @@ char *lex_err_name[] = {
 };
 #undef X
 
-extern inline char* extract_lexeme(const char* fptr, const char* bptr);
+extern inline char* extract_lexeme(const char *fptr, const char *bptr);
 
-extern inline char* make_lexeme(const char* str);
+extern inline char* make_lexeme(const char *str);
+
+symbol* add_symbol(const char *fptr, const char *bptr) {
+    symbol *sym, *newsym;
+    char *id = extract_lexeme(fptr, bptr);
+
+    for (sym = symbol_list; sym != NULL; sym = sym->sym) {
+        if (!strcmp(sym->id, id)) {
+            return sym;
+        }
+    }
+    newsym = malloc(sizeof(symbol));
+    if (!newsym) {
+        fprintf(stderr, "Out of memory");
+        exit(1);
+    }
+    newsym->id = id;
+    newsym->sym = sym;
+    return newsym;
+}
 
 token misc_machine() {
     char *lexeme;

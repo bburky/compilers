@@ -3,7 +3,7 @@
 
 #include "lexeme.h"
 
-inline char* extract_lexeme(const char* fptr, const char* bptr) {
+inline char* extract_lexeme(const char *fptr, const char *bptr) {
     char *lexeme = malloc(fptr-bptr+1);
     if (!lexeme) {
         fprintf(stderr, "Out of memory");
@@ -14,7 +14,7 @@ inline char* extract_lexeme(const char* fptr, const char* bptr) {
     return lexeme;
 }
 
-inline char* make_lexeme(const char* str) {
+inline char* make_lexeme(const char *str) {
     char *lexeme = malloc(strlen(str)+1);
     if (!lexeme) {
         fprintf(stderr, "Out of memory");

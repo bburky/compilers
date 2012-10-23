@@ -131,5 +131,13 @@ typedef struct {
     } attr;
 } token;
 
+struct symbol_node {
+    char *id;
+    struct symbol_node *sym;
+};
+
+typedef struct symbol_node symbol;
+
+symbol *symbol_list;
 
 #endif
