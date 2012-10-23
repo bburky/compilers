@@ -9,6 +9,8 @@ void init_output(const char *filename);
 
 void write_listing_line(int lineno, const char *line);
 
+void write_listing_lexerr(int lineno, token tok);
+
 void write_symbol_token(int lineno, token tok);
 
 #endif

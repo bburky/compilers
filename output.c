@@ -17,6 +17,16 @@ void write_listing_line(int lineno, const char *line) {
     fprintf(listing_file, "%-10d%s", lineno, line);
 }
 
+void write_listing_lexerr(int lineno, token tok) {
+    int i;
+
+    for (i = 0; i < NUM_LEX_ERR_TYPES; i++) {
+        if (tok.attr.errtype & (1 << i)) {
+            fprintf(listing_file, "%-10d%-30s%s\n", lineno, lex_err_name[i], tok.lexeme);
+        }
+    }
+}
+
 void write_symbol_token(int lineno, token tok) {
     int i;
     char attrstr[100] = { [0] = '\0' };
