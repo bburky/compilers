@@ -39,9 +39,7 @@ X(VAR_TYPE) \
 X(ARRAY_TYPE) \
 X(NUM_TYPE) \
 X(INTEGER_TYPE) \
-X(LONGREAL_TYPE) \
 X(REAL_TYPE) \
-X(INT_TYPE) \
 X(PROCEDURE_TYPE) \
 X(BEGIN_TYPE) \
 X(END_TYPE) \
@@ -85,6 +83,10 @@ X(PLUS_ADDOP) \
 X(MINUS_ADDOP) \
 X(OR_ADDOP)
 
+#define NUM_ATTR_TABLE \
+X(INTEGER_NUM) \
+X(LONGREAL_NUM) \
+X(REAL_NUM)
 
 #define X(a) a,
 typedef enum {
@@ -99,6 +101,9 @@ typedef enum {
 typedef enum {
     ADDOP_ATTR_TABLE
 } ADDOP_ATTR;
+typedef enum {
+    NUM_ATTR_TABLE
+} NUM_ATTR;
 #undef X
 
 char *lex_err_name[];
@@ -111,6 +116,8 @@ char *mulop_attr_name[];
 
 char *addop_attr_name[];
 
+char *num_attr_name[];
+
 typedef struct {
     char *lexeme;
     TOKEN_TYPE type;
@@ -119,6 +126,7 @@ typedef struct {
         ADDOP_ATTR addop;
         MULOP_ATTR mulop;
         RELOP_ATTR relop;
+        NUM_ATTR num;
         int errtype;
     } attr;
 } token;

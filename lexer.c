@@ -21,6 +21,9 @@ char *mulop_attr_name[] = {
 char *addop_attr_name[] = {
     ADDOP_ATTR_TABLE
 };
+char *num_attr_name[] = {
+    NUM_ATTR_TABLE
+};
 char *lex_err_name[] = {
     "INT_TOO_LONG",
     "REALINT_TOO_LONG",
@@ -210,7 +213,7 @@ token longreal_machine() {
     char *tmpptr = fptr;
     int lexerr = 0;
     bool leadingzero = true;
-    
+
     /* xx.yyEzz */
     while (1) {
         switch(state) {
@@ -305,7 +308,7 @@ token longreal_machine() {
                         return (token){ .lexeme = lexeme, .type = LEXERR_TYPE, .attr.errtype = lexerr };
                     }
                     /* return longreal token */
-                    return (token){ .lexeme = lexeme, .type = LONGREAL_TYPE, .attr.ptr = NULL };
+                    return (token){ .lexeme = lexeme, .type = NUM_TYPE, .attr.num = LONGREAL_NUM };
                 }
         }
     }
@@ -372,7 +375,7 @@ token real_machine() {
                         return (token){ .lexeme = lexeme, .type = LEXERR_TYPE, .attr.errtype = lexerr };
                     }
                     /* return real token */
-                    return (token){ .lexeme = lexeme, .type = REAL_TYPE, .attr.ptr = NULL };
+                    return (token){ .lexeme = lexeme, .type = NUM_TYPE, .attr.num = REAL_NUM };
                 }
                 break;
         }
@@ -413,7 +416,7 @@ token int_machine() {
             }
             
             /* return int token */
-            return (token){ .lexeme = lexeme, .type = INT_TYPE, .attr.ptr = NULL };
+            return (token){ .lexeme = lexeme, .type = NUM_TYPE, .attr.num = INTEGER_NUM };
         } else {
             /* no token matched */
             return NONE_MATCHED;
