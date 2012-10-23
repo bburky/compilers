@@ -22,7 +22,7 @@ void write_listing_lexerr(int lineno, token tok) {
 
     for (i = 0; i < NUM_LEX_ERR_TYPES; i++) {
         if (tok.attr.errtype & (1 << i)) {
-            fprintf(listing_file, "%-10d%-30s%s\n", lineno, lex_err_name[i], tok.lexeme);
+            fprintf(listing_file, "%-10d%-40s%s\n", lineno, lex_err_name[i][1], tok.lexeme);
         }
     }
 }
@@ -39,7 +39,7 @@ void write_token(int lineno, token tok) {
                     if (*attrstr != '\0') {
                         strncat(attrstr, ", ", 100);
                     }
-                    strncat(attrstr, lex_err_name[i], 100);
+                    strncat(attrstr, lex_err_name[i][0], 100);
                 }
             }
             fprintf(symbol_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.errtype, attrstr);

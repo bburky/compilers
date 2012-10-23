@@ -25,14 +25,14 @@ char *addop_attr_name[] = {
 char *num_attr_name[] = {
     NUM_ATTR_TABLE
 };
-char *lex_err_name[] = {
-    "INT_TOO_LONG",
-    "REALINT_TOO_LONG",
-    "FRAC_TOO_LONG",
-    "EXP_TOO_LONG",
-    "LEADING_ZERO",
-    "ID_TOO_LONG",
-    "UNRECOGNIZED_SYMBOL"
+char *lex_err_name[][2] = {
+    {"INT_TOO_LONG", "Integer too long"},
+    {"REALINT_TOO_LONG", "Integer portion too long"},
+    {"FRAC_TOO_LONG", "Fractional portion too long"},
+    {"EXP_TOO_LONG", "Exponent portion too long"},
+    {"LEADING_ZERO", "Leading zero"},
+    {"ID_TOO_LONG", "Identifier too long"},
+    {"UNRECOGNIZED_SYMBOL", "Unrecognized symbol"}
 };
 #undef X
 

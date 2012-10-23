@@ -107,7 +107,7 @@ typedef enum {
 } NUM_ATTR;
 #undef X
 
-char *lex_err_name[];
+char *lex_err_name[][2];
 
 char *token_type_name[34];
 
