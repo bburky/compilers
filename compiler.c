@@ -19,13 +19,14 @@ char *fptr = NULL, *bptr = NULL;
 int main(int argc, const char *argv[]) {
     token tok = NONE_MATCHED;
 
-    if (argc != 2) {
-        fprintf(stderr, "Usage: %s source_file_name\n", argv[0]);
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s source_file_name reserved_word_file_name\n", argv[0]);
         exit(1);
     }
 
-    /* argv[1] is filename */
+    /* argv[1] is filename, argv[2] is reserved_word_file */
     init_lexer(argv[1]);
+    init_reserved_words(argv[2]);
     init_output(argv[1]);
 
     while (tok.type == NONE_TYPE || tok.type != EOF_TYPE) {
@@ -46,6 +47,64 @@ void init_lexer(const char *filename) {
         perror(input_filename);
         exit(1);
     }
+}
+
+void init_reserved_words(const char *filename) {
+    char *reserved_word;
+    int token_type, token_attr;
+    FILE *file;
+    token *tok;
+    token_node *node;
+    token_node *prev_node = NULL;
+
+    symbol_list = NULL;
+
+    file = fopen(filename, "r");
+    if (!file) {
+        perror(filename);
+        exit(1);
+    }
+    
+    reserved_word = malloc(LEX_MAX_ID+1);
+    if (!reserved_word) {
+        fprintf(stderr, "Out of memory");
+        exit(1);
+    }
+
+    while (fscanf(file, "%10s %d %d", reserved_word, &token_type, &token_attr) != -1) {
+        tok = malloc(sizeof(token));
+        if (!tok) {
+            fprintf(stderr, "Out of memory");
+            exit(1);
+        }
+
+        node = malloc(sizeof(token_node));
+        if (!node) {
+            fprintf(stderr, "Out of memory");
+            exit(1);
+        }
+
+        tok->lexeme = reserved_word;
+        tok->type = (TOKEN_TYPE)token_type;
+        tok->attr.addop = (ADDOP_ATTR)token_attr;
+
+        if (prev_node) {
+            prev_node->node = node;
+        } else {
+            reserved_word_list = node;
+        }
+        node->tok = tok;
+        prev_node = node;
+
+        reserved_word = malloc(LEX_MAX_ID+1);
+        if (!reserved_word) {
+            fprintf(stderr, "Out of memory");
+            exit(1);
+        }
+    }
+
+    /* one extra reserved_word will be allocated */
+    free(reserved_word);
 }
 
 char* get_next_line() {

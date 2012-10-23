@@ -31,39 +31,40 @@
 /* define types and attributes with macros to autmatically generate the string and enum versions */
 
 #define TOKEN_TYPE_TABLE \
-X(NONE_TYPE) \
-X(LEXERR_TYPE) \
-X(WHITESPACE_TYPE) \
-X(PROGRAM_TYPE) \
-X(VAR_TYPE) \
+X(ADDOP_TYPE) \
 X(ARRAY_TYPE) \
-X(NUM_TYPE) \
-X(INTEGER_TYPE) \
-X(REAL_TYPE) \
-X(PROCEDURE_TYPE) \
+X(ASSIGNOP_TYPE) \
 X(BEGIN_TYPE) \
-X(END_TYPE) \
-X(IF_TYPE) \
-X(THEN_TYPE) \
-X(ELSE_TYPE) \
-X(WHILE_TYPE) \
-X(DO_TYPE) \
-X(LPAREN_TYPE) \
-X(RPAREN_TYPE) \
-X(LBRACKET_TYPE) \
-X(RBRACKET_TYPE) \
-X(COMMA_TYPE) \
 X(COLON_TYPE) \
-X(SEMICOLON_TYPE) \
-X(PERIOD_TYPE) \
-X(OF_TYPE) \
+X(COMMA_TYPE) \
+X(DO_TYPE) \
+X(ELSE_TYPE) \
+X(END_TYPE) \
+X(EOF_TYPE) \
 X(FUNCTION_TYPE) \
 X(ID_TYPE) \
-X(NOT_TYPE) \
+X(IF_TYPE) \
+X(INTEGER_TYPE) \
+X(LBRACKET_TYPE) \
+X(LEXERR_TYPE) \
+X(LPAREN_TYPE) \
 X(MULOP_TYPE) \
-X(ADDOP_TYPE) \
+X(NONE_TYPE) \
+X(NOT_TYPE) \
+X(NUM_TYPE) \
+X(OF_TYPE) \
+X(PERIOD_TYPE) \
+X(PROCEDURE_TYPE) \
+X(PROGRAM_TYPE) \
+X(RBRACKET_TYPE) \
+X(REAL_TYPE) \
 X(RELOP_TYPE) \
-X(EOF_TYPE)
+X(RPAREN_TYPE) \
+X(SEMICOLON_TYPE) \
+X(THEN_TYPE) \
+X(VAR_TYPE) \
+X(WHILE_TYPE) \
+X(WHITESPACE_TYPE)
 
 #define RELOP_ATTR_TABLE \
 X(LE_RELOP) \
@@ -74,14 +75,14 @@ X(EQ_RELOP) \
 X(NE_RELOP)
 
 #define MULOP_ATTR_TABLE \
+X(AND_MULOP) \
 X(DIV_MULOP) \
-X(MOD_MULOP) \
-X(AND_MULOP)
+X(MOD_MULOP)
 
 #define ADDOP_ATTR_TABLE \
-X(PLUS_ADDOP) \
 X(MINUS_ADDOP) \
-X(OR_ADDOP)
+X(OR_ADDOP) \
+X(PLUS_ADDOP) \
 
 #define NUM_ATTR_TABLE \
 X(INTEGER_NUM) \
@@ -108,7 +109,7 @@ typedef enum {
 
 char *lex_err_name[];
 
-char *token_type_name[];
+char *token_type_name[34];
 
 char *relop_attr_name[];
 
@@ -131,13 +132,18 @@ typedef struct {
     } attr;
 } token;
 
-struct symbol_node {
+typedef struct symbol_node {
     char *id;
     struct symbol_node *sym;
-};
+} symbol_node;
 
-typedef struct symbol_node symbol;
+symbol_node *symbol_list;
 
-symbol *symbol_list;
+typedef struct token_node {
+    token *tok;
+    struct token_node *node;
+} token_node;
+
+token_node *reserved_word_list;
 
 #endif

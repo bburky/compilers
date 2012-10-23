@@ -39,8 +39,8 @@ extern inline char* extract_lexeme(const char *fptr, const char *bptr);
 
 extern inline char* make_lexeme(const char *str);
 
-symbol* add_symbol(const char *fptr, const char *bptr) {
-    symbol *sym, *newsym;
+symbol_node* add_symbol(const char *fptr, const char *bptr) {
+    symbol_node *sym, *newsym;
     char *id = extract_lexeme(fptr, bptr);
 
     for (sym = symbol_list; sym != NULL; sym = sym->sym) {
@@ -48,7 +48,7 @@ symbol* add_symbol(const char *fptr, const char *bptr) {
             return sym;
         }
     }
-    newsym = malloc(sizeof(symbol));
+    newsym = malloc(sizeof(symbol_node));
     if (!newsym) {
         fprintf(stderr, "Out of memory");
         exit(1);
@@ -75,6 +75,10 @@ token misc_machine() {
         case ':':
             /* return colon token */
             fptr++;
+            if (*fptr == '=') {
+                fptr++;
+                return (token){ .lexeme = make_lexeme(":="), .type = ASSIGNOP_TYPE, .attr.ptr = NULL };
+            }
             return (token){ .lexeme = make_lexeme(":"), .type = COLON_TYPE, .attr.ptr = NULL };
 
         case ';':
