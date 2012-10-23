@@ -5,7 +5,7 @@
 
 const char *input_filename;
 
-FILE *input_file, *token_file;
+FILE *input_file;
 
 char *fptr, *bptr;
 

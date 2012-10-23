@@ -3,7 +3,7 @@
 
 #include "lexeme.h"
 
-FILE *listing_file, *symbol_file;
+FILE *listing_file, *token_file;
 
 void init_output(const char *filename);
 

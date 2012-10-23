@@ -9,13 +9,16 @@
 #include "lexeme.h"
 
 const char *input_filename;
-FILE *input_file, *listing_file, *token_file, *symbol_file;
 char line[74]; /* 72 chars + \n\0 */
 int lineno;
 
 /* Forward and back pointers used in lexer */
 char *fptr = NULL, *bptr = NULL;
 
+/*
+ * main function
+ * Intitialize lexer and reserved word list, run main loop
+ */
 int main(int argc, const char *argv[]) {
     token tok = NONE_MATCHED;
 
@@ -42,6 +45,10 @@ int main(int argc, const char *argv[]) {
     return 0;
 }
 
+/*
+ * Initialize lexer
+ * Open the source file
+ */
 void init_lexer(const char *filename) {
     lineno = 0;
     input_filename = filename;
@@ -52,6 +59,11 @@ void init_lexer(const char *filename) {
     }
 }
 
+/*
+ * Initialize reserved word list
+ * Read all the reserved words into a list of tokens.
+ * Also intialize the symbol list.
+ */
 void init_reserved_words(const char *filename) {
     char *reserved_word;
     int token_type, token_attr;
@@ -110,6 +122,10 @@ void init_reserved_words(const char *filename) {
     free(reserved_word);
 }
 
+/*
+ * Read the next line from the source file
+ * Return char* to the line.
+ */
 char* get_next_line() {
     if(!fgets(line, sizeof line, input_file)) {
         /* No more lines */
@@ -130,6 +146,10 @@ char* get_next_line() {
     return line;
 }
 
+/*
+ * Read the next token and match it to all machines
+ * Run each machine in sequence and return a lexical error if unmatched
+ */
 token get_next_token() {
     token (*machines[])() = { misc_machine, idres_machine, relop_machine, longreal_machine, real_machine, int_machine };
     int current_machine;

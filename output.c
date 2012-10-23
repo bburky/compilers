@@ -6,6 +6,10 @@
 #include "output.h"
 #include "lexeme.h"
 
+/*
+ * Initialize output listing file and token file
+ * Open the files for writing and write the header of the token file.
+ */
 void init_output(const char *filename) {
     size_t len = strlen(filename);
     char *tmpfilename;
@@ -25,21 +29,27 @@ void init_output(const char *filename) {
     }
 
     strcpy(tmpfilename, filename);
-    strcat(tmpfilename, ".sym");
-    symbol_file = fopen(tmpfilename, "w");
-    if (!symbol_file) {
+    strcat(tmpfilename, ".tok");
+    token_file = fopen(tmpfilename, "w");
+    if (!token_file) {
         perror(tmpfilename);
         exit(1);
     }
 
-    fprintf(symbol_file, "%-10s%-20s%-20s%s\n", "Line No.", "Lexeme", "TOKEN-TYPE", "ATTRIBUTE");
+    fprintf(token_file, "%-10s%-20s%-20s%s\n", "Line No.", "Lexeme", "TOKEN-TYPE", "ATTRIBUTE");
 }
 
+/*
+ * Write a source line to the listing file
+ */
 void write_listing_line(int lineno, const char *line) {
     /* line is guaranteed to contain a newline */
     fprintf(listing_file, "%-10d%s", lineno, line);
 }
 
+/*
+ * Write all lexical errors int the token to the listing file
+ */
 void write_listing_lexerr(int lineno, token tok) {
     int i;
 
@@ -50,6 +60,10 @@ void write_listing_lexerr(int lineno, token tok) {
     }
 }
 
+/*
+ * Write a token to the token file
+ * All lexical errors in a token are listed
+ */
 void write_token(int lineno, token tok) {
     int i;
     char attrstr[100] = { [0] = '\0' };
@@ -65,27 +79,27 @@ void write_token(int lineno, token tok) {
                     strncat(attrstr, lex_err_name[i][0], 100);
                 }
             }
-            fprintf(symbol_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.errtype, attrstr);
+            fprintf(token_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.errtype, attrstr);
             break;
 
         case ID_TYPE:
-            fprintf(symbol_file, "%-10d%-20s%-2d %-17s%p\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.ptr);
+            fprintf(token_file, "%-10d%-20s%-2d %-17s%p\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.ptr);
             break;
 
         case NUM_TYPE:
-            fprintf(symbol_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.num, num_attr_name[tok.attr.num]);
+            fprintf(token_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.num, num_attr_name[tok.attr.num]);
             break;
 
         case RELOP_TYPE:
-            fprintf(symbol_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.relop, relop_attr_name[tok.attr.relop]);
+            fprintf(token_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.relop, relop_attr_name[tok.attr.relop]);
             break;
 
         case MULOP_TYPE:
-            fprintf(symbol_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.mulop, mulop_attr_name[tok.attr.mulop]);
+            fprintf(token_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.mulop, mulop_attr_name[tok.attr.mulop]);
             break;
 
         case ADDOP_TYPE:
-            fprintf(symbol_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.addop, addop_attr_name[tok.attr.addop]);
+            fprintf(token_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], tok.attr.addop, addop_attr_name[tok.attr.addop]);
             break;
 
         case WHITESPACE_TYPE:
@@ -94,7 +108,7 @@ void write_token(int lineno, token tok) {
             break;
 
         default:
-            fprintf(symbol_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], 0, "NULL");
+            fprintf(token_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, tok.lexeme, tok.type, token_type_name[tok.type], 0, "NULL");
             break;
             
     }

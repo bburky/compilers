@@ -40,6 +40,10 @@ extern inline char* extract_lexeme(const char *fptr, const char *bptr);
 
 extern inline char* make_lexeme(const char *str);
 
+/*
+ * Check if symbol already exists, if not add it.
+ * Return pointer to symbol.
+ */
 symbol_node* add_symbol(const char *lexeme) {
     symbol_node *prevsym, *sym, *newsym;
 
@@ -64,6 +68,11 @@ symbol_node* add_symbol(const char *lexeme) {
     return newsym;
 }
 
+/*
+ * Match identifiers and reserved words.
+ * Check if reserved word, if not add symbol to symbol table if needed.
+ * Return token
+ */
 token idres_machine() {
     typedef enum {
         START, ALPHA_NUM
@@ -74,7 +83,6 @@ token idres_machine() {
     int lexerr = 0;
     token_node *cur_reserved_word;
 
-    /* <= <> < > >= = */
     while (1) {
         switch(state) {
             case START:
@@ -118,6 +126,10 @@ token idres_machine() {
     }
 }
 
+/*
+ * Match miscellaneous single character lexemes and assignop.
+ * Return token
+ */
 token misc_machine() {
     char *lexeme;
 
@@ -216,6 +228,10 @@ token misc_machine() {
     }
 }
 
+/*
+ * Match relops.
+ * Return token
+ */
 token relop_machine() {
     typedef enum {
         START, LT, LE, NE, GT, GE, EQ
@@ -297,9 +313,10 @@ token relop_machine() {
     }
 }
 
-/* int : 123 */
-
-/* longreal : exponent 1.0E(+|-)1 */
+/*
+ * Match longreal numbers.
+ * Return token
+ */
 token longreal_machine() {
     typedef enum {
         INTDOT, FRACTE, SIGN, EXP
@@ -412,7 +429,10 @@ token longreal_machine() {
     
 }
 
-/* real : 1.0 */
+/*
+ * Match real numbers.
+ * Return token
+ */
 token real_machine() {
     
     typedef enum {
@@ -481,7 +501,10 @@ token real_machine() {
 }
 
 
-/* int : 123 */
+/*
+ * Match int numbers.
+ * Return token
+ */
 token int_machine() {
     int lexerr = 0;
     bool leadingzero = true;
