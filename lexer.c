@@ -41,9 +41,9 @@ extern inline char* extract_lexeme(const char *fptr, const char *bptr);
 extern inline char* make_lexeme(const char *str);
 
 symbol_node* add_symbol(const char *lexeme) {
-    symbol_node *sym, *newsym;
+    symbol_node *prevsym, *sym, *newsym;
 
-    for (sym = symbol_list; sym != NULL; sym = sym->sym) {
+    for (prevsym = NULL, sym = symbol_list; sym != NULL ; prevsym = sym, sym = sym->sym) {
         if (!strcmp(sym->id, lexeme)) {
             return sym;
         }
@@ -54,10 +54,12 @@ symbol_node* add_symbol(const char *lexeme) {
         exit(1);
     }
     newsym->id = lexeme;
-    newsym->sym = sym;
+    newsym->sym = NULL;
 
     if (!symbol_list) {
         symbol_list = newsym;
+    } else {
+        prevsym->sym = newsym;
     }
     return newsym;
 }
