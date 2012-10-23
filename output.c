@@ -27,7 +27,7 @@ void write_listing_lexerr(int lineno, token tok) {
     }
 }
 
-void write_symbol_token(int lineno, token tok) {
+void write_token(int lineno, token tok) {
     int i;
     char attrstr[100] = { [0] = '\0' };
     
