@@ -45,7 +45,7 @@ void write_listing_lexerr(int lineno, token tok) {
 
     for (i = 0; i < NUM_LEX_ERR_TYPES; i++) {
         if (tok.attr.errtype & (1 << i)) {
-            fprintf(listing_file, "%-10d%-40s%s\n", lineno, lex_err_name[i][1], tok.lexeme);
+            fprintf(listing_file, "%-10s%-40s%s\n", "LEXERR:", lex_err_name[i][1], tok.lexeme);
         }
     }
 }
