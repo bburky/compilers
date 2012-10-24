@@ -107,17 +107,17 @@ typedef enum {
 } NUM_ATTR;
 #undef X
 
-char *lex_err_name[][2];
+char *lex_err_name[NUM_LEX_ERR_TYPES][2];
 
 char *token_type_name[34];
 
-char *relop_attr_name[];
+char *relop_attr_name[6];
 
-char *mulop_attr_name[];
+char *mulop_attr_name[3];
 
-char *addop_attr_name[];
+char *addop_attr_name[3];
 
-char *num_attr_name[];
+char *num_attr_name[3];
 
 typedef struct {
     char *lexeme;
