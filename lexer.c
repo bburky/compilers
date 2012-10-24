@@ -551,7 +551,7 @@ token int_machine() {
             leadingzero = false;
         }
         if (*fptr >= '0' && *fptr <= '9') {
-            if (fptr - bptr > LEX_MAX_INT) {
+            if (fptr - bptr == LEX_MAX_INT) {
                 /* lexical error: too long fractional portion */
                 lexerr |= LEX_ERR_INT_TOO_LONG;
             }
