@@ -26,24 +26,15 @@
 
 /* Begin PBXFileReference section */
 		257F812F16376D4C00B99C7C /* edgecases */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = edgecases; sourceTree = "<group>"; };
+		257F815616379D9C00B99C7C /* sample */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sample; sourceTree = "<group>"; };
 		25C9F35D1634F2D1002C3BAD /* lexer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lexer.c; sourceTree = "<group>"; };
 		25C9F3601634F599002C3BAD /* output.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = output.c; sourceTree = "<group>"; };
-		25C9F3621634F69F002C3BAD /* addop */ = {isa = PBXFileReference; lastKnownFileType = text; path = addop; sourceTree = "<group>"; };
-		25C9F3631634F69F002C3BAD /* int */ = {isa = PBXFileReference; lastKnownFileType = text; path = int; sourceTree = "<group>"; };
-		25C9F3641634F69F002C3BAD /* lexerr */ = {isa = PBXFileReference; lastKnownFileType = text; path = lexerr; sourceTree = "<group>"; };
-		25C9F3651634F69F002C3BAD /* mulop */ = {isa = PBXFileReference; lastKnownFileType = text; path = mulop; sourceTree = "<group>"; };
 		25C9F366163511F7002C3BAD /* output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = output.h; sourceTree = "<group>"; };
 		25CAC95C1635DF0600771252 /* lexeme.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lexeme.h; sourceTree = "<group>"; };
-		25CAC95E16361A0D00771252 /* bad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = bad; sourceTree = "<group>"; };
-		25CAC95F16361A0D00771252 /* good */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = good; sourceTree = "<group>"; };
 		25CAC96016363C3C00771252 /* reserved_words */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = reserved_words; sourceTree = "<group>"; };
 		25D965681634B38900DB9B61 /* compiler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = compiler.c; sourceTree = "<group>"; };
 		25D965691634B38900DB9B61 /* compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compiler.h; sourceTree = "<group>"; };
 		25D9656A1634B38900DB9B61 /* lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer.h; sourceTree = "<group>"; };
-		25D965711634BC3900DB9B61 /* real */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = real; sourceTree = "<group>"; };
-		25D965721634BC3900DB9B61 /* relop */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = relop; sourceTree = "<group>"; };
-		25D965741634BC3900DB9B61 /* whitespace */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = whitespace; sourceTree = "<group>"; };
-		25D965761634C0EC00DB9B61 /* longreal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = longreal; sourceTree = "<group>"; };
 		25F23AFA1634A5E50021E595 /* compilers */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = compilers; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -61,17 +52,8 @@
 		25D965701634BC3900DB9B61 /* test */ = {
 			isa = PBXGroup;
 			children = (
+				257F815616379D9C00B99C7C /* sample */,
 				257F812F16376D4C00B99C7C /* edgecases */,
-				25CAC95E16361A0D00771252 /* bad */,
-				25CAC95F16361A0D00771252 /* good */,
-				25C9F3621634F69F002C3BAD /* addop */,
-				25C9F3631634F69F002C3BAD /* int */,
-				25C9F3641634F69F002C3BAD /* lexerr */,
-				25C9F3651634F69F002C3BAD /* mulop */,
-				25D965711634BC3900DB9B61 /* real */,
-				25D965721634BC3900DB9B61 /* relop */,
-				25D965741634BC3900DB9B61 /* whitespace */,
-				25D965761634C0EC00DB9B61 /* longreal */,
 			);
 			path = test;
 			sourceTree = "<group>";
