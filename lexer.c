@@ -419,7 +419,9 @@ token longreal_machine() {
                         lexerr |= LEX_ERR_EXP_TOO_LONG;
                     }
                     state = EXP;
-                } else {
+                } else if (fptr != tmpptr){
+                    /* must match at least one character */
+
                     /* "xx.yyE0" is not a leading zero */
                     if (*tmpptr == '0' && fptr - tmpptr == 1) {
                         lexerr &= !LEX_ERR_INT_TOO_LONG;
@@ -435,6 +437,10 @@ token longreal_machine() {
                     
                     /* return longreal token */
                     return (token){ .lexeme = lexeme, .type = NUM_TYPE, .attr.num = LONGREAL_NUM };
+                } else {
+                    /* no token matched */
+                    fptr = bptr;
+                    return NONE_MATCHED;
                 }
         }
     }
@@ -501,8 +507,9 @@ token real_machine() {
                     }
                     fptr++;
                     /* don't change state */
-                } else {
-                    
+                } else if (fptr != tmpptr){
+                    /* must match at least one character */
+
                     lexeme = extract_lexeme(fptr, bptr);
                     bptr = fptr;
                     
@@ -513,6 +520,10 @@ token real_machine() {
                     
                     /* return real token */
                     return (token){ .lexeme = lexeme, .type = NUM_TYPE, .attr.num = REAL_NUM };
+                } else {
+                    /* no token matched */
+                    fptr = bptr;
+                    return NONE_MATCHED;
                 }
                 break;
         }
