@@ -349,7 +349,7 @@ token longreal_machine() {
                     /* don't change state */
                 } else if (*fptr == '.') {
                     /* "0.yyEzz" is not a leading zero */
-                    if (fptr - bptr == 1) {
+                    if (*tmpptr == '0' && fptr - bptr == 1) {
                         lexerr &= !LEX_ERR_INT_TOO_LONG;
                     }
 
@@ -367,7 +367,7 @@ token longreal_machine() {
             case FRACTE:
                 if (*fptr >= '0' && *fptr <= '9') {
                     fptr++;
-                    if (*tmpptr == '0' && fptr - tmpptr > LEX_MAX_FRAC) {
+                    if (fptr - tmpptr > LEX_MAX_FRAC) {
                         /* lexical error: too long fractional portion */
                         lexerr |= LEX_ERR_FRAC_TOO_LONG;
                     }
@@ -484,7 +484,7 @@ token real_machine() {
                     /* don't change state */
                 } else if (*fptr == '.') {
                     /* "0.yy" is not a leading zero */
-                    if (fptr - bptr == 1) {
+                    if (*tmpptr == '0' && fptr - bptr == 1) {
                         lexerr &= !LEX_ERR_INT_TOO_LONG;
                     }
 
@@ -501,7 +501,7 @@ token real_machine() {
                 
             case FRACT:
                 if (*fptr >= '0' && *fptr <= '9') {
-                    if (fptr - tmpptr > LEX_MAX_FRAC) {
+                    if (fptr - tmpptr == LEX_MAX_FRAC) {
                         /* lexical error: too long fractional portion */
                         lexerr |= LEX_ERR_FRAC_TOO_LONG;
                     }
