@@ -289,7 +289,7 @@ token relop_machine() {
             case GT:
                 if (*fptr == '=') {
                     fptr++;
-                    state = EQ;
+                    state = GE;
                 } else {
                     /* return GT RELOP token */
                     lexeme = extract_lexeme(fptr, bptr);
