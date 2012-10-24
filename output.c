@@ -103,8 +103,12 @@ void write_token(int lineno, token tok) {
             break;
 
         case WHITESPACE_TYPE:
+            /* Don't output symbol */
+            break;
+            
         case EOF_TYPE:
-            /* Don't output token */
+            /* Don't output lexeme */
+            fprintf(token_file, "%-10d%-20s%-2d %-17s%-2d %s\n", lineno, "", tok.type, token_type_name[tok.type], tok.attr.addop, "NULL");
             break;
 
         default:
