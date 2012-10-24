@@ -25,6 +25,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		257F812F16376D4C00B99C7C /* edgecases */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = edgecases; sourceTree = "<group>"; };
 		25C9F35D1634F2D1002C3BAD /* lexer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lexer.c; sourceTree = "<group>"; };
 		25C9F3601634F599002C3BAD /* output.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = output.c; sourceTree = "<group>"; };
 		25C9F3621634F69F002C3BAD /* addop */ = {isa = PBXFileReference; lastKnownFileType = text; path = addop; sourceTree = "<group>"; };
@@ -60,6 +61,7 @@
 		25D965701634BC3900DB9B61 /* test */ = {
 			isa = PBXGroup;
 			children = (
+				257F812F16376D4C00B99C7C /* edgecases */,
 				25CAC95E16361A0D00771252 /* bad */,
 				25CAC95F16361A0D00771252 /* good */,
 				25C9F3621634F69F002C3BAD /* addop */,

@@ -127,6 +127,7 @@ void init_reserved_words(const char *filename) {
  * Return char* to the line.
  */
 char* get_next_line() {
+    size_t len;
     if(!fgets(line, sizeof line, input_file)) {
         /* No more lines */
         if(feof(input_file)) {
@@ -136,10 +137,17 @@ char* get_next_line() {
             exit(1);
         }
     }
-    char *newline = strstr(line, "\n"); 
+
+    /* clean up string */
+    char *newline = strnstr(line, "\n", LEX_MAX_LINE+2);
     if (!newline) {
-        fprintf(stderr, "Line %d is greater than 72 chars\n", lineno);
-        exit(1);
+        len = strnlen(line, LEX_MAX_LINE+2);
+        if (len > LEX_MAX_LINE) {
+            fprintf(stderr, "Line %d is greater than 72 chars\n", lineno);
+            exit(1);
+        }
+        line[len] = '\n';
+        line[len+1] = '\0';
     }
     lineno++;
     write_listing_line(lineno, line);
