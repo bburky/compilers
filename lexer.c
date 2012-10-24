@@ -348,6 +348,11 @@ token longreal_machine() {
                     }
                     /* don't change state */
                 } else if (*fptr == '.') {
+                    /* "0.yyEzz" is not a leading zero */
+                    if (fptr - bptr == 1) {
+                        lexerr &= !LEX_ERR_INT_TOO_LONG;
+                    }
+
                     fptr++;
                     tmpptr = fptr;
                     leadingzero = true;
@@ -362,7 +367,7 @@ token longreal_machine() {
             case FRACTE:
                 if (*fptr >= '0' && *fptr <= '9') {
                     fptr++;
-                    if (fptr - tmpptr > LEX_MAX_FRAC) {
+                    if (*tmpptr == '0' && fptr - tmpptr > LEX_MAX_FRAC) {
                         /* lexical error: too long fractional portion */
                         lexerr |= LEX_ERR_FRAC_TOO_LONG;
                     }
@@ -415,12 +420,19 @@ token longreal_machine() {
                     }
                     state = EXP;
                 } else {
+                    /* "xx.yyE0" is not a leading zero */
+                    if (*tmpptr == '0' && fptr - tmpptr == 1) {
+                        lexerr &= !LEX_ERR_INT_TOO_LONG;
+                    }
+
                     lexeme = extract_lexeme(fptr, bptr);
                     bptr = fptr;
+
                     if (lexerr != 0) {
                         /* return lexerr token */
                         return (token){ .lexeme = lexeme, .type = LEXERR_TYPE, .attr.errtype = lexerr };
                     }
+                    
                     /* return longreal token */
                     return (token){ .lexeme = lexeme, .type = NUM_TYPE, .attr.num = LONGREAL_NUM };
                 }
@@ -459,12 +471,17 @@ token real_machine() {
                 }
                 if (*fptr >= '0' && *fptr <= '9') {
                     fptr++;
-                    if (fptr - tmpptr > LEX_MAX_REALINT) {
+                    if (fptr - bptr > LEX_MAX_REALINT) {
                         /* lexical error: too long integer portion */
                         lexerr |= LEX_ERR_REALINT_TOO_LONG;
                     }
                     /* don't change state */
                 } else if (*fptr == '.') {
+                    /* "0.yy" is not a leading zero */
+                    if (fptr - bptr == 1) {
+                        lexerr &= !LEX_ERR_INT_TOO_LONG;
+                    }
+
                     fptr++;
                     tmpptr = fptr;
                     leadingzero = true;
@@ -485,12 +502,15 @@ token real_machine() {
                     fptr++;
                     /* don't change state */
                 } else {
+                    
                     lexeme = extract_lexeme(fptr, bptr);
                     bptr = fptr;
+                    
                     if (lexerr != 0) {
                         /* return lexerr token */
                         return (token){ .lexeme = lexeme, .type = LEXERR_TYPE, .attr.errtype = lexerr };
                     }
+                    
                     /* return real token */
                     return (token){ .lexeme = lexeme, .type = NUM_TYPE, .attr.num = REAL_NUM };
                 }
@@ -528,8 +548,15 @@ token int_machine() {
             /* don't change state */
         } else if(fptr != bptr) {
             /* must match at least one character */
+
+            /* "0" is not a leading zero */
+            if (fptr - bptr == 1) {
+                lexerr &= !LEX_ERR_INT_TOO_LONG;
+            }
+
             lexeme = extract_lexeme(fptr, bptr);
             bptr = fptr;
+
             if (lexerr != 0) {
                 /* return lexerr token */
                 return (token){ .lexeme = lexeme, .type = LEXERR_TYPE, .attr.errtype = lexerr };
