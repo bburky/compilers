@@ -11,6 +11,7 @@ from collections import defaultdict
 from itertools import groupby, chain
 from operator import itemgetter
 
+DEBUG = False
 
 def terminal(t):
 	# This also matches 'EPSILON'
@@ -130,18 +131,21 @@ for line in fileinput.input(sys.argv[2:]):
 	else:
 		print "ERROR", line
 
-for nt, f in first_funs.iteritems():
-	print "FIRST of", nt, "=", list(f())
-print
+
+if DEBUG:
+	for nt, f in first_funs.iteritems():
+		print "FIRST of", nt, "=", list(f())
+	print
 
 follow_terms[start_symbol].append("EOF")
 
 for nt, terms in follow_terms.iteritems():
 	follow_funs[nt] = make_follow_fun(nt, terms)
 
-for nt, f in follow_funs.iteritems():
-	print "FOLLOW of", nt, " =", list(f())
-print
+if DEBUG:
+	for nt, f in follow_funs.iteritems():
+		print "FOLLOW of", nt, " =", list(f())
+	print
 
 parse_table = defaultdict(lambda: defaultdict(list))
 
@@ -156,12 +160,17 @@ for A, current_productions in productions.iteritems():
 			for b in follow:
 				parse_table[A][b].append(alpha)
 
-for nt in follow_funs:
-	print "PARSE TABLE ROW OF", nt
-	for a, alphas in parse_table[nt].iteritems():
-		print a, "=", alphas
-		if len(alphas) > 1:
-			print "MULTIPLE PRODUCTIONS FOR SYMBOL", a
+if DEBUG:
+	for nt in follow_funs:
+		print "PARSE TABLE ROW OF", nt
+		for a, alphas in parse_table[nt].iteritems():
+			print a, "=", alphas
+			if len(alphas) > 1:
+				print "MULTIPLE PRODUCTIONS FOR SYMBOL", a
+		print
+
+for nt in production_order:
+	print "void parse_{nt}();".format(nt=nt)
 	print
 
 for nt in production_order:
@@ -208,13 +217,10 @@ for nt in production_order:
 	print "\t\tbreak;"
 	print "\t}"
 	print
-	print "\tsynch:"
-	print "\t\tsynch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));"
+	print "synch:"
+	print "\tsynch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));"
 	print "}"
 	print
 
 print
 
-for nt in production_order:
-	print "void parse_{nt}();".format(nt=nt)
-	print
