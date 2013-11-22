@@ -7,9 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		253CB02516A3AF6100CB2B5B /* parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 253CB02416A3AF6100CB2B5B /* parser.c */; };
 		25C9F35E1634F2D1002C3BAD /* lexer.c in Sources */ = {isa = PBXBuildFile; fileRef = 25C9F35D1634F2D1002C3BAD /* lexer.c */; };
 		25C9F3611634F599002C3BAD /* output.c in Sources */ = {isa = PBXBuildFile; fileRef = 25C9F3601634F599002C3BAD /* output.c */; };
 		25D9656B1634B38900DB9B61 /* compiler.c in Sources */ = {isa = PBXBuildFile; fileRef = 25D965681634B38900DB9B61 /* compiler.c */; };
+		25FEFACD183EB81400D6BD7B /* parsergen.c in Sources */ = {isa = PBXBuildFile; fileRef = 25FEFACB183EB81400D6BD7B /* parsergen.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +27,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		253CB02416A3AF6100CB2B5B /* parser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = parser.c; sourceTree = "<group>"; };
+		253CB02716A3AF6C00CB2B5B /* parser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = parser.h; sourceTree = "<group>"; };
 		257F812F16376D4C00B99C7C /* edgecases */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = edgecases; sourceTree = "<group>"; };
 		257F815616379D9C00B99C7C /* sample */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sample; sourceTree = "<group>"; };
 		25C9F35D1634F2D1002C3BAD /* lexer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lexer.c; sourceTree = "<group>"; };
@@ -36,6 +40,9 @@
 		25D965691634B38900DB9B61 /* compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compiler.h; sourceTree = "<group>"; };
 		25D9656A1634B38900DB9B61 /* lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer.h; sourceTree = "<group>"; };
 		25F23AFA1634A5E50021E595 /* compilers */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = compilers; sourceTree = BUILT_PRODUCTS_DIR; };
+		25FEFACB183EB81400D6BD7B /* parsergen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = parsergen.c; sourceTree = "<group>"; };
+		25FEFACC183EB81400D6BD7B /* parsergen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parsergen.h; sourceTree = "<group>"; };
+		25FEFACE183EBF7A00D6BD7B /* sampleCall */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sampleCall; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +59,7 @@
 		25D965701634BC3900DB9B61 /* test */ = {
 			isa = PBXGroup;
 			children = (
+				25FEFACE183EBF7A00D6BD7B /* sampleCall */,
 				257F815616379D9C00B99C7C /* sample */,
 				257F812F16376D4C00B99C7C /* edgecases */,
 			);
@@ -61,6 +69,8 @@
 		25F23AEF1634A5E50021E595 = {
 			isa = PBXGroup;
 			children = (
+				25FEFACB183EB81400D6BD7B /* parsergen.c */,
+				25FEFACC183EB81400D6BD7B /* parsergen.h */,
 				25CAC96016363C3C00771252 /* reserved_words */,
 				25CAC95C1635DF0600771252 /* lexeme.h */,
 				25C9F366163511F7002C3BAD /* output.h */,
@@ -69,6 +79,8 @@
 				25D965691634B38900DB9B61 /* compiler.h */,
 				25C9F35D1634F2D1002C3BAD /* lexer.c */,
 				25D9656A1634B38900DB9B61 /* lexer.h */,
+				253CB02416A3AF6100CB2B5B /* parser.c */,
+				253CB02716A3AF6C00CB2B5B /* parser.h */,
 				25D965701634BC3900DB9B61 /* test */,
 				25F23AFB1634A5E50021E595 /* Products */,
 			);
@@ -133,9 +145,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				25FEFACD183EB81400D6BD7B /* parsergen.c in Sources */,
 				25D9656B1634B38900DB9B61 /* compiler.c in Sources */,
 				25C9F35E1634F2D1002C3BAD /* lexer.c in Sources */,
 				25C9F3611634F599002C3BAD /* output.c in Sources */,
+				253CB02516A3AF6100CB2B5B /* parser.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

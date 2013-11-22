@@ -1,7 +1,16 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
+#include <stdio.h>
 #include "lexeme.h"
+
+/* #define DEBUG */
+
+#ifdef DEBUG
+# define DEBUG_PRINT(x) printf x
+#else
+# define DEBUG_PRINT(x) do {} while (0)
+#endif
 
 const char *input_filename;
 

@@ -1,0 +1,150 @@
+program
+	→ PROGRAM ID LPAREN identifier_list RPAREN SEMICOLON program_2
+
+program_2
+	→ compound_statement PERIOD
+	→ subprogram_declarations compound_statement PERIOD
+	→ declarations program_3
+
+program_3
+	→ compound_statement PERIOD
+	→ subprogram_declarations compound_statement PERIOD
+
+identifier_list
+	→ ID identifier_list_2
+
+identifier_list_2
+	→ COMMA ID identifier_list_2
+	→ EPSILON
+
+declarations
+	→ VAR identifier_list COLON type SEMICOLON declarations_2
+
+declarations_2
+	→ VAR identifier_list COLON type SEMICOLON declarations_2
+	→ EPSILON
+
+type
+	→ standard_type
+	→ ARRAY LBRACKET NUM ARRAY_RANGE NUM RBRACKET OF standard_type
+
+standard_type
+	→ INTEGER
+	→ REAL
+
+subprogram_declarations
+	→ subprogram_declaration SEMICOLON subprogram_declarations_2
+
+subprogram_declarations_2
+	→ subprogram_declaration SEMICOLON subprogram_declarations_2
+	→ EPSILON
+
+subprogram_declaration
+	→ subprogram_head subprogram_declaration_2
+
+subprogram_declaration_2
+	→ compound_statement
+	→ declarations compound_statement
+
+subprogram_head
+	→ PROCEDURE ID subprogram_head_2
+
+subprogram_head_2
+	→ arguments SEMICOLON
+	→ SEMICOLON
+
+arguments
+	→ LPAREN parameter_list RPAREN
+
+parameter_list
+	→ identifier_list COLON type parameter_list_2
+
+parameter_list_2
+	→ SEMICOLON identifier_list COLON type parameter_list_2
+	→ EPSILON
+
+compound_statement
+	→ BEGIN compound_statement_2
+
+compound_statement_2
+	→ optional_statements END
+	→ END
+
+optional_statements
+	→ statement_list
+
+statement_list
+	→ statement statement_list_2
+
+statement_list_2
+	→ SEMICOLON statement statement_list_2
+	→ EPSILON
+
+statement
+	→ variable ASSIGNOP expression
+	→ procedure_statement
+	→ compound_statement
+	→ IF expression THEN statement statement_2
+	→ WHILE expression DO statement
+
+statement_2
+	→ ELSE statement
+	→ EPSILON
+
+variable
+	→ ID variable_2
+
+variable_2
+	→ LBRACKET expression RBRACKET
+	→ EPSILON
+
+procedure_statement
+	→ CALL ID procedure_statement_2
+
+procedure_statement_2
+	→ LPAREN expression_list RPAREN
+	→ EPSILON
+
+expression_list
+	→ expression expression_list_2
+
+expression_list_2
+	→ COMMA expression expression_list_2
+	→ EPSILON
+
+expression
+	→ simple_expression expression_2
+
+expression_2
+	→ RELOP simple_expression
+	→ EPSILON
+
+simple_expression
+	→ term simple_expression_2
+	→ sign term simple_expression_2
+
+simple_expression_2
+	→ ADDOP term simple_expression_2
+	→ EPSILON
+
+term
+	→ factor term_2
+
+term_2
+	→ MULOP factor term_2
+	→ EPSILON
+
+factor
+	→ ID factor_2
+	→ NUM
+	→ LPAREN expression RPAREN
+	→ NOT factor
+
+factor_2
+	→ LBRACKET expression RBRACKET
+	→ EPSILON
+
+sign
+	→ PLUS
+	→ MINUS
+

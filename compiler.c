@@ -1,10 +1,10 @@
-#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
 #include "compiler.h"
 #include "output.h"
+#include "parser.h"
 #include "lexer.h"
 #include "lexeme.h"
 
@@ -19,8 +19,8 @@ char *fptr = NULL, *bptr = NULL;
  * main function
  * Intitialize lexer and reserved word list, run main loop
  */
+
 int main(int argc, const char *argv[]) {
-    token tok = NONE_MATCHED;
 
     if (argc != 3) {
         fprintf(stderr, "Usage: %s source_file_name reserved_word_file_name\n", argv[0]);
@@ -32,16 +32,8 @@ int main(int argc, const char *argv[]) {
     init_reserved_words(argv[2]);
     init_output(argv[1]);
 
-    while (tok.type == NONE_TYPE || tok.type != EOF_TYPE) {
-        tok = get_next_token();
-        if (tok.type == LEXERR_TYPE) {
-            write_listing_lexerr(lineno, tok);
-        }
-        write_token(lineno, tok);
-        if (tok.lexeme) {
-//            free(tok.lexeme);
-        }
-    }
+    DEBUG_PRINT(("PARSING\n"));
+    parse();
     return 0;
 }
 
@@ -176,7 +168,14 @@ token get_next_token() {
     /* call each machine in order */
     for (current_machine = 0; current_machine < sizeof(machines)/sizeof(*machines); current_machine++) {
         matched_token = machines[current_machine]();
-        if (matched_token.type != NONE_TYPE) {
+        if (matched_token.type == WHITESPACE_TYPE) {
+            /* Don't even return whitespace tokens */
+            return get_next_token();
+        } else if (matched_token.type != NONE_TYPE) {
+            if (tok.type == LEXERR_TYPE) {
+                write_listing_lexerr(lineno, tok);
+            }
+            write_token(lineno, tok);
             return matched_token;
         }
     }
@@ -185,6 +184,7 @@ token get_next_token() {
     fptr++;
     lexeme = extract_lexeme(fptr, bptr);
     bptr = fptr;
+    write_listing_lexerr(lineno, tok);
     return (token){ .lexeme = lexeme, .type = LEXERR_TYPE, .attr.errtype = LEX_ERR_UNRECOGNIZED_SYMBOL };
 }
 

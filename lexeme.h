@@ -29,42 +29,46 @@
 #define NONE_MATCHED (token){ .lexeme = NULL, .type = NONE_TYPE, .attr.ptr = NULL }
 
 /* define types and attributes with macros to autmatically generate the string and enum versions */
-
 #define TOKEN_TYPE_TABLE \
-X(ADDOP_TYPE) \
-X(ARRAY_TYPE) \
-X(ASSIGNOP_TYPE) \
-X(BEGIN_TYPE) \
-X(COLON_TYPE) \
-X(COMMA_TYPE) \
-X(DO_TYPE) \
-X(ELSE_TYPE) \
-X(END_TYPE) \
-X(EOF_TYPE) \
-X(FUNCTION_TYPE) \
-X(ID_TYPE) \
-X(IF_TYPE) \
-X(INTEGER_TYPE) \
-X(LBRACKET_TYPE) \
-X(LEXERR_TYPE) \
-X(LPAREN_TYPE) \
-X(MULOP_TYPE) \
-X(NONE_TYPE) \
-X(NOT_TYPE) \
-X(NUM_TYPE) \
-X(OF_TYPE) \
-X(PERIOD_TYPE) \
-X(PROCEDURE_TYPE) \
-X(PROGRAM_TYPE) \
-X(RBRACKET_TYPE) \
-X(REAL_TYPE) \
-X(RELOP_TYPE) \
-X(RPAREN_TYPE) \
-X(SEMICOLON_TYPE) \
-X(THEN_TYPE) \
-X(VAR_TYPE) \
-X(WHILE_TYPE) \
-X(WHITESPACE_TYPE)
+X(ERR_TYPE)         /* 0  */ \
+X(ERRSTAR_TYPE)     /* 1  */ \
+X(ADDOP_TYPE)       /* 2  */ \
+X(ARRAY_TYPE)       /* 3  */ \
+X(ARRAY_RANGE_TYPE) /* 4  */ \
+X(ASSIGNOP_TYPE)    /* 5  */ \
+X(BEGIN_TYPE)       /* 6  */ \
+X(CALL_TYPE)        /* 7  */ \
+X(COLON_TYPE)       /* 8  */ \
+X(COMMA_TYPE)       /* 9  */ \
+X(DO_TYPE)          /* 10 */ \
+X(ELSE_TYPE)        /* 11 */ \
+X(END_TYPE)         /* 12 */ \
+X(EOF_TYPE)         /* 13 */ \
+X(ID_TYPE)          /* 14 */ \
+X(IF_TYPE)          /* 15 */ \
+X(INTEGER_TYPE)     /* 16 */ \
+X(LBRACKET_TYPE)    /* 17 */ \
+X(LEXERR_TYPE)      /* 18 */ \
+X(LPAREN_TYPE)      /* 19 */ \
+X(MINUS_TYPE)       /* 20 */ \
+X(MULOP_TYPE)       /* 21 */ \
+X(NONE_TYPE)        /* 22 */ \
+X(NOT_TYPE)         /* 23 */ \
+X(NUM_TYPE)         /* 24 */ \
+X(OF_TYPE)          /* 25 */ \
+X(PERIOD_TYPE)      /* 26 */ \
+X(PLUS_TYPE)        /* 27 */ \
+X(PROCEDURE_TYPE)   /* 28 */ \
+X(PROGRAM_TYPE)     /* 29 */ \
+X(RBRACKET_TYPE)    /* 30 */ \
+X(REAL_TYPE)        /* 31 */ \
+X(RELOP_TYPE)       /* 32 */ \
+X(RPAREN_TYPE)      /* 33 */ \
+X(SEMICOLON_TYPE)   /* 34 */ \
+X(THEN_TYPE)        /* 35 */ \
+X(VAR_TYPE)         /* 36 */ \
+X(WHILE_TYPE)       /* 37 */ \
+X(WHITESPACE_TYPE)  /* 38 */
 
 #define RELOP_ATTR_TABLE \
 X(LE_RELOP) \
@@ -109,7 +113,7 @@ typedef enum {
 
 char *lex_err_name[NUM_LEX_ERR_TYPES][2];
 
-char *token_type_name[34];
+char *token_type_name[39];
 
 char *relop_attr_name[6];
 

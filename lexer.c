@@ -172,6 +172,11 @@ token misc_machine() {
             /* return period token */
             fptr++;
             bptr = fptr;
+            if (*fptr == '.') {
+                fptr++;
+                bptr = fptr;
+                return (token){ .lexeme = make_lexeme(".."), .type = ARRAY_RANGE_TYPE, .attr.ptr = NULL };
+            }
             return (token){ .lexeme = make_lexeme("."), .type = PERIOD_TYPE, .attr.ptr = NULL };
 
         case '(':
@@ -214,13 +219,13 @@ token misc_machine() {
             /* return addop token */
             fptr++;
             bptr = fptr;
-            return (token){ .lexeme = make_lexeme("+"), .type = ADDOP_TYPE, .attr.addop = PLUS_ADDOP };
+            return (token){ .lexeme = make_lexeme("+"), .type = PLUS_TYPE, .attr.addop = PLUS_ADDOP };
 
         case '-':
             /* return addop token */
             fptr++;
             bptr = fptr;
-            return (token){ .lexeme = make_lexeme("-"), .type = ADDOP_TYPE, .attr.addop = MINUS_ADDOP };
+            return (token){ .lexeme = make_lexeme("-"), .type = MINUS_TYPE, .attr.addop = MINUS_ADDOP };
 
         default:
             /* no token matched */

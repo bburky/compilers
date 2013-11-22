@@ -1,0 +1,12 @@
+program example(input, output);
+var x, y: integer;
+procedure gcd(a, b: integer);
+begin
+    if b = 0 then x := 2
+    else call gcd(b, a mod b)
+end;
+
+begin
+	call read(x, y);
+    call gcd(x, y)
+end.

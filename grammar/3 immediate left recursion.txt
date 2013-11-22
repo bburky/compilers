@@ -1,0 +1,121 @@
+program
+	→ PROGRAM ID ( identifier_list ) ; compound_statement .
+	→ PROGRAM ID ( identifier_list ) ; declarations compound_statement .
+	→ PROGRAM ID ( identifier_list ) ; subprogram_declarations compound_statement .
+	→ PROGRAM ID ( identifier_list ) ; declarations subprogram_declarations compound_statement .
+
+identifier_list
+	→ id identifier_list_2
+
+identifier_list
+	→ , id identifier_list_2
+	→ ε
+
+declarations
+	→ VAR identifier_list : type ; declarations_2
+
+declarations_2
+	→ VAR identifier_list : type ; declarations_2
+	→ ε
+
+type
+	→ standard_type
+	→ ARRAY [ NUM .. NUM ] OF standard_type
+
+standard_type
+	→ INTEGER
+	→ REAL
+
+subprogram_declarations
+	→ subprogram_declaration ; subprogram_declarations_2
+
+subprogram_declarations_2
+	→ subprogram_declaration ; subprogram_declarations_2
+	→ ε
+
+subprogram_declaration
+	→ subprogram_head compound_statement
+	→ subprogram_head declarations compound_statement
+	→ subprogram_head subprogram_declarations compound_statement
+	→ subprogram_head declarations subprogram_declarations compound_statement
+
+subprogram_head
+	→ PROCEDURE ID arguments ;
+	→ PROCEDURE ID ;
+
+arguments
+	→ ( parameter_list )
+
+parameter_list
+	→ identifier_list : type parameter_list_2
+
+parameter_list_2
+	→ ; identifier_list : type parameter_list_2
+	→ ε
+
+compound_statement
+	→ BEGIN optional_statements END
+	→ BEGIN END
+
+optional_statements
+	→ statement_list
+
+statement_list
+	→ statement statement_list_2
+
+statement_list_2
+	→ ; statement statement_list_2
+	→ ε
+
+statement
+	→ variable ASSIGNOP expression
+	→ procedure_statement
+	→ compound_statement
+	→ IF expression THEN statement ELSE statement
+	→ IF expression THEN statement
+	→ WHILE expression DO statement
+
+variable
+	→ ID
+	→ ID [ expression ]
+
+procedure_statement
+	→ CALL ID
+	→ CALL ID ( expression_list )
+
+expression_list
+	→ expression expression_list_2
+
+expression_list_2
+	→ , expression expression_list_2
+	→ ε
+
+expression
+	→ simple_expression
+	→ simple_expression RELOP simple_expression
+
+simple_expression
+	→ term simple_expression_2
+	→ sign term simple_expression_2
+
+simple_expression
+	→ ADDOP term simple_expression_2
+	→ ε
+
+term
+	→ factor term_2
+
+term
+	→ MULOP factor term_2
+	→ ε
+
+factor
+	→ ID
+	→ ID [ expression ]
+	→ NUM
+	→ ( expression )
+	→ NOT factor
+
+sign
+	→ +
+	→ -
