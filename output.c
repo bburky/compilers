@@ -36,6 +36,7 @@ void init_output(const char *filename) {
         exit(1);
     }
 
+    free(tmpfilename);
     fprintf(token_file, "%-10s%-20s%-20s%s\n", "Line No.", "Lexeme", "TOKEN-TYPE", "ATTRIBUTE");
 }
 
