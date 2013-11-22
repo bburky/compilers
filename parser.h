@@ -7,8 +7,10 @@ token tok;
 
 void parse();
 
-token match(TOKEN_TYPE);
+int match(TOKEN_TYPE);
 
 void error();
+
+void synch(TOKEN_TYPE[], int);
 
 #endif

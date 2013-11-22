@@ -180,7 +180,8 @@ for nt in production_order:
 	print
 
 	print "\tTOKEN_TYPE expected[] = {{{set}}};".format(set=', '.join(t + '_TYPE' for t in parse_table[nt]))
-	print "\tTOKEN_TYPE synch_set[] = {{{set}}};".format(set=', '.join(t + '_TYPE' for t in set(['EOF']).union(first).union(follow) if t != 'EPSILON'))
+	# print "\tTOKEN_TYPE synch_set[] = {{{set}}};".format(set=', '.join(t + '_TYPE' for t in set(['EOF']).union(first).union(follow) if t != 'EPSILON'))
+	print "\tTOKEN_TYPE synch_set[] = {{{set}}};".format(set=', '.join(t + '_TYPE' for t in set(['EOF']).union(follow)))
 	print
 
 	print "\tswitch(tok.type) {"
@@ -197,15 +198,18 @@ for nt in production_order:
 			if e == "EPSILON":
 				print "\t\t// Epslion production"
 			elif terminal(e):
-				print "\t\tmatch({t}_TYPE);".format(t=e)
+				print "\t\tif (!match({t}_TYPE))".format(t=e)
+				print "\t\t\tgoto synch;"
 			else:
 				print "\t\tparse_{nt}();".format(nt=e)
 		print "\t\treturn;"
 
 	print "\tdefault:"
-	print "\t\terror();"
-	print "\t\treturn;"
+	print "\t\tbreak;"
 	print "\t}"
+	print
+	print "\tsynch:"
+	print "\t\tsynch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));"
 	print "}"
 	print
 
