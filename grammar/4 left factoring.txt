@@ -18,10 +18,10 @@ identifier_list_2
 	→ ε
 
 declarations
-	→ VAR identifier_list : type ; declarations_2
+	→ VAR ID : type ; declarations_2
 
 declarations_2
-	→ VAR identifier_list : type ; declarations_2
+	→ VAR ID : type ; declarations_2
 	→ ε
 
 type

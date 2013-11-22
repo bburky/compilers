@@ -18,10 +18,10 @@ identifier_list_2
 	→ EPSILON
 
 declarations
-	→ VAR identifier_list COLON type SEMICOLON declarations_2
+	→ VAR ID COLON type SEMICOLON declarations_2
 
 declarations_2
-	→ VAR identifier_list COLON type SEMICOLON declarations_2
+	→ VAR ID COLON type SEMICOLON declarations_2
 	→ EPSILON
 
 type

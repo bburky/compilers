@@ -168,10 +168,11 @@ void parse_declarations() {
     
 	switch(tok.type) {
         case VAR_TYPE:
-            // Grammar production: VAR identifier_list COLON type SEMICOLON declarations_2
+            // Grammar production: VAR ID COLON type SEMICOLON declarations_2
             if (!match(VAR_TYPE))
                 goto synch;
-            parse_identifier_list();
+            if (!match(ID_TYPE))
+                goto synch;
             if (!match(COLON_TYPE))
                 goto synch;
             parse_type();
@@ -203,10 +204,11 @@ void parse_declarations_2() {
             // Epslion production
             return;
         case VAR_TYPE:
-            // Grammar production: VAR identifier_list COLON type SEMICOLON declarations_2
+            // Grammar production: VAR ID COLON type SEMICOLON declarations_2
             if (!match(VAR_TYPE))
                 goto synch;
-            parse_identifier_list();
+            if (!match(ID_TYPE))
+                goto synch;
             if (!match(COLON_TYPE))
                 goto synch;
             parse_type();

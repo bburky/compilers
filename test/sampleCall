@@ -1,5 +1,7 @@
 program example(input, output);
-var x, y, g: integer;
+var x: integer;
+var y: integer;
+var g: integer;
 procedure gcd(a, b: integer);
 begin
     if b = 0 then g := a

@@ -5,12 +5,12 @@ program
 	→ PROGRAM ID ( identifier_list ) ; declarations subprogram_declarations compound_statement .
 
 identifier_list
-	→ id
-	→ identifier_list , id
+	→ ID
+	→ identifier_list , ID
 
 declarations
-	→ declarations VAR identifier_list : type ;
-	→ VAR identifier_list : type ;
+	→ declarations VAR ID : type ;
+	→ VAR ID : type ;
 
 type
 	→ standard_type
