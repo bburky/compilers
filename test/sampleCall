@@ -1,12 +1,13 @@
 program example(input, output);
-var x, y: integer;
+var x, y, g: integer;
 procedure gcd(a, b: integer);
 begin
-    if b = 0 then x := 2
+    if b = 0 then g := a
     else call gcd(b, a mod b)
 end;
 
 begin
 	call read(x, y);
-    call gcd(x, y)
+	call gcd(x, y);
+	call write(x, y)
 end.
