@@ -49,7 +49,7 @@ void write_listing_line(int lineno, const char *line) {
 }
 
 /*
- * Write all lexical errors int the token to the listing file
+ * Write all lexical errors with the token to the listing file
  */
 void write_listing_lexerr(int lineno, token tok) {
     int i;
@@ -57,8 +57,32 @@ void write_listing_lexerr(int lineno, token tok) {
     for (i = 0; i < NUM_LEX_ERR_TYPES; i++) {
         if (tok.attr.errtype & (1 << i)) {
             fprintf(listing_file, "%-10s%-40s%s\n", "LEXERR:", lex_err_name[i][1], tok.lexeme);
+            fflush(listing_file);
         }
     }
+}
+
+/*
+ * Write all syntax errors with the token to the listing file
+ */
+void write_listing_synerr(int lineno, token tok, char* nonterminal, TOKEN_TYPE expected[], int expected_len) {
+    char expected_str[100] = { [0] = '\0' };
+    if (expected_len > 1) {
+        strncat(expected_str, "one of ", 100);
+    }
+    for (int i = 0; i < expected_len; i++) {
+        if (i > 0) {
+            strncat(expected_str, ", ", 100);
+        }
+        strncat(expected_str, token_type_name[expected[i]], 100);
+    }
+
+    if (tok.type == EOF_TYPE) {
+        fprintf(listing_file, "SYNERR:   Failed to parse %s, at end of file, expected %s\n", nonterminal,expected_str);
+    } else {
+        fprintf(listing_file, "SYNERR:   Failed to parse %s, got token \"%s\", expected %s\n", nonterminal, tok.lexeme, expected_str);
+    }
+    fflush(listing_file);
 }
 
 /*

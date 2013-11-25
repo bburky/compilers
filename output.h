@@ -13,4 +13,6 @@ void write_listing_lexerr(int lineno, token tok);
 
 void write_token(int lineno, token tok);
 
+void write_listing_synerr(int lineno, token tok, char* nonterminal, TOKEN_TYPE expected[], int expected_len);
+
 #endif

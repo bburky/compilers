@@ -2,6 +2,7 @@
 #include "parsergen.h"
 #include "lexeme.h"
 #include "compiler.h"
+#include "output.h"
 
 token tok = NONE_MATCHED;
 
@@ -15,7 +16,7 @@ void parse() {
 int match(TOKEN_TYPE type) {
     if (tok.type != type) {
         DEBUG_PRINT(("  FAILED TO MATCH %s\n", token_type_name[type]));
-        error();
+        write_listing_synerr(lineno, tok, token_type_name[type], (TOKEN_TYPE[]) {type}, 1);
         return 0;
     } else {
         DEBUG_PRINT(("  Matched %s\n", token_type_name[type]));
@@ -39,8 +40,4 @@ void synch(TOKEN_TYPE synch_set[], int len) {
         tok = get_next_token();
     }
     DEBUG_PRINT(("  SYNCH: SYNCHED WITH TOKEN %s\n", token_type_name[tok.type]));
-}
-
-void error() {
-    puts("SYNTAX ERROR");
 }

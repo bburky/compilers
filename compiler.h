@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "lexeme.h"
 
-/* #define DEBUG */
+#define DEBUG
 
 #ifdef DEBUG
 # define DEBUG_PRINT(x) printf x
@@ -13,6 +13,8 @@
 #endif
 
 const char *input_filename;
+
+int lineno;
 
 FILE *input_file;
 

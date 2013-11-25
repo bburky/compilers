@@ -1,6 +1,7 @@
 #include "compiler.h"
 #include "parser.h"
 #include "parsergen.h"
+#include "output.h"
 
 void parse_program() {
 	// first(program): PROGRAM
@@ -28,6 +29,7 @@ void parse_program() {
             parse_program_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "program", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -64,6 +66,7 @@ void parse_program_2() {
                 goto synch;
             return;
         default:
+            write_listing_synerr(lineno, tok, "program_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -95,6 +98,7 @@ void parse_program_3() {
                 goto synch;
             return;
         default:
+            write_listing_synerr(lineno, tok, "program_3", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -119,6 +123,7 @@ void parse_identifier_list() {
             parse_identifier_list_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "identifier_list", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -150,6 +155,7 @@ void parse_identifier_list_2() {
             // Epslion production
             return;
         default:
+            write_listing_synerr(lineno, tok, "identifier_list_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -181,6 +187,7 @@ void parse_declarations() {
             parse_declarations_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "declarations", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -217,6 +224,7 @@ void parse_declarations_2() {
             parse_declarations_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "declarations_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -258,6 +266,7 @@ void parse_type() {
             parse_standard_type();
             return;
         default:
+            write_listing_synerr(lineno, tok, "type", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -286,6 +295,7 @@ void parse_standard_type() {
                 goto synch;
             return;
         default:
+            write_listing_synerr(lineno, tok, "standard_type", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -311,6 +321,7 @@ void parse_subprogram_declarations() {
             parse_subprogram_declarations_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "subprogram_declarations", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -340,6 +351,7 @@ void parse_subprogram_declarations_2() {
             parse_subprogram_declarations_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "subprogram_declarations_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -363,6 +375,7 @@ void parse_subprogram_declaration() {
             parse_subprogram_declaration_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "subprogram_declaration", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -395,6 +408,7 @@ void parse_subprogram_declaration_2() {
             parse_compound_statement();
             return;
         default:
+            write_listing_synerr(lineno, tok, "subprogram_declaration_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -422,6 +436,7 @@ void parse_subprogram_declaration_3() {
             parse_compound_statement();
             return;
         default:
+            write_listing_synerr(lineno, tok, "subprogram_declaration_3", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -448,6 +463,7 @@ void parse_subprogram_head() {
             parse_subprogram_head_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "subprogram_head", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -477,6 +493,7 @@ void parse_subprogram_head_2() {
                 goto synch;
             return;
         default:
+            write_listing_synerr(lineno, tok, "subprogram_head_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -503,6 +520,7 @@ void parse_arguments() {
                 goto synch;
             return;
         default:
+            write_listing_synerr(lineno, tok, "arguments", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -529,6 +547,7 @@ void parse_parameter_list() {
             parse_parameter_list_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "parameter_list", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -561,6 +580,7 @@ void parse_parameter_list_2() {
             parse_parameter_list_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "parameter_list_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -585,6 +605,7 @@ void parse_compound_statement() {
             parse_compound_statement_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "compound_statement", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -618,6 +639,7 @@ void parse_compound_statement_2() {
                 goto synch;
             return;
         default:
+            write_listing_synerr(lineno, tok, "compound_statement_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -644,6 +666,7 @@ void parse_optional_statements() {
             parse_statement_list();
             return;
         default:
+            write_listing_synerr(lineno, tok, "optional_statements", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -671,6 +694,7 @@ void parse_statement_list() {
             parse_statement_list_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "statement_list", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -700,6 +724,7 @@ void parse_statement_list_2() {
             parse_statement_list_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "statement_list_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -752,6 +777,7 @@ void parse_statement() {
             parse_expression();
             return;
         default:
+            write_listing_synerr(lineno, tok, "statement", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -783,6 +809,7 @@ void parse_statement_2() {
             // Epslion production
             return;
         default:
+            write_listing_synerr(lineno, tok, "statement_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -807,6 +834,7 @@ void parse_variable() {
             parse_variable_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "variable", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -837,6 +865,7 @@ void parse_variable_2() {
                 goto synch;
             return;
         default:
+            write_listing_synerr(lineno, tok, "variable_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -863,6 +892,7 @@ void parse_procedure_statement() {
             parse_procedure_statement_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "procedure_statement", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -895,6 +925,7 @@ void parse_procedure_statement_2() {
                 goto synch;
             return;
         default:
+            write_listing_synerr(lineno, tok, "procedure_statement_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -923,6 +954,7 @@ void parse_expression_list() {
             parse_expression_list_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "expression_list", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -952,6 +984,7 @@ void parse_expression_list_2() {
             // Epslion production
             return;
         default:
+            write_listing_synerr(lineno, tok, "expression_list_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -980,6 +1013,7 @@ void parse_expression() {
             parse_expression_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "expression", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -1015,6 +1049,7 @@ void parse_expression_2() {
             parse_simple_expression();
             return;
         default:
+            write_listing_synerr(lineno, tok, "expression_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -1048,6 +1083,7 @@ void parse_simple_expression() {
             parse_simple_expression_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "simple_expression", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -1099,6 +1135,7 @@ void parse_simple_expression_2() {
             parse_simple_expression_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "simple_expression_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -1125,6 +1162,7 @@ void parse_term() {
             parse_term_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "term", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -1165,6 +1203,7 @@ void parse_term_2() {
             parse_term_2();
             return;
         default:
+            write_listing_synerr(lineno, tok, "term_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -1208,6 +1247,7 @@ void parse_factor() {
                 goto synch;
             return;
         default:
+            write_listing_synerr(lineno, tok, "factor", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -1250,6 +1290,7 @@ void parse_factor_2() {
                 goto synch;
             return;
         default:
+            write_listing_synerr(lineno, tok, "factor_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     
@@ -1278,6 +1319,7 @@ void parse_sign() {
                 goto synch;
             return;
         default:
+            write_listing_synerr(lineno, tok, "sign", expected, sizeof(expected)/sizeof(expected[0]));
             break;
 	}
     

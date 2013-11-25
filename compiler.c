@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "compiler.h"
 #include "output.h"
@@ -10,7 +11,6 @@
 
 const char *input_filename;
 char line[74]; /* 72 chars + \n\0 */
-int lineno;
 
 /* Forward and back pointers used in lexer */
 char *fptr = NULL, *bptr = NULL;
@@ -154,7 +154,6 @@ token get_next_token() {
     token (*machines[])() = { misc_machine, idres_machine, relop_machine, longreal_machine, real_machine, int_machine };
     int current_machine;
     token matched_token;
-    char *lexeme;
 
     /* if first line or end of current line */
     if (fptr == NULL || *fptr == '\0') {
@@ -172,19 +171,21 @@ token get_next_token() {
             /* Don't even return whitespace tokens */
             return get_next_token();
         } else if (matched_token.type != NONE_TYPE) {
-            if (tok.type == LEXERR_TYPE) {
-                write_listing_lexerr(lineno, tok);
+            if (matched_token.type == LEXERR_TYPE) {
+                write_listing_lexerr(lineno, matched_token);
             }
-            write_token(lineno, tok);
+            write_token(lineno, matched_token);
             return matched_token;
         }
     }
 
     /* lexical error: Unrecognized symbol */
     fptr++;
-    lexeme = extract_lexeme(fptr, bptr);
+    matched_token.type = LEXERR_TYPE;
+    matched_token.attr.errtype = LEX_ERR_UNRECOGNIZED_SYMBOL;
+    matched_token.lexeme = extract_lexeme(fptr, bptr);
     bptr = fptr;
-    write_listing_lexerr(lineno, tok);
-    return (token){ .lexeme = lexeme, .type = LEXERR_TYPE, .attr.errtype = LEX_ERR_UNRECOGNIZED_SYMBOL };
+    write_listing_lexerr(lineno, matched_token);
+    return matched_token;
 }
 

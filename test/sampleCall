@@ -1,6 +1,6 @@
 program example(input, output);
 var x: integer;
-var y: integer;
+var y: integer
 var g: integer;
 procedure gcd(a, b: integer);
 begin

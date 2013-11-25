@@ -214,6 +214,7 @@ for nt in production_order:
 		print "\t\treturn;"
 
 	print "\tdefault:"
+	print '\t\twrite_listing_synerr(lineno, tok, "{nt}", expected, sizeof(expected)/sizeof(expected[0]));'.format(nt=nt)
 	print "\t\tbreak;"
 	print "\t}"
 	print
