@@ -3,7 +3,7 @@
 #include "parsergen.h"
 #include "output.h"
 
-void parse_program() {
+type parse_program() {
 	// first(program): PROGRAM
 	// follow(program): EOF
     
@@ -14,6 +14,7 @@ void parse_program() {
     
 	switch(tok.type) {
         case PROGRAM_TYPE:
+		{
             // Grammar production: PROGRAM ID LPAREN identifier_list RPAREN SEMICOLON program_2
             if (!match(PROGRAM_TYPE))
                 goto synch;
@@ -21,13 +22,16 @@ void parse_program() {
                 goto synch;
             if (!match(LPAREN_TYPE))
                 goto synch;
-            parse_identifier_list();
+            type identifier_list_type = parse_identifier_list();
             if (!match(RPAREN_TYPE))
                 goto synch;
             if (!match(SEMICOLON_TYPE))
                 goto synch;
-            parse_program_2();
-            return;
+            type program_2_type = parse_program_2();
+            if (identifier_list_type == ERROR_STAR || identifier_list_type == ERROR || program_2_type == ERROR_STAR || program_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "program", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -35,9 +39,10 @@ void parse_program() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_program_2() {
+type parse_program_2() {
 	// first(program_2): VAR, BEGIN, PROCEDURE
 	// follow(program_2): EOF
     
@@ -48,23 +53,35 @@ void parse_program_2() {
     
 	switch(tok.type) {
         case BEGIN_TYPE:
+		{
             // Grammar production: compound_statement PERIOD
-            parse_compound_statement();
+            type compound_statement_type = parse_compound_statement();
             if (!match(PERIOD_TYPE))
                 goto synch;
-            return;
+            if (compound_statement_type == ERROR_STAR || compound_statement_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case VAR_TYPE:
+		{
             // Grammar production: declarations program_3
-            parse_declarations();
-            parse_program_3();
-            return;
+            type declarations_type = parse_declarations();
+            type program_3_type = parse_program_3();
+            if (declarations_type == ERROR_STAR || declarations_type == ERROR || program_3_type == ERROR_STAR || program_3_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case PROCEDURE_TYPE:
+		{
             // Grammar production: subprogram_declarations compound_statement PERIOD
-            parse_subprogram_declarations();
-            parse_compound_statement();
+            type subprogram_declarations_type = parse_subprogram_declarations();
+            type compound_statement_type = parse_compound_statement();
             if (!match(PERIOD_TYPE))
                 goto synch;
-            return;
+            if (subprogram_declarations_type == ERROR_STAR || subprogram_declarations_type == ERROR || compound_statement_type == ERROR_STAR || compound_statement_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "program_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -72,9 +89,10 @@ void parse_program_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_program_3() {
+type parse_program_3() {
 	// first(program_3): BEGIN, PROCEDURE
 	// follow(program_3): EOF
     
@@ -85,18 +103,26 @@ void parse_program_3() {
     
 	switch(tok.type) {
         case BEGIN_TYPE:
+		{
             // Grammar production: compound_statement PERIOD
-            parse_compound_statement();
+            type compound_statement_type = parse_compound_statement();
             if (!match(PERIOD_TYPE))
                 goto synch;
-            return;
+            if (compound_statement_type == ERROR_STAR || compound_statement_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case PROCEDURE_TYPE:
+		{
             // Grammar production: subprogram_declarations compound_statement PERIOD
-            parse_subprogram_declarations();
-            parse_compound_statement();
+            type subprogram_declarations_type = parse_subprogram_declarations();
+            type compound_statement_type = parse_compound_statement();
             if (!match(PERIOD_TYPE))
                 goto synch;
-            return;
+            if (subprogram_declarations_type == ERROR_STAR || subprogram_declarations_type == ERROR || compound_statement_type == ERROR_STAR || compound_statement_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "program_3", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -104,9 +130,10 @@ void parse_program_3() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_identifier_list() {
+type parse_identifier_list() {
 	// first(identifier_list): ID
 	// follow(identifier_list): COLON, RPAREN
     
@@ -117,11 +144,15 @@ void parse_identifier_list() {
     
 	switch(tok.type) {
         case ID_TYPE:
+		{
             // Grammar production: ID identifier_list_2
             if (!match(ID_TYPE))
                 goto synch;
-            parse_identifier_list_2();
-            return;
+            type identifier_list_2_type = parse_identifier_list_2();
+            if (identifier_list_2_type == ERROR_STAR || identifier_list_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "identifier_list", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -129,9 +160,10 @@ void parse_identifier_list() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_identifier_list_2() {
+type parse_identifier_list_2() {
 	// first(identifier_list_2): EPSILON, COMMA
 	// follow(identifier_list_2): COLON, RPAREN
     
@@ -142,18 +174,22 @@ void parse_identifier_list_2() {
     
 	switch(tok.type) {
         case COMMA_TYPE:
+		{
             // Grammar production: COMMA ID identifier_list_2
             if (!match(COMMA_TYPE))
                 goto synch;
             if (!match(ID_TYPE))
                 goto synch;
-            parse_identifier_list_2();
-            return;
+            type identifier_list_2_type = parse_identifier_list_2();
+            if (identifier_list_2_type == ERROR_STAR || identifier_list_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case COLON_TYPE:
         case RPAREN_TYPE:
             // Grammar production: EPSILON
             // Epslion production
-            return;
+            return NONE;
         default:
             write_listing_synerr(lineno, tok, "identifier_list_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -161,9 +197,10 @@ void parse_identifier_list_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_declarations() {
+type parse_declarations() {
 	// first(declarations): VAR
 	// follow(declarations): BEGIN, PROCEDURE
     
@@ -174,6 +211,7 @@ void parse_declarations() {
     
 	switch(tok.type) {
         case VAR_TYPE:
+		{
             // Grammar production: VAR ID COLON type SEMICOLON declarations_2
             if (!match(VAR_TYPE))
                 goto synch;
@@ -181,11 +219,14 @@ void parse_declarations() {
                 goto synch;
             if (!match(COLON_TYPE))
                 goto synch;
-            parse_type();
+            type type_type = parse_type();
             if (!match(SEMICOLON_TYPE))
                 goto synch;
-            parse_declarations_2();
-            return;
+            type declarations_2_type = parse_declarations_2();
+            if (type_type == ERROR_STAR || type_type == ERROR || declarations_2_type == ERROR_STAR || declarations_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "declarations", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -193,9 +234,10 @@ void parse_declarations() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_declarations_2() {
+type parse_declarations_2() {
 	// first(declarations_2): VAR, EPSILON
 	// follow(declarations_2): BEGIN, PROCEDURE
     
@@ -209,8 +251,9 @@ void parse_declarations_2() {
         case PROCEDURE_TYPE:
             // Grammar production: EPSILON
             // Epslion production
-            return;
+            return NONE;
         case VAR_TYPE:
+		{
             // Grammar production: VAR ID COLON type SEMICOLON declarations_2
             if (!match(VAR_TYPE))
                 goto synch;
@@ -218,11 +261,14 @@ void parse_declarations_2() {
                 goto synch;
             if (!match(COLON_TYPE))
                 goto synch;
-            parse_type();
+            type type_type = parse_type();
             if (!match(SEMICOLON_TYPE))
                 goto synch;
-            parse_declarations_2();
-            return;
+            type declarations_2_type = parse_declarations_2();
+            if (type_type == ERROR_STAR || type_type == ERROR || declarations_2_type == ERROR_STAR || declarations_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "declarations_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -230,9 +276,10 @@ void parse_declarations_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_type() {
+type parse_type() {
 	// first(type): REAL, INTEGER, ARRAY
 	// follow(type): RPAREN, SEMICOLON
     
@@ -243,6 +290,7 @@ void parse_type() {
     
 	switch(tok.type) {
         case ARRAY_TYPE:
+		{
             // Grammar production: ARRAY LBRACKET NUM ARRAY_RANGE NUM RBRACKET OF standard_type
             if (!match(ARRAY_TYPE))
                 goto synch;
@@ -258,13 +306,20 @@ void parse_type() {
                 goto synch;
             if (!match(OF_TYPE))
                 goto synch;
-            parse_standard_type();
-            return;
+            type standard_type_type = parse_standard_type();
+            if (standard_type_type == ERROR_STAR || standard_type_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case REAL_TYPE:
         case INTEGER_TYPE:
+		{
             // Grammar production: standard_type
-            parse_standard_type();
-            return;
+            type standard_type_type = parse_standard_type();
+            if (standard_type_type == ERROR_STAR || standard_type_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "type", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -272,9 +327,10 @@ void parse_type() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_standard_type() {
+type parse_standard_type() {
 	// first(standard_type): REAL, INTEGER
 	// follow(standard_type): RPAREN, SEMICOLON
     
@@ -285,15 +341,19 @@ void parse_standard_type() {
     
 	switch(tok.type) {
         case INTEGER_TYPE:
+		{
             // Grammar production: INTEGER
             if (!match(INTEGER_TYPE))
                 goto synch;
-            return;
+            return NONE;
+		}
         case REAL_TYPE:
+		{
             // Grammar production: REAL
             if (!match(REAL_TYPE))
                 goto synch;
-            return;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "standard_type", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -301,9 +361,10 @@ void parse_standard_type() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_subprogram_declarations() {
+type parse_subprogram_declarations() {
 	// first(subprogram_declarations): PROCEDURE
 	// follow(subprogram_declarations): BEGIN
     
@@ -314,12 +375,16 @@ void parse_subprogram_declarations() {
     
 	switch(tok.type) {
         case PROCEDURE_TYPE:
+		{
             // Grammar production: subprogram_declaration SEMICOLON subprogram_declarations_2
-            parse_subprogram_declaration();
+            type subprogram_declaration_type = parse_subprogram_declaration();
             if (!match(SEMICOLON_TYPE))
                 goto synch;
-            parse_subprogram_declarations_2();
-            return;
+            type subprogram_declarations_2_type = parse_subprogram_declarations_2();
+            if (subprogram_declaration_type == ERROR_STAR || subprogram_declaration_type == ERROR || subprogram_declarations_2_type == ERROR_STAR || subprogram_declarations_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "subprogram_declarations", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -327,9 +392,10 @@ void parse_subprogram_declarations() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_subprogram_declarations_2() {
+type parse_subprogram_declarations_2() {
 	// first(subprogram_declarations_2): EPSILON, PROCEDURE
 	// follow(subprogram_declarations_2): BEGIN
     
@@ -342,14 +408,18 @@ void parse_subprogram_declarations_2() {
         case BEGIN_TYPE:
             // Grammar production: EPSILON
             // Epslion production
-            return;
+            return NONE;
         case PROCEDURE_TYPE:
+		{
             // Grammar production: subprogram_declaration SEMICOLON subprogram_declarations_2
-            parse_subprogram_declaration();
+            type subprogram_declaration_type = parse_subprogram_declaration();
             if (!match(SEMICOLON_TYPE))
                 goto synch;
-            parse_subprogram_declarations_2();
-            return;
+            type subprogram_declarations_2_type = parse_subprogram_declarations_2();
+            if (subprogram_declaration_type == ERROR_STAR || subprogram_declaration_type == ERROR || subprogram_declarations_2_type == ERROR_STAR || subprogram_declarations_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "subprogram_declarations_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -357,9 +427,10 @@ void parse_subprogram_declarations_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_subprogram_declaration() {
+type parse_subprogram_declaration() {
 	// first(subprogram_declaration): PROCEDURE
 	// follow(subprogram_declaration): SEMICOLON
     
@@ -370,10 +441,14 @@ void parse_subprogram_declaration() {
     
 	switch(tok.type) {
         case PROCEDURE_TYPE:
+		{
             // Grammar production: subprogram_head subprogram_declaration_2
-            parse_subprogram_head();
-            parse_subprogram_declaration_2();
-            return;
+            type subprogram_head_type = parse_subprogram_head();
+            type subprogram_declaration_2_type = parse_subprogram_declaration_2();
+            if (subprogram_head_type == ERROR_STAR || subprogram_head_type == ERROR || subprogram_declaration_2_type == ERROR_STAR || subprogram_declaration_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "subprogram_declaration", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -381,9 +456,10 @@ void parse_subprogram_declaration() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_subprogram_declaration_2() {
+type parse_subprogram_declaration_2() {
 	// first(subprogram_declaration_2): VAR, BEGIN, PROCEDURE
 	// follow(subprogram_declaration_2): SEMICOLON
     
@@ -394,19 +470,31 @@ void parse_subprogram_declaration_2() {
     
 	switch(tok.type) {
         case BEGIN_TYPE:
+		{
             // Grammar production: compound_statement
-            parse_compound_statement();
-            return;
+            type compound_statement_type = parse_compound_statement();
+            if (compound_statement_type == ERROR_STAR || compound_statement_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case VAR_TYPE:
+		{
             // Grammar production: declarations subprogram_declaration_3
-            parse_declarations();
-            parse_subprogram_declaration_3();
-            return;
+            type declarations_type = parse_declarations();
+            type subprogram_declaration_3_type = parse_subprogram_declaration_3();
+            if (declarations_type == ERROR_STAR || declarations_type == ERROR || subprogram_declaration_3_type == ERROR_STAR || subprogram_declaration_3_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case PROCEDURE_TYPE:
+		{
             // Grammar production: subprogram_declarations compound_statement
-            parse_subprogram_declarations();
-            parse_compound_statement();
-            return;
+            type subprogram_declarations_type = parse_subprogram_declarations();
+            type compound_statement_type = parse_compound_statement();
+            if (subprogram_declarations_type == ERROR_STAR || subprogram_declarations_type == ERROR || compound_statement_type == ERROR_STAR || compound_statement_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "subprogram_declaration_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -414,9 +502,10 @@ void parse_subprogram_declaration_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_subprogram_declaration_3() {
+type parse_subprogram_declaration_3() {
 	// first(subprogram_declaration_3): BEGIN, PROCEDURE
 	// follow(subprogram_declaration_3): SEMICOLON
     
@@ -427,14 +516,22 @@ void parse_subprogram_declaration_3() {
     
 	switch(tok.type) {
         case BEGIN_TYPE:
+		{
             // Grammar production: compound_statement
-            parse_compound_statement();
-            return;
+            type compound_statement_type = parse_compound_statement();
+            if (compound_statement_type == ERROR_STAR || compound_statement_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case PROCEDURE_TYPE:
+		{
             // Grammar production: subprogram_declarations compound_statement
-            parse_subprogram_declarations();
-            parse_compound_statement();
-            return;
+            type subprogram_declarations_type = parse_subprogram_declarations();
+            type compound_statement_type = parse_compound_statement();
+            if (subprogram_declarations_type == ERROR_STAR || subprogram_declarations_type == ERROR || compound_statement_type == ERROR_STAR || compound_statement_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "subprogram_declaration_3", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -442,9 +539,10 @@ void parse_subprogram_declaration_3() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_subprogram_head() {
+type parse_subprogram_head() {
 	// first(subprogram_head): PROCEDURE
 	// follow(subprogram_head): VAR, BEGIN, PROCEDURE
     
@@ -455,13 +553,17 @@ void parse_subprogram_head() {
     
 	switch(tok.type) {
         case PROCEDURE_TYPE:
+		{
             // Grammar production: PROCEDURE ID subprogram_head_2
             if (!match(PROCEDURE_TYPE))
                 goto synch;
             if (!match(ID_TYPE))
                 goto synch;
-            parse_subprogram_head_2();
-            return;
+            type subprogram_head_2_type = parse_subprogram_head_2();
+            if (subprogram_head_2_type == ERROR_STAR || subprogram_head_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "subprogram_head", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -469,9 +571,10 @@ void parse_subprogram_head() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_subprogram_head_2() {
+type parse_subprogram_head_2() {
 	// first(subprogram_head_2): LPAREN, SEMICOLON
 	// follow(subprogram_head_2): VAR, BEGIN, PROCEDURE
     
@@ -482,16 +585,22 @@ void parse_subprogram_head_2() {
     
 	switch(tok.type) {
         case SEMICOLON_TYPE:
+		{
             // Grammar production: SEMICOLON
             if (!match(SEMICOLON_TYPE))
                 goto synch;
-            return;
+            return NONE;
+		}
         case LPAREN_TYPE:
+		{
             // Grammar production: arguments SEMICOLON
-            parse_arguments();
+            type arguments_type = parse_arguments();
             if (!match(SEMICOLON_TYPE))
                 goto synch;
-            return;
+            if (arguments_type == ERROR_STAR || arguments_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "subprogram_head_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -499,9 +608,10 @@ void parse_subprogram_head_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_arguments() {
+type parse_arguments() {
 	// first(arguments): LPAREN
 	// follow(arguments): SEMICOLON
     
@@ -512,13 +622,17 @@ void parse_arguments() {
     
 	switch(tok.type) {
         case LPAREN_TYPE:
+		{
             // Grammar production: LPAREN parameter_list RPAREN
             if (!match(LPAREN_TYPE))
                 goto synch;
-            parse_parameter_list();
+            type parameter_list_type = parse_parameter_list();
             if (!match(RPAREN_TYPE))
                 goto synch;
-            return;
+            if (parameter_list_type == ERROR_STAR || parameter_list_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "arguments", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -526,9 +640,10 @@ void parse_arguments() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_parameter_list() {
+type parse_parameter_list() {
 	// first(parameter_list): ID
 	// follow(parameter_list): RPAREN
     
@@ -539,13 +654,17 @@ void parse_parameter_list() {
     
 	switch(tok.type) {
         case ID_TYPE:
+		{
             // Grammar production: identifier_list COLON type parameter_list_2
-            parse_identifier_list();
+            type identifier_list_type = parse_identifier_list();
             if (!match(COLON_TYPE))
                 goto synch;
-            parse_type();
-            parse_parameter_list_2();
-            return;
+            type type_type = parse_type();
+            type parameter_list_2_type = parse_parameter_list_2();
+            if (identifier_list_type == ERROR_STAR || identifier_list_type == ERROR || type_type == ERROR_STAR || type_type == ERROR || parameter_list_2_type == ERROR_STAR || parameter_list_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "parameter_list", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -553,9 +672,10 @@ void parse_parameter_list() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_parameter_list_2() {
+type parse_parameter_list_2() {
 	// first(parameter_list_2): EPSILON, SEMICOLON
 	// follow(parameter_list_2): RPAREN
     
@@ -568,17 +688,21 @@ void parse_parameter_list_2() {
         case RPAREN_TYPE:
             // Grammar production: EPSILON
             // Epslion production
-            return;
+            return NONE;
         case SEMICOLON_TYPE:
+		{
             // Grammar production: SEMICOLON identifier_list COLON type parameter_list_2
             if (!match(SEMICOLON_TYPE))
                 goto synch;
-            parse_identifier_list();
+            type identifier_list_type = parse_identifier_list();
             if (!match(COLON_TYPE))
                 goto synch;
-            parse_type();
-            parse_parameter_list_2();
-            return;
+            type type_type = parse_type();
+            type parameter_list_2_type = parse_parameter_list_2();
+            if (identifier_list_type == ERROR_STAR || identifier_list_type == ERROR || type_type == ERROR_STAR || type_type == ERROR || parameter_list_2_type == ERROR_STAR || parameter_list_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "parameter_list_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -586,9 +710,10 @@ void parse_parameter_list_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_compound_statement() {
+type parse_compound_statement() {
 	// first(compound_statement): BEGIN
 	// follow(compound_statement): END, PERIOD, SEMICOLON, ELSE
     
@@ -599,11 +724,15 @@ void parse_compound_statement() {
     
 	switch(tok.type) {
         case BEGIN_TYPE:
+		{
             // Grammar production: BEGIN compound_statement_2
             if (!match(BEGIN_TYPE))
                 goto synch;
-            parse_compound_statement_2();
-            return;
+            type compound_statement_2_type = parse_compound_statement_2();
+            if (compound_statement_2_type == ERROR_STAR || compound_statement_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "compound_statement", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -611,9 +740,10 @@ void parse_compound_statement() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_compound_statement_2() {
+type parse_compound_statement_2() {
 	// first(compound_statement_2): BEGIN, END, CALL, IF, WHILE, ID
 	// follow(compound_statement_2): END, PERIOD, SEMICOLON, ELSE
     
@@ -624,20 +754,26 @@ void parse_compound_statement_2() {
     
 	switch(tok.type) {
         case END_TYPE:
+		{
             // Grammar production: END
             if (!match(END_TYPE))
                 goto synch;
-            return;
+            return NONE;
+		}
         case BEGIN_TYPE:
         case WHILE_TYPE:
         case CALL_TYPE:
         case ID_TYPE:
         case IF_TYPE:
+		{
             // Grammar production: optional_statements END
-            parse_optional_statements();
+            type optional_statements_type = parse_optional_statements();
             if (!match(END_TYPE))
                 goto synch;
-            return;
+            if (optional_statements_type == ERROR_STAR || optional_statements_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "compound_statement_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -645,9 +781,10 @@ void parse_compound_statement_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_optional_statements() {
+type parse_optional_statements() {
 	// first(optional_statements): BEGIN, WHILE, CALL, ID, IF
 	// follow(optional_statements): END
     
@@ -662,9 +799,13 @@ void parse_optional_statements() {
         case WHILE_TYPE:
         case ID_TYPE:
         case IF_TYPE:
+		{
             // Grammar production: statement_list
-            parse_statement_list();
-            return;
+            type statement_list_type = parse_statement_list();
+            if (statement_list_type == ERROR_STAR || statement_list_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "optional_statements", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -672,9 +813,10 @@ void parse_optional_statements() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_statement_list() {
+type parse_statement_list() {
 	// first(statement_list): BEGIN, WHILE, CALL, ID, IF
 	// follow(statement_list): END
     
@@ -689,10 +831,14 @@ void parse_statement_list() {
         case CALL_TYPE:
         case BEGIN_TYPE:
         case ID_TYPE:
+		{
             // Grammar production: statement statement_list_2
-            parse_statement();
-            parse_statement_list_2();
-            return;
+            type statement_type = parse_statement();
+            type statement_list_2_type = parse_statement_list_2();
+            if (statement_type == ERROR_STAR || statement_type == ERROR || statement_list_2_type == ERROR_STAR || statement_list_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "statement_list", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -700,9 +846,10 @@ void parse_statement_list() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_statement_list_2() {
+type parse_statement_list_2() {
 	// first(statement_list_2): EPSILON, SEMICOLON
 	// follow(statement_list_2): END
     
@@ -715,14 +862,18 @@ void parse_statement_list_2() {
         case END_TYPE:
             // Grammar production: EPSILON
             // Epslion production
-            return;
+            return NONE;
         case SEMICOLON_TYPE:
+		{
             // Grammar production: SEMICOLON statement statement_list_2
             if (!match(SEMICOLON_TYPE))
                 goto synch;
-            parse_statement();
-            parse_statement_list_2();
-            return;
+            type statement_type = parse_statement();
+            type statement_list_2_type = parse_statement_list_2();
+            if (statement_type == ERROR_STAR || statement_type == ERROR || statement_list_2_type == ERROR_STAR || statement_list_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "statement_list_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -730,9 +881,10 @@ void parse_statement_list_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_statement() {
+type parse_statement() {
 	// first(statement): WHILE, CALL, IF, BEGIN, ID
 	// follow(statement): END, SEMICOLON, ELSE
     
@@ -743,39 +895,59 @@ void parse_statement() {
     
 	switch(tok.type) {
         case IF_TYPE:
+		{
             // Grammar production: IF expression THEN statement statement_2
             if (!match(IF_TYPE))
                 goto synch;
-            parse_expression();
+            type expression_type = parse_expression();
             if (!match(THEN_TYPE))
                 goto synch;
-            parse_statement();
-            parse_statement_2();
-            return;
+            type statement_type = parse_statement();
+            type statement_2_type = parse_statement_2();
+            if (expression_type == ERROR_STAR || expression_type == ERROR || statement_type == ERROR_STAR || statement_type == ERROR || statement_2_type == ERROR_STAR || statement_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case WHILE_TYPE:
+		{
             // Grammar production: WHILE expression DO statement
             if (!match(WHILE_TYPE))
                 goto synch;
-            parse_expression();
+            type expression_type = parse_expression();
             if (!match(DO_TYPE))
                 goto synch;
-            parse_statement();
-            return;
+            type statement_type = parse_statement();
+            if (expression_type == ERROR_STAR || expression_type == ERROR || statement_type == ERROR_STAR || statement_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case BEGIN_TYPE:
+		{
             // Grammar production: compound_statement
-            parse_compound_statement();
-            return;
+            type compound_statement_type = parse_compound_statement();
+            if (compound_statement_type == ERROR_STAR || compound_statement_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case CALL_TYPE:
+		{
             // Grammar production: procedure_statement
-            parse_procedure_statement();
-            return;
+            type procedure_statement_type = parse_procedure_statement();
+            if (procedure_statement_type == ERROR_STAR || procedure_statement_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case ID_TYPE:
+		{
             // Grammar production: variable ASSIGNOP expression
-            parse_variable();
+            type variable_type = parse_variable();
             if (!match(ASSIGNOP_TYPE))
                 goto synch;
-            parse_expression();
-            return;
+            type expression_type = parse_expression();
+            if (variable_type == ERROR_STAR || variable_type == ERROR || expression_type == ERROR_STAR || expression_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "statement", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -783,9 +955,10 @@ void parse_statement() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_statement_2() {
+type parse_statement_2() {
 	// first(statement_2): EPSILON, ELSE
 	// follow(statement_2): END, SEMICOLON, ELSE
 	// MULTIPLE PRODUCTIONS FOR SYMBOL: ELSE
@@ -797,17 +970,21 @@ void parse_statement_2() {
     
 	switch(tok.type) {
         case ELSE_TYPE:
+		{
             // Grammar production: ELSE statement
             if (!match(ELSE_TYPE))
                 goto synch;
-            parse_statement();
-            return;
+            type statement_type = parse_statement();
+            if (statement_type == ERROR_STAR || statement_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case END_TYPE:
         case SEMICOLON_TYPE:
         // case ELSE_TYPE: -- resolve dangling else
             // Grammar production: EPSILON
             // Epslion production
-            return;
+            return NONE;
         default:
             write_listing_synerr(lineno, tok, "statement_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -815,9 +992,10 @@ void parse_statement_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_variable() {
+type parse_variable() {
 	// first(variable): ID
 	// follow(variable): ASSIGNOP
     
@@ -828,11 +1006,15 @@ void parse_variable() {
     
 	switch(tok.type) {
         case ID_TYPE:
+		{
             // Grammar production: ID variable_2
             if (!match(ID_TYPE))
                 goto synch;
-            parse_variable_2();
-            return;
+            type variable_2_type = parse_variable_2();
+            if (variable_2_type == ERROR_STAR || variable_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "variable", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -840,9 +1022,10 @@ void parse_variable() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_variable_2() {
+type parse_variable_2() {
 	// first(variable_2): LBRACKET, EPSILON
 	// follow(variable_2): ASSIGNOP
     
@@ -855,15 +1038,19 @@ void parse_variable_2() {
         case ASSIGNOP_TYPE:
             // Grammar production: EPSILON
             // Epslion production
-            return;
+            return NONE;
         case LBRACKET_TYPE:
+		{
             // Grammar production: LBRACKET expression RBRACKET
             if (!match(LBRACKET_TYPE))
                 goto synch;
-            parse_expression();
+            type expression_type = parse_expression();
             if (!match(RBRACKET_TYPE))
                 goto synch;
-            return;
+            if (expression_type == ERROR_STAR || expression_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "variable_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -871,9 +1058,10 @@ void parse_variable_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_procedure_statement() {
+type parse_procedure_statement() {
 	// first(procedure_statement): CALL
 	// follow(procedure_statement): END, SEMICOLON, ELSE
     
@@ -884,13 +1072,17 @@ void parse_procedure_statement() {
     
 	switch(tok.type) {
         case CALL_TYPE:
+		{
             // Grammar production: CALL ID procedure_statement_2
             if (!match(CALL_TYPE))
                 goto synch;
             if (!match(ID_TYPE))
                 goto synch;
-            parse_procedure_statement_2();
-            return;
+            type procedure_statement_2_type = parse_procedure_statement_2();
+            if (procedure_statement_2_type == ERROR_STAR || procedure_statement_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "procedure_statement", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -898,9 +1090,10 @@ void parse_procedure_statement() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_procedure_statement_2() {
+type parse_procedure_statement_2() {
 	// first(procedure_statement_2): EPSILON, LPAREN
 	// follow(procedure_statement_2): END, SEMICOLON, ELSE
     
@@ -915,15 +1108,19 @@ void parse_procedure_statement_2() {
         case ELSE_TYPE:
             // Grammar production: EPSILON
             // Epslion production
-            return;
+            return NONE;
         case LPAREN_TYPE:
+		{
             // Grammar production: LPAREN expression_list RPAREN
             if (!match(LPAREN_TYPE))
                 goto synch;
-            parse_expression_list();
+            type expression_list_type = parse_expression_list();
             if (!match(RPAREN_TYPE))
                 goto synch;
-            return;
+            if (expression_list_type == ERROR_STAR || expression_list_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "procedure_statement_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -931,9 +1128,10 @@ void parse_procedure_statement_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_expression_list() {
+type parse_expression_list() {
 	// first(expression_list): NUM, PLUS, LPAREN, NOT, MINUS, ID
 	// follow(expression_list): RPAREN
     
@@ -949,10 +1147,14 @@ void parse_expression_list() {
         case LPAREN_TYPE:
         case NOT_TYPE:
         case ID_TYPE:
+		{
             // Grammar production: expression expression_list_2
-            parse_expression();
-            parse_expression_list_2();
-            return;
+            type expression_type = parse_expression();
+            type expression_list_2_type = parse_expression_list_2();
+            if (expression_type == ERROR_STAR || expression_type == ERROR || expression_list_2_type == ERROR_STAR || expression_list_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "expression_list", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -960,9 +1162,10 @@ void parse_expression_list() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_expression_list_2() {
+type parse_expression_list_2() {
 	// first(expression_list_2): EPSILON, COMMA
 	// follow(expression_list_2): RPAREN
     
@@ -973,16 +1176,20 @@ void parse_expression_list_2() {
     
 	switch(tok.type) {
         case COMMA_TYPE:
+		{
             // Grammar production: COMMA expression expression_list_2
             if (!match(COMMA_TYPE))
                 goto synch;
-            parse_expression();
-            parse_expression_list_2();
-            return;
+            type expression_type = parse_expression();
+            type expression_list_2_type = parse_expression_list_2();
+            if (expression_type == ERROR_STAR || expression_type == ERROR || expression_list_2_type == ERROR_STAR || expression_list_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case RPAREN_TYPE:
             // Grammar production: EPSILON
             // Epslion production
-            return;
+            return NONE;
         default:
             write_listing_synerr(lineno, tok, "expression_list_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -990,9 +1197,10 @@ void parse_expression_list_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_expression() {
+type parse_expression() {
 	// first(expression): MINUS, NUM, PLUS, LPAREN, NOT, ID
 	// follow(expression): DO, END, SEMICOLON, THEN, RPAREN, RBRACKET, COMMA, ELSE
     
@@ -1008,10 +1216,14 @@ void parse_expression() {
         case LPAREN_TYPE:
         case NOT_TYPE:
         case ID_TYPE:
+		{
             // Grammar production: simple_expression expression_2
-            parse_simple_expression();
-            parse_expression_2();
-            return;
+            type simple_expression_type = parse_simple_expression();
+            type expression_2_type = parse_expression_2();
+            if (simple_expression_type == ERROR_STAR || simple_expression_type == ERROR || expression_2_type == ERROR_STAR || expression_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "expression", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -1019,9 +1231,10 @@ void parse_expression() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_expression_2() {
+type parse_expression_2() {
 	// first(expression_2): EPSILON, RELOP
 	// follow(expression_2): DO, END, SEMICOLON, THEN, ELSE, COMMA, RPAREN, RBRACKET
     
@@ -1041,13 +1254,17 @@ void parse_expression_2() {
         case RBRACKET_TYPE:
             // Grammar production: EPSILON
             // Epslion production
-            return;
+            return NONE;
         case RELOP_TYPE:
+		{
             // Grammar production: RELOP simple_expression
             if (!match(RELOP_TYPE))
                 goto synch;
-            parse_simple_expression();
-            return;
+            type simple_expression_type = parse_simple_expression();
+            if (simple_expression_type == ERROR_STAR || simple_expression_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "expression_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -1055,9 +1272,10 @@ void parse_expression_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_simple_expression() {
+type parse_simple_expression() {
 	// first(simple_expression): NUM, PLUS, LPAREN, NOT, ID, MINUS
 	// follow(simple_expression): DO, END, RELOP, SEMICOLON, THEN, ELSE, COMMA, RPAREN, RBRACKET
     
@@ -1069,19 +1287,27 @@ void parse_simple_expression() {
 	switch(tok.type) {
         case MINUS_TYPE:
         case PLUS_TYPE:
+		{
             // Grammar production: sign term simple_expression_2
-            parse_sign();
-            parse_term();
-            parse_simple_expression_2();
-            return;
+            type sign_type = parse_sign();
+            type term_type = parse_term();
+            type simple_expression_2_type = parse_simple_expression_2();
+            if (sign_type == ERROR_STAR || sign_type == ERROR || term_type == ERROR_STAR || term_type == ERROR || simple_expression_2_type == ERROR_STAR || simple_expression_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case NUM_TYPE:
         case LPAREN_TYPE:
         case NOT_TYPE:
         case ID_TYPE:
+		{
             // Grammar production: term simple_expression_2
-            parse_term();
-            parse_simple_expression_2();
-            return;
+            type term_type = parse_term();
+            type simple_expression_2_type = parse_simple_expression_2();
+            if (term_type == ERROR_STAR || term_type == ERROR || simple_expression_2_type == ERROR_STAR || simple_expression_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "simple_expression", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -1089,9 +1315,10 @@ void parse_simple_expression() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_simple_expression_2() {
+type parse_simple_expression_2() {
 	// first(simple_expression_2): ADDOP, PLUS, MINUS, EPSILON
 	// follow(simple_expression_2): DO, END, RELOP, SEMICOLON, THEN, ELSE, COMMA, RPAREN, RBRACKET
     
@@ -1102,12 +1329,16 @@ void parse_simple_expression_2() {
     
 	switch(tok.type) {
         case ADDOP_TYPE:
+		{
             // Grammar production: ADDOP term simple_expression_2
             if (!match(ADDOP_TYPE))
                 goto synch;
-            parse_term();
-            parse_simple_expression_2();
-            return;
+            type term_type = parse_term();
+            type simple_expression_2_type = parse_simple_expression_2();
+            if (term_type == ERROR_STAR || term_type == ERROR || simple_expression_2_type == ERROR_STAR || simple_expression_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         case END_TYPE:
         case RELOP_TYPE:
         case SEMICOLON_TYPE:
@@ -1119,21 +1350,29 @@ void parse_simple_expression_2() {
         case RPAREN_TYPE:
             // Grammar production: EPSILON
             // Epslion production
-            return;
+            return NONE;
         case MINUS_TYPE:
+		{
             // Grammar production: MINUS term simple_expression_2
             if (!match(MINUS_TYPE))
                 goto synch;
-            parse_term();
-            parse_simple_expression_2();
-            return;
-        case PLUS_TYPE:
+            type term_type = parse_term();
+            type simple_expression_2_type = parse_simple_expression_2();
+            if (term_type == ERROR_STAR || term_type == ERROR || simple_expression_2_type == ERROR_STAR || simple_expression_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
+        case PLUS_TYPE: 
+		{
             // Grammar production: PLUS term simple_expression_2
             if (!match(PLUS_TYPE))
                 goto synch;
-            parse_term();
-            parse_simple_expression_2();
-            return;
+            type term_type = parse_term();
+            type simple_expression_2_type = parse_simple_expression_2();
+            if (term_type == ERROR_STAR || term_type == ERROR || simple_expression_2_type == ERROR_STAR || simple_expression_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "simple_expression_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -1141,9 +1380,10 @@ void parse_simple_expression_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_term() {
+type parse_term() {
 	// first(term): NUM, LPAREN, NOT, ID
 	// follow(term): DO, END, RELOP, THEN, ELSE, MINUS, ADDOP, RPAREN, SEMICOLON, PLUS, COMMA, RBRACKET
     
@@ -1153,14 +1393,18 @@ void parse_term() {
 	TOKEN_TYPE synch_set[] = {DO_TYPE, END_TYPE, EOF_TYPE, SEMICOLON_TYPE, THEN_TYPE, ELSE_TYPE, ADDOP_TYPE, PLUS_TYPE, RPAREN_TYPE, RBRACKET_TYPE, COMMA_TYPE, MINUS_TYPE, RELOP_TYPE};
     
 	switch(tok.type) {
-        case NOT_TYPE:
-        case NUM_TYPE:
-        case ID_TYPE:
-        case LPAREN_TYPE:
+        case NOT_TYPE: 
+        case NUM_TYPE: 
+        case ID_TYPE: 
+        case LPAREN_TYPE: 
+		{
             // Grammar production: factor term_2
-            parse_factor();
-            parse_term_2();
-            return;
+            type factor_type = parse_factor();
+            type term_2_type = parse_term_2();
+            if (factor_type == ERROR_STAR || factor_type == ERROR || term_2_type == ERROR_STAR || term_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "term", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -1168,9 +1412,10 @@ void parse_term() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_term_2() {
+type parse_term_2() {
 	// first(term_2): EPSILON, MULOP
 	// follow(term_2): DO, END, RELOP, SEMICOLON, THEN, ELSE, ADDOP, PLUS, RPAREN, RBRACKET, COMMA, MINUS
     
@@ -1180,28 +1425,32 @@ void parse_term_2() {
 	TOKEN_TYPE synch_set[] = {DO_TYPE, END_TYPE, EOF_TYPE, SEMICOLON_TYPE, THEN_TYPE, ELSE_TYPE, ADDOP_TYPE, PLUS_TYPE, RPAREN_TYPE, RBRACKET_TYPE, COMMA_TYPE, MINUS_TYPE, RELOP_TYPE};
     
 	switch(tok.type) {
-        case DO_TYPE:
-        case END_TYPE:
-        case RELOP_TYPE:
-        case SEMICOLON_TYPE:
-        case THEN_TYPE:
-        case ELSE_TYPE:
-        case ADDOP_TYPE:
-        case PLUS_TYPE:
-        case RPAREN_TYPE:
-        case RBRACKET_TYPE:
-        case COMMA_TYPE:
-        case MINUS_TYPE:
+        case DO_TYPE: 
+        case END_TYPE: 
+        case RELOP_TYPE: 
+        case SEMICOLON_TYPE: 
+        case THEN_TYPE: 
+        case ELSE_TYPE: 
+        case ADDOP_TYPE: 
+        case PLUS_TYPE: 
+        case RPAREN_TYPE: 
+        case RBRACKET_TYPE: 
+        case COMMA_TYPE: 
+        case MINUS_TYPE: 
             // Grammar production: EPSILON
             // Epslion production
-            return;
-        case MULOP_TYPE:
+            return NONE;
+        case MULOP_TYPE: 
+		{
             // Grammar production: MULOP factor term_2
             if (!match(MULOP_TYPE))
                 goto synch;
-            parse_factor();
-            parse_term_2();
-            return;
+            type factor_type = parse_factor();
+            type term_2_type = parse_term_2();
+            if (factor_type == ERROR_STAR || factor_type == ERROR || term_2_type == ERROR_STAR || term_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "term_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -1209,9 +1458,10 @@ void parse_term_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_factor() {
+type parse_factor() {
 	// first(factor): NOT, NUM, ID, LPAREN
 	// follow(factor): DO, END, RELOP, THEN, ELSE, MULOP, MINUS, ADDOP, RPAREN, SEMICOLON, PLUS, COMMA, RBRACKET
     
@@ -1221,31 +1471,45 @@ void parse_factor() {
 	TOKEN_TYPE synch_set[] = {DO_TYPE, END_TYPE, EOF_TYPE, SEMICOLON_TYPE, THEN_TYPE, ELSE_TYPE, ADDOP_TYPE, PLUS_TYPE, MULOP_TYPE, RPAREN_TYPE, RBRACKET_TYPE, COMMA_TYPE, MINUS_TYPE, RELOP_TYPE};
     
 	switch(tok.type) {
-        case ID_TYPE:
+        case ID_TYPE: 
+		{
             // Grammar production: ID factor_2
             if (!match(ID_TYPE))
                 goto synch;
-            parse_factor_2();
-            return;
-        case LPAREN_TYPE:
+            type factor_2_type = parse_factor_2();
+            if (factor_2_type == ERROR_STAR || factor_2_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
+        case LPAREN_TYPE: 
+		{
             // Grammar production: LPAREN expression RPAREN
             if (!match(LPAREN_TYPE))
                 goto synch;
-            parse_expression();
+            type expression_type = parse_expression();
             if (!match(RPAREN_TYPE))
                 goto synch;
-            return;
-        case NOT_TYPE:
+            if (expression_type == ERROR_STAR || expression_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
+        case NOT_TYPE: 
+		{
             // Grammar production: NOT factor
             if (!match(NOT_TYPE))
                 goto synch;
-            parse_factor();
-            return;
-        case NUM_TYPE:
+            type factor_type = parse_factor();
+            if (factor_type == ERROR_STAR || factor_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
+        case NUM_TYPE: 
+		{
             // Grammar production: NUM
             if (!match(NUM_TYPE))
                 goto synch;
-            return;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "factor", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -1253,9 +1517,10 @@ void parse_factor() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_factor_2() {
+type parse_factor_2() {
 	// first(factor_2): LBRACKET, EPSILON
 	// follow(factor_2): DO, END, RELOP, SEMICOLON, THEN, ELSE, ADDOP, PLUS, MULOP, RPAREN, RBRACKET, COMMA, MINUS
     
@@ -1265,30 +1530,34 @@ void parse_factor_2() {
 	TOKEN_TYPE synch_set[] = {DO_TYPE, END_TYPE, EOF_TYPE, SEMICOLON_TYPE, THEN_TYPE, ELSE_TYPE, ADDOP_TYPE, PLUS_TYPE, MULOP_TYPE, RPAREN_TYPE, RBRACKET_TYPE, COMMA_TYPE, MINUS_TYPE, RELOP_TYPE};
     
 	switch(tok.type) {
-        case DO_TYPE:
-        case END_TYPE:
-        case RELOP_TYPE:
-        case SEMICOLON_TYPE:
-        case THEN_TYPE:
-        case ELSE_TYPE:
-        case ADDOP_TYPE:
-        case PLUS_TYPE:
-        case MULOP_TYPE:
-        case RPAREN_TYPE:
-        case RBRACKET_TYPE:
-        case COMMA_TYPE:
-        case MINUS_TYPE:
+        case DO_TYPE: 
+        case END_TYPE: 
+        case RELOP_TYPE: 
+        case SEMICOLON_TYPE: 
+        case THEN_TYPE: 
+        case ELSE_TYPE: 
+        case ADDOP_TYPE: 
+        case PLUS_TYPE: 
+        case MULOP_TYPE: 
+        case RPAREN_TYPE: 
+        case RBRACKET_TYPE: 
+        case COMMA_TYPE: 
+        case MINUS_TYPE: 
             // Grammar production: EPSILON
             // Epslion production
-            return;
-        case LBRACKET_TYPE:
+            return NONE;
+        case LBRACKET_TYPE: 
+		{
             // Grammar production: LBRACKET expression RBRACKET
             if (!match(LBRACKET_TYPE))
                 goto synch;
-            parse_expression();
+            type expression_type = parse_expression();
             if (!match(RBRACKET_TYPE))
                 goto synch;
-            return;
+            if (expression_type == ERROR_STAR || expression_type == ERROR)
+                return ERROR;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "factor_2", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -1296,9 +1565,10 @@ void parse_factor_2() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
 
-void parse_sign() {
+type parse_sign() {
 	// first(sign): PLUS, MINUS
 	// follow(sign): NOT, NUM, ID, LPAREN
     
@@ -1308,16 +1578,20 @@ void parse_sign() {
 	TOKEN_TYPE synch_set[] = {NOT_TYPE, NUM_TYPE, EOF_TYPE, LPAREN_TYPE, ID_TYPE};
     
 	switch(tok.type) {
-        case MINUS_TYPE:
+        case MINUS_TYPE: 
+		{
             // Grammar production: MINUS
             if (!match(MINUS_TYPE))
                 goto synch;
-            return;
-        case PLUS_TYPE:
+            return NONE;
+		}
+        case PLUS_TYPE: 
+		{
             // Grammar production: PLUS
             if (!match(PLUS_TYPE))
                 goto synch;
-            return;
+            return NONE;
+		}
         default:
             write_listing_synerr(lineno, tok, "sign", expected, sizeof(expected)/sizeof(expected[0]));
             break;
@@ -1325,4 +1599,6 @@ void parse_sign() {
     
 synch:
 	synch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));
+	return ERROR_STAR;
 }
+

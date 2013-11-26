@@ -6,11 +6,12 @@
 
 token tok = NONE_MATCHED;
 
-void parse() {
-    while (tok.type == NONE_TYPE || tok.type != EOF_TYPE) {
-        tok = get_next_token();
-        parse_program();
-    }
+int parse() {
+    tok = get_next_token();
+    type program_type = parse_program();
+    if (program_type == ERROR || program_type == ERROR_STAR)
+        return 1;
+    return 0;
 }
 
 int match(TOKEN_TYPE type) {
@@ -41,3 +42,19 @@ void synch(TOKEN_TYPE synch_set[], int len) {
     }
     DEBUG_PRINT(("  SYNCH: SYNCHED WITH TOKEN %s\n", token_type_name[tok.type]));
 }
+
+void check_add_variable(token, type);
+
+void check_add_procedure(token);
+
+void check_add_parameter(token, type);
+
+void check_variable(token, type);
+
+void check_procedure(token);
+
+void check_parameter(token, type);
+
+void pop_procedure();
+
+

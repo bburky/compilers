@@ -5,12 +5,24 @@
 
 token tok;
 
-void parse();
+int parse();
 
 int match(TOKEN_TYPE);
 
 void error();
 
 void synch(TOKEN_TYPE[], int);
+
+typedef enum {
+    NONE, INTEGER, REAL, BOOL, PROCEDURE, ERROR, ERROR_STAR
+} type;
+
+typedef struct stack_node {
+    const char *id;
+    const type id_type;
+    struct stack_node *parameters;
+    struct stack_node *prev;
+} stack_node;
+
 
 #endif

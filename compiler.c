@@ -33,8 +33,7 @@ int main(int argc, const char *argv[]) {
     init_output(argv[1]);
 
     DEBUG_PRINT(("PARSING\n"));
-    parse();
-    return 0;
+    return parse();
 }
 
 /*

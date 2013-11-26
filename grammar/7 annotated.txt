@@ -1,0 +1,199 @@
+program
+	→ PROGRAM ID LPAREN identifier_list RPAREN SEMICOLON program_2
+checkaddprocecure ID
+
+program_2
+	→ compound_statement PERIOD
+	→ subprogram_declarations compound_statement PERIOD
+	→ declarations program_3
+
+program_3
+	→ compound_statement PERIOD
+	→ subprogram_declarations compound_statement PERIOD
+
+identifier_list
+	→ ID identifier_list_2
+checkaddid ID to add to function parameters
+create simple linked list with ID, pass to identifier_list_2
+return list
+
+identifier_list_2
+	→ COMMA ID identifier_list_2
+	→ EPSILON
+checkaddid ID to add to function parameters
+add ID to linked list, pass to identifier_list_2
+
+
+declarations
+	→ VAR ID COLON type SEMICOLON declarations_2
+checkaddid ID to add to local variables
+
+declarations_2
+	→ VAR ID COLON type SEMICOLON declarations_2
+	→ EPSILON
+checkaddid ID to add to local variables
+
+type
+	→ standard_type
+	→ ARRAY LBRACKET NUM ARRAY_RANGE NUM RBRACKET OF standard_type
+check that NUM and NUM are ints
+
+standard_type
+	→ INTEGER
+	→ REAL
+return type integer or real
+
+subprogram_declarations
+	→ subprogram_declaration SEMICOLON subprogram_declarations_2
+
+subprogram_declarations_2
+	→ subprogram_declaration SEMICOLON subprogram_declarations_2
+	→ EPSILON
+
+subprogram_declaration
+	→ subprogram_head subprogram_declaration_2
+
+subprogram_declaration_2
+	→ compound_statement
+	→ declarations subprogram_declaration_3
+	→ subprogram_declarations compound_statement
+
+subprogram_declaration_3
+	→ compound_statement
+	→ subprogram_declarations compound_statement
+
+subprogram_head
+	→ PROCEDURE ID subprogram_head_2
+checkaddprocecure ID
+pass created procedure to subprogram_head_2? or just push onto stack
+
+subprogram_head_2
+	→ arguments SEMICOLON
+	→ SEMICOLON
+should be finished creating function at this point
+pass created procedure to arguments?
+
+arguments
+	→ LPAREN parameter_list RPAREN
+pass created procedure to parameter_list?
+
+parameter_list
+	→ identifier_list COLON type parameter_list_2
+checkaddid ID to add to function parameters with type
+
+parameter_list_2
+	→ SEMICOLON identifier_list COLON type parameter_list_2
+	→ EPSILON
+checkaddid ID to add to function parameters with type
+
+compound_statement
+	→ BEGIN compound_statement_2
+
+compound_statement_2
+	→ optional_statements END
+	→ END
+
+optional_statements
+	→ statement_list
+
+statement_list
+	→ statement statement_list_2
+
+statement_list_2
+	→ SEMICOLON statement statement_list_2
+	→ EPSILON
+
+statement
+	→ variable ASSIGNOP expression
+	→ procedure_statement
+	→ compound_statement
+	→ IF expression THEN statement statement_2
+	→ WHILE expression DO statement
+
+statement_2
+	→ ELSE statement
+	→ EPSILON
+
+variable
+	→ ID variable_2
+lookup variable in current and previous scopes
+return it
+
+variable_2
+	→ LBRACKET expression RBRACKET
+	→ EPSILON
+
+procedure_statement
+	→ CALL ID procedure_statement_2
+lookup function name in current and previous scopes
+pass function parameter list to procedure_statement_2
+
+procedure_statement_2
+	→ LPAREN expression_list RPAREN
+	→ EPSILON
+pass function parameter list to procedure_statement_2
+
+expression_list
+	→ expression expression_list_2
+pass function parameter list to expression_list_2
+check types of expression against top of function parameter list
+
+expression_list_2
+	→ COMMA expression expression_list_2
+	→ EPSILON
+pass function parameter list to expression_list_2
+check types of expression against top of function parameter list
+
+expression
+	→ simple_expression expression_2
+pass type of simple_expression to expression_2?
+
+expression_2
+	→ RELOP simple_expression
+	→ EPSILON
+epsilon: type of expression_2
+RELOP: check that types of both simple_expressions match. Return boolean or error
+
+simple_expression
+	→ term simple_expression_2
+	→ sign term simple_expression_2
+check that term is int or real
+if sign, just drop it?
+pass term to simple_expression_2
+
+simple_expression_2
+	→ ADDOP term simple_expression_2
+	→ PLUS term simple_expression_2
+	→ MINUS term simple_expression_2
+	→ EPSILON
+convert PLUS and MINUS into a proper ADDOP at this point?
+check that type of both terms aggre with the ADDOP, "or" requires bool, others numbers
+pass term to simple_expression_2
+
+term
+	→ factor term_2
+pass facttor to term_2
+
+term_2
+	→ MULOP factor term_2
+	→ EPSILON
+pass factor to term_2
+MULLOP "and" requires bool
+
+factor
+	→ ID factor_2
+	→ NUM
+	→ LPAREN expression RPAREN
+	→ NOT factor
+if ID, check that it exists, and get its type, pass to factor_2
+NOT requires bool
+
+factor_2
+	→ LBRACKET expression RBRACKET
+	→ EPSILON
+if LBRACKET, check that type of id is ARRAY_INT or ARRAY_REAL
+
+sign
+	→ PLUS
+	→ MINUS
+

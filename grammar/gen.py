@@ -170,14 +170,14 @@ if DEBUG:
 		print
 
 for nt in production_order:
-	print "void parse_{nt}();".format(nt=nt)
+	print "type parse_{nt}();".format(nt=nt)
 	print
 
 for nt in production_order:
 	first = first_funs[nt]()
 	follow = follow_funs[nt]()
 
-	print "void parse_{nt}() ".format(nt=nt) + "{"
+	print "type parse_{nt}() ".format(nt=nt) + "{"
 	print "\t// first({nt}): {first}".format(nt=nt, first=', '.join(first))
 	print "\t// follow({nt}): {follow}".format(nt=nt, follow=', '.join(follow))
 	for a, alphas in parse_table[nt].iteritems():
@@ -200,8 +200,10 @@ for nt in production_order:
 		# print alpha
 		# print list(a_grouped)
 		for a, alpha_same in a_grouped:
-			print "\tcase {a}_TYPE:".format(a=a)
+			print "\tcase {a}_TYPE: ".format(a=a)
 
+		if alpha[0] != "EPSILON":
+			print "\t\t{"
 		print "\t\t// Grammar production: " + ' '.join(alpha)
 		for e in alpha:
 			if e == "EPSILON":
@@ -210,8 +212,14 @@ for nt in production_order:
 				print "\t\tif (!match({t}_TYPE))".format(t=e)
 				print "\t\t\tgoto synch;"
 			else:
-				print "\t\tparse_{nt}();".format(nt=e)
-		print "\t\treturn;"
+				print "\t\ttype {nt}_type = parse_{nt}();".format(nt=e)
+		parsed_nonterminals = [e for e in alpha if not terminal(e)]
+		if parsed_nonterminals:
+			print "\t\tif (" + ' || '.join(nt + "_type == ERROR_STAR || " + nt + "_type == ERROR" for nt in parsed_nonterminals) + ")"
+			print "\t\t\treturn ERROR;"
+		print "\t\treturn NONE;"
+		if alpha[0] != "EPSILON":
+			print "\t\t}"
 
 	print "\tdefault:"
 	print '\t\twrite_listing_synerr(lineno, tok, "{nt}", expected, sizeof(expected)/sizeof(expected[0]));'.format(nt=nt)
@@ -220,6 +228,7 @@ for nt in production_order:
 	print
 	print "synch:"
 	print "\tsynch(synch_set, sizeof(synch_set)/sizeof(synch_set[0]));"
+	print "\treturn ERROR_STAR;"
 	print "}"
 	print
 
