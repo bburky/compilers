@@ -1,6 +1,6 @@
 program
 	→ PROGRAM ID LPAREN identifier_list RPAREN SEMICOLON program_2
-checkaddprocecure ID
+check_add_procecure ID
 
 program_2
 	→ compound_statement PERIOD
@@ -13,35 +13,33 @@ program_3
 
 identifier_list
 	→ ID identifier_list_2
-checkaddid ID to add to function parameters
-create simple linked list with ID, pass to identifier_list_2
-return list
+check_add_parameter ID to add to function parameters
+type none?
 
 identifier_list_2
 	→ COMMA ID identifier_list_2
 	→ EPSILON
-checkaddid ID to add to function parameters
-add ID to linked list, pass to identifier_list_2
-
+check_add_parameter ID to add to function parameters
 
 declarations
 	→ VAR ID COLON type SEMICOLON declarations_2
-checkaddid ID to add to local variables
+check_add_id(id, type)
 
 declarations_2
 	→ VAR ID COLON type SEMICOLON declarations_2
 	→ EPSILON
-checkaddid ID to add to local variables
+check_add_id(id, type)
 
 type
 	→ standard_type
 	→ ARRAY LBRACKET NUM ARRAY_RANGE NUM RBRACKET OF standard_type
 check that NUM and NUM are ints
+return parse_standard_type(), ARRAY_INTEGER, ARRAY_REAL
 
 standard_type
 	→ INTEGER
 	→ REAL
-return type integer or real
+return type INTEGER or REAL
 
 subprogram_declarations
 	→ subprogram_declaration SEMICOLON subprogram_declarations_2
@@ -64,27 +62,25 @@ subprogram_declaration_3
 
 subprogram_head
 	→ PROCEDURE ID subprogram_head_2
-checkaddprocecure ID
-pass created procedure to subprogram_head_2? or just push onto stack
+check_add_procecure ID
 
 subprogram_head_2
 	→ arguments SEMICOLON
 	→ SEMICOLON
-should be finished creating function at this point
-pass created procedure to arguments?
 
 arguments
 	→ LPAREN parameter_list RPAREN
-pass created procedure to parameter_list?
 
 parameter_list
 	→ identifier_list COLON type parameter_list_2
-checkaddid ID to add to function parameters with type
+Find previously created parameters with NONE as type, set type on them
+set_parameter_types()?
 
 parameter_list_2
 	→ SEMICOLON identifier_list COLON type parameter_list_2
 	→ EPSILON
-checkaddid ID to add to function parameters with type
+Find previously created parameters with NONE as type, set type on them
+set_parameter_types()?
 
 compound_statement
 	→ BEGIN compound_statement_2
@@ -109,6 +105,8 @@ statement
 	→ compound_statement
 	→ IF expression THEN statement statement_2
 	→ WHILE expression DO statement
+check that expression is BOOL in IF and WHILE
+check that types of variable and expression match in ASSIGNOP (and expression is not ERROR..)
 
 statement_2
 	→ ELSE statement
@@ -116,50 +114,53 @@ statement_2
 
 variable
 	→ ID variable_2
-lookup variable in current and previous scopes
-return it
+check_id(id, false)
+pass to variable_2
 
 variable_2
 	→ LBRACKET expression RBRACKET
 	→ EPSILON
+if LBRACKET, check that type of id passed in is ARRAY_*
+check that expression is int?
+return computed type
 
 procedure_statement
 	→ CALL ID procedure_statement_2
-lookup function name in current and previous scopes
-pass function parameter list to procedure_statement_2
+check_id(id, false), verify ->type == PROCEDURE
+pass ->parameters to procedure_statement_2?
 
 procedure_statement_2
 	→ LPAREN expression_list RPAREN
 	→ EPSILON
-pass function parameter list to procedure_statement_2
+pass ->parameters to expression_list?
 
 expression_list
 	→ expression expression_list_2
-pass function parameter list to expression_list_2
-check types of expression against top of function parameter list
+check type of expression against corresponding parameter
+pass ->parameters to expression_list_2?
 
 expression_list_2
 	→ COMMA expression expression_list_2
 	→ EPSILON
-pass function parameter list to expression_list_2
-check types of expression against top of function parameter list
+check type of expression against corresponding parameter
+pass ->parameters to expression_list_2?
 
 expression
 	→ simple_expression expression_2
 pass type of simple_expression to expression_2?
+return type of parse_expression_2()
 
 expression_2
 	→ RELOP simple_expression
 	→ EPSILON
-epsilon: type of expression_2
-RELOP: check that types of both simple_expressions match. Return boolean or error
+epsilon: retrurn type of passed in expression
+RELOP: check that types of both simple_expressions match? Return boolean or error
 
 simple_expression
 	→ term simple_expression_2
 	→ sign term simple_expression_2
-check that term is int or real
-if sign, just drop it?
-pass term to simple_expression_2
+if sign, check that term is int or real
+pass type of term to simple_expression_2
 
 simple_expression_2
 	→ ADDOP term simple_expression_2
@@ -167,18 +168,18 @@ simple_expression_2
 	→ MINUS term simple_expression_2
 	→ EPSILON
 convert PLUS and MINUS into a proper ADDOP at this point?
-check that type of both terms aggre with the ADDOP, "or" requires bool, others numbers
-pass term to simple_expression_2
+check that type of both terms agree with the ADDOP, "or" requires bool, others numbers
+pass type of term to simple_expression_2
 
 term
 	→ factor term_2
-pass facttor to term_2
+pass type of factor to term_2
 
 term_2
 	→ MULOP factor term_2
 	→ EPSILON
-pass factor to term_2
 MULLOP "and" requires bool
+pass type of factor to term_2
 
 factor
 	→ ID factor_2
@@ -192,6 +193,8 @@ factor_2
 	→ LBRACKET expression RBRACKET
 	→ EPSILON
 if LBRACKET, check that type of id is ARRAY_INT or ARRAY_REAL
+check that expression is int?
+return computed type
 
 sign
 	→ PLUS

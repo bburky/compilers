@@ -14,7 +14,7 @@ void error();
 void synch(TOKEN_TYPE[], int);
 
 typedef enum {
-    NONE, INTEGER, REAL, BOOL, PROCEDURE, ERROR, ERROR_STAR
+    NONE, INTEGER, REAL, BOOLEAN, PROCEDURE, ERROR, ERROR_STAR
 } type;
 
 typedef struct stack_node {

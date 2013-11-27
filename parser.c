@@ -1,3 +1,7 @@
+#include <stdlib.h>
+#include <stdbool.h>
+#include <assert.h>
+
 #include "parser.h"
 #include "parsergen.h"
 #include "lexeme.h"
@@ -43,18 +47,125 @@ void synch(TOKEN_TYPE synch_set[], int len) {
     DEBUG_PRINT(("  SYNCH: SYNCHED WITH TOKEN %s\n", token_type_name[tok.type]));
 }
 
-void check_add_variable(token, type);
+stack_node *stack = NULL;
 
-void check_add_procedure(token);
+stack_node* check_procedure(char *id) {
+    for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->prev) {
+        if (cur_stack->id == id) {
+            return cur_stack;
+        }
+    }
+    // Didn't find id in stack
+    return NULL;
+}
 
-void check_add_parameter(token, type);
-
-void check_variable(token, type);
-
-void check_procedure(token);
-
-void check_parameter(token, type);
-
-void pop_procedure();
+//stack_node* check_add_procedure(char *id) {
+//    
+//}
 
 
+stack_node* get_procedure() {
+    for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->prev) {
+        if (cur_stack->id_type == PROCEDURE) {
+            return cur_stack;
+        }
+    }
+    // Should not be reached: should always have at least one procedure on stack
+    assert(false);
+}
+
+stack_node* check_parameter(stack_node *procedure, char *id) {
+    for (stack_node* cur_param = procedure->parameters; cur_param != NULL; cur_param = cur_param->prev) {
+        if (cur_param->id == id) {
+            return cur_param;
+        }
+    }
+    // Didn't find id in parameters
+    return NULL;
+}
+
+
+stack_node* check_add_parameter(char *id, type id_type) {
+    stack_node *procedure = get_procedure();
+
+    if (!check_parameter(procedure, id)) {
+        // Parameter already exists
+        return NULL;
+    }
+    
+    for (stack_node* cur_param = procedure->parameters; cur_param != NULL; cur_param = cur_param->prev);
+
+    
+    stack_node *param = malloc(sizeof(stack_node));
+    if (!param) {
+        fprintf(stderr, "Out of memory");
+        exit(1);
+    }
+    *param = (stack_node) {
+        .id = id,
+        .id_type = id_type,
+        .parameters = NULL,
+        .prev = procedure->parameters
+    };
+    procedure->parameters = param;
+    return param;
+}
+
+
+stack_node* pop_procedure() {
+    // Don't pop empty stack
+    if (!stack) {
+        return NULL;
+    }
+    // Find the first procedure on the stack, and set the stack to point before it
+    for (stack_node *cur_stack = stack->prev, *cur_stack_next = stack; cur_stack_next != NULL; cur_stack_next = cur_stack, cur_stack = cur_stack->prev) {
+        if (cur_stack_next->id_type == PROCEDURE) {
+            stack = cur_stack;
+            return cur_stack_next;
+        }
+    }
+    // Should not be reached: stack was not empty and did not contain a procedure
+    assert(false);
+}
+
+stack_node* check_id(char* id, bool scope) {
+    for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->prev) {
+        if (cur_stack->id == id) {
+            return cur_stack;
+        } else if (cur_stack->id_type == PROCEDURE) {
+            // Reached end of current scope
+            for (stack_node* cur_param = cur_stack->parameters; cur_param != NULL; cur_param = cur_param->prev) {
+                if (cur_param->id == id) {
+                    return cur_param;
+                }
+            }
+            // Didn't find id in parameters: if searching current scope only, stop
+            if (scope) {
+                return NULL;
+            }
+        }
+    }
+    // Reached top stack
+    return NULL;
+}
+
+stack_node* check_add_id(char* id, type id_type) {
+    if (!check_id(id, true)) {
+        // id already exists
+        return NULL;
+    }
+    
+    stack_node *var = malloc(sizeof(stack_node));
+    if (!var) {
+        fprintf(stderr, "Out of memory");
+        exit(1);
+    }
+    *var = (stack_node) {
+        .id = id,
+        .id_type = id_type,
+        .parameters = NULL,
+        .prev = stack
+    };
+    stack = var;
+    return stack;
+}
