@@ -6,9 +6,9 @@
 
 token tok;
 
-int parse();
+bool parse();
 
-int match(TOKEN_TYPE);
+bool match(TOKEN_TYPE);
 
 void error();
 
@@ -26,7 +26,6 @@ typedef struct stack_node {
     struct stack_node *parameters;
     struct stack_node *link;
 } stack_node;
-
 
 stack_node* get_procedure();
 

@@ -10,33 +10,33 @@
 
 token tok = NONE_MATCHED;
 
-int parse() {
+bool parse() {
     tok = get_next_token();
     type program_type = parse_program();
     if (program_type == ERROR || program_type == ERROR_STAR)
-        return 1;
-    return 0;
+        return true;
+    return false;
 }
 
-int match(TOKEN_TYPE type) {
+bool match(TOKEN_TYPE type) {
     if (tok.type != type) {
         DEBUG_PRINT(("  FAILED TO MATCH %s\n", token_type_name[type]));
         write_listing_synerr(lineno, tok, token_type_name[type], (TOKEN_TYPE[]) {type}, 1);
-        return 0;
+        return false;
     } else {
         DEBUG_PRINT(("  Matched %s\n", token_type_name[type]));
     }
     tok = get_next_token();
-    return 1;
+    return true;
 }
 
-int token_type_in_list(TOKEN_TYPE token, TOKEN_TYPE list[], int len) {
+bool token_type_in_list(TOKEN_TYPE token, TOKEN_TYPE list[], int len) {
     for (int i = 0; i < len; i++) {
         if (list[i] == token) {
-            return 1;
+            return true;
         }
     }
-    return 0;
+    return false;
 }
 
 void synch(TOKEN_TYPE synch_set[], int len) {
@@ -62,7 +62,6 @@ stack_node* check_procedure(char *id) {
 //stack_node* check_add_procedure(char *id) {
 //    
 //}
-
 
 stack_node* get_procedure() {
     for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->link) {
@@ -90,7 +89,7 @@ stack_node* check_add_parameter(char *id, type id_type) {
     // procedure will be on top of stack
     stack_node *procedure = stack;
 
-    if (!check_parameter(procedure, id)) {
+    if (check_parameter(procedure, id)) {
         // Parameter already exists
         return NULL;
     }
@@ -116,7 +115,6 @@ stack_node* check_add_parameter(char *id, type id_type) {
         for (cur_param = procedure->parameters; cur_param->link != NULL; cur_param = cur_param->link);
         cur_param->parameters = param;
     }
-    
 
     return param;
 }
@@ -160,7 +158,7 @@ stack_node* check_id(char* id, bool scope) {
 }
 
 stack_node* check_add_id(char* id, type id_type) {
-    if (!check_id(id, true)) {
+    if (check_id(id, true)) {
         // id already exists
         return NULL;
     }
