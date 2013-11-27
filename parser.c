@@ -50,7 +50,7 @@ void synch(TOKEN_TYPE synch_set[], int len) {
 stack_node *stack = NULL;
 
 stack_node* check_procedure(char *id) {
-    for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->prev) {
+    for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->link) {
         if (cur_stack->id == id) {
             return cur_stack;
         }
@@ -65,7 +65,7 @@ stack_node* check_procedure(char *id) {
 
 
 stack_node* get_procedure() {
-    for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->prev) {
+    for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->link) {
         if (cur_stack->id_type == PROCEDURE) {
             return cur_stack;
         }
@@ -75,7 +75,7 @@ stack_node* get_procedure() {
 }
 
 stack_node* check_parameter(stack_node *procedure, char *id) {
-    for (stack_node* cur_param = procedure->parameters; cur_param != NULL; cur_param = cur_param->prev) {
+    for (stack_node* cur_param = procedure->parameters; cur_param != NULL; cur_param = cur_param->link) {
         if (cur_param->id == id) {
             return cur_param;
         }
@@ -86,15 +86,14 @@ stack_node* check_parameter(stack_node *procedure, char *id) {
 
 
 stack_node* check_add_parameter(char *id, type id_type) {
-    stack_node *procedure = get_procedure();
+    // stack_node *procedure = get_procedure();
+    // procedure will be on top of stack
+    stack_node *procedure = stack;
 
     if (!check_parameter(procedure, id)) {
         // Parameter already exists
         return NULL;
     }
-    
-    for (stack_node* cur_param = procedure->parameters; cur_param != NULL; cur_param = cur_param->prev);
-
     
     stack_node *param = malloc(sizeof(stack_node));
     if (!param) {
@@ -105,9 +104,20 @@ stack_node* check_add_parameter(char *id, type id_type) {
         .id = id,
         .id_type = id_type,
         .parameters = NULL,
-        .prev = procedure->parameters
+        .link = NULL
     };
-    procedure->parameters = param;
+
+    if (procedure->parameters == NULL) {
+        // No parameters in parameter list
+        procedure->parameters = param;
+    } else {
+        // Find end of parameter list and append the new one
+        stack_node* cur_param;
+        for (cur_param = procedure->parameters; cur_param->link != NULL; cur_param = cur_param->link);
+        cur_param->parameters = param;
+    }
+    
+
     return param;
 }
 
@@ -118,7 +128,7 @@ stack_node* pop_procedure() {
         return NULL;
     }
     // Find the first procedure on the stack, and set the stack to point before it
-    for (stack_node *cur_stack = stack->prev, *cur_stack_next = stack; cur_stack_next != NULL; cur_stack_next = cur_stack, cur_stack = cur_stack->prev) {
+    for (stack_node *cur_stack = stack->link, *cur_stack_next = stack; cur_stack_next != NULL; cur_stack_next = cur_stack, cur_stack = cur_stack->link) {
         if (cur_stack_next->id_type == PROCEDURE) {
             stack = cur_stack;
             return cur_stack_next;
@@ -129,12 +139,12 @@ stack_node* pop_procedure() {
 }
 
 stack_node* check_id(char* id, bool scope) {
-    for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->prev) {
+    for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->link) {
         if (cur_stack->id == id) {
             return cur_stack;
         } else if (cur_stack->id_type == PROCEDURE) {
             // Reached end of current scope
-            for (stack_node* cur_param = cur_stack->parameters; cur_param != NULL; cur_param = cur_param->prev) {
+            for (stack_node* cur_param = cur_stack->parameters; cur_param != NULL; cur_param = cur_param->link) {
                 if (cur_param->id == id) {
                     return cur_param;
                 }
@@ -164,7 +174,7 @@ stack_node* check_add_id(char* id, type id_type) {
         .id = id,
         .id_type = id_type,
         .parameters = NULL,
-        .prev = stack
+        .link = stack
     };
     stack = var;
     return stack;
