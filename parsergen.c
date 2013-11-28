@@ -1102,6 +1102,12 @@ type parse_variable() {
             if (!match(ID_TYPE))
                 goto synch;
             stack_node *var_node = check_id(var_tok.lexeme, false);
+            if (!var_node) {
+                write_listing_symerr("Use of undeclared identifier \"%s\"", var_tok.lexeme);
+                // Ignore return type of parse_variable_2(), error regardless
+                parse_variable_2(NULL);
+                return ERROR_STAR;
+            }
             if (var_node->id_type == PROCEDURE) {
                 write_listing_symerr("Procedure \"%s\" cannot be used for assignment", var_tok.lexeme);
                 // Ignore return type of parse_variable_2(), error regardless
@@ -1136,11 +1142,14 @@ type parse_variable_2(stack_node *var_node) {
         case ASSIGNOP_TYPE:
             // Grammar production: EPSILON
             // Epslion production
+            if (!var_node) {
+                return ERROR;
+            }
             return var_node->id_type;
         case LBRACKET_TYPE:
 		{
             bool error = false;
-            if (!(var_node->id_type == ARRAY_INTEGER || var_node->id_type == ARRAY_REAL)) {
+            if (var_node && !(var_node->id_type == ARRAY_INTEGER || var_node->id_type == ARRAY_REAL)) {
                 write_listing_symerr("Identifier \"%s\" is not an array type", var_node->id);
                 error = true;
             }
@@ -1156,7 +1165,7 @@ type parse_variable_2(stack_node *var_node) {
                 goto synch;
             if (error)
                 return ERROR_STAR;
-            if (expression_type == ERROR_STAR || expression_type == ERROR)
+            if (!var_node || expression_type == ERROR_STAR || expression_type == ERROR)
                 return ERROR;
             if (var_node->id_type == ARRAY_INTEGER) {
                 return INTEGER;
@@ -1191,9 +1200,23 @@ type parse_procedure_statement() {
             // Grammar production: CALL ID procedure_statement_2
             if (!match(CALL_TYPE))
                 goto synch;
+            token id_tok = tok;
             if (!match(ID_TYPE))
                 goto synch;
-            type procedure_statement_2_type = parse_procedure_statement_2();
+            stack_node *procedure_node = check_id(id_tok.lexeme, false);
+            if (!procedure_node) {
+                write_listing_symerr("Procedure \"%s\" does not exist", id_tok.lexeme);
+                // Ignore return type of parse_procedure_statement_2(), error regardless
+                parse_procedure_statement_2(NULL);
+                return ERROR_STAR;
+            }
+            if (procedure_node->id_type != PROCEDURE) {
+                write_listing_symerr("Identifier \"%s\" is not a procedure", id_tok.lexeme);
+                // Ignore return type of parse_procedure_statement_2(), error regardless
+                parse_procedure_statement_2(NULL);
+                return ERROR_STAR;
+            }
+            type procedure_statement_2_type = parse_procedure_statement_2(procedure_node);
             if (procedure_statement_2_type == ERROR_STAR || procedure_statement_2_type == ERROR)
                 return ERROR;
             return NONE;
@@ -1208,7 +1231,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_procedure_statement_2() {
+type parse_procedure_statement_2(stack_node *procedure_node) {
 	// first(procedure_statement_2): EPSILON, LPAREN
 	// follow(procedure_statement_2): END, SEMICOLON, ELSE
     
