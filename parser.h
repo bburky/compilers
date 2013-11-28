@@ -42,6 +42,8 @@ stack_node* check_id(const char* id, bool scope);
 
 stack_node* check_add_id(const char* id, type id_type, bool scope);
 
-stack_node*  set_parameter_types(stack_node* params, type param_type);
+stack_node* set_parameter_types(stack_node* params, type param_type);
+
+stack_node* pop_children(stack_node* node);
 
 #endif

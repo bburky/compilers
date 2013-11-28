@@ -34,9 +34,10 @@ type parse_program() {
             if (!match(SEMICOLON_TYPE))
                 goto synch;
             type program_2_type = parse_program_2();
+            stack_node *popped_children = pop_children(procedure_node);
             stack_node *popped_procedure = pop_procedure();
             // TODO: renable when subprocedures are popped too
-//            assert(popped_procedure == procedure_node);
+            assert(popped_procedure == procedure_node);
             if (identifier_list_type == ERROR_STAR || identifier_list_type == ERROR || program_2_type == ERROR_STAR || program_2_type == ERROR)
                 return ERROR;
             return NONE;
@@ -494,8 +495,13 @@ type parse_subprogram_declaration() {
         case PROCEDURE_TYPE:
 		{
             // Grammar production: subprogram_head subprogram_declaration_2
-            type subprogram_head_type = parse_subprogram_head();
+            stack_node *subprogram_node = NULL;
+            type subprogram_head_type = parse_subprogram_head(&subprogram_node);
             type subprogram_declaration_2_type = parse_subprogram_declaration_2();
+            // subprogram_node may be NULL if syntax error in subprogram_head
+            if (subprogram_node) {
+                stack_node *popped_children = pop_children(subprogram_node);
+            }
             if (subprogram_head_type == ERROR_STAR || subprogram_head_type == ERROR || subprogram_declaration_2_type == ERROR_STAR || subprogram_declaration_2_type == ERROR)
                 return ERROR;
             return NONE;
@@ -593,7 +599,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_subprogram_head() {
+type parse_subprogram_head(stack_node **subprogram_node) {
 	// first(subprogram_head): PROCEDURE
 	// follow(subprogram_head): VAR, BEGIN, PROCEDURE
     
@@ -612,6 +618,7 @@ type parse_subprogram_head() {
             if (!match(ID_TYPE))
                 goto synch;
             stack_node *procedure_node = check_add_id(id_tok.lexeme, PROCEDURE, false);
+            *subprogram_node = procedure_node;
             // Should always sucessfully create node if not limiting scope
             assert(procedure_node);
             type subprogram_head_2_type = parse_subprogram_head_2(procedure_node);

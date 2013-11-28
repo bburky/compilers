@@ -1,6 +1,7 @@
 program
 	→ PROGRAM ID LPAREN identifier_list RPAREN SEMICOLON program_2
 check_add_procecure ID
+pop locals and subprograms after done
 
 program_2
 	→ compound_statement PERIOD
@@ -50,6 +51,7 @@ subprogram_declarations_2
 
 subprogram_declaration
 	→ subprogram_head subprogram_declaration_2
+pop locals and subprograms after done
 
 subprogram_declaration_2
 	→ compound_statement

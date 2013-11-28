@@ -190,4 +190,11 @@ stack_node* set_parameter_types(stack_node* params, type param_type) {
     return prev_param;
 }
 
+stack_node* pop_children(stack_node* node) {
+    // TODO: probably do address calculation at this point
+    stack_node *children = node->link;
+    node->link = NULL;
+    stack = node;
+    return children;
+}
 
