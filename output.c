@@ -78,12 +78,20 @@ void write_listing_synerr(int lineno, token tok, char* nonterminal, TOKEN_TYPE e
     }
 
     if (tok.type == EOF_TYPE) {
-        fprintf(listing_file, "SYNERR:   Failed to parse %s, at end of file, expected %s\n", nonterminal,expected_str);
+        fprintf(listing_file, "SYNERR:   Failed to parse %s, at end of file, expected %s\n", nonterminal, expected_str);
     } else {
         fprintf(listing_file, "SYNERR:   Failed to parse %s, got token \"%s\", expected %s\n", nonterminal, tok.lexeme, expected_str);
     }
     fflush(listing_file);
 }
+
+/*
+ * Write all symantic errors to the listing file
+ */
+//void write_listing_symerr(char* message) {
+//    fprintf(listing_file, "SYMERR:   %s\n", message);
+//}
+// see macro
 
 /*
  * Write a token to the token file

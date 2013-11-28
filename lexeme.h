@@ -124,7 +124,7 @@ char *addop_attr_name[3];
 char *num_attr_name[3];
 
 typedef struct {
-    char *lexeme;
+    const char *lexeme;
     TOKEN_TYPE type;
     union {
         void* ptr;

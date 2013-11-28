@@ -10,6 +10,8 @@
 
 token tok = NONE_MATCHED;
 
+stack_node *stack = NULL;
+
 bool parse() {
     tok = get_next_token();
     type program_type = parse_program();
@@ -47,8 +49,6 @@ void synch(TOKEN_TYPE synch_set[], int len) {
     DEBUG_PRINT(("  SYNCH: SYNCHED WITH TOKEN %s\n", token_type_name[tok.type]));
 }
 
-stack_node *stack = NULL;
-
 stack_node* check_procedure(char *id) {
     for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->link) {
         if (cur_stack->id == id) {
@@ -73,7 +73,7 @@ stack_node* get_procedure() {
     assert(false);
 }
 
-stack_node* check_parameter(stack_node *procedure, char *id) {
+stack_node* check_parameter(stack_node *procedure, const char *id) {
     for (stack_node* cur_param = procedure->parameters; cur_param != NULL; cur_param = cur_param->link) {
         if (cur_param->id == id) {
             return cur_param;
@@ -84,12 +84,15 @@ stack_node* check_parameter(stack_node *procedure, char *id) {
 }
 
 
-stack_node* check_add_parameter(char *id, type id_type) {
+stack_node* check_add_parameter(stack_node *prev_param, const char *id) {
     // stack_node *procedure = get_procedure();
     // procedure will be on top of stack
     stack_node *procedure = stack;
+    assert(procedure->id_type == PROCEDURE);
 
-    if (check_parameter(procedure, id)) {
+    // Don't check for NULL dummy id
+    if (id && check_parameter(procedure, id)) {
+        write_listing_symerr("Redeclaration of parameter \"%s\"", id);
         // Parameter already exists
         return NULL;
     }
@@ -101,19 +104,16 @@ stack_node* check_add_parameter(char *id, type id_type) {
     }
     *param = (stack_node) {
         .id = id,
-        .id_type = id_type,
+        .id_type = NONE,
         .parameters = NULL,
         .link = NULL
     };
 
-    if (procedure->parameters == NULL) {
+    if (procedure == prev_param) {
         // No parameters in parameter list
         procedure->parameters = param;
     } else {
-        // Find end of parameter list and append the new one
-        stack_node* cur_param;
-        for (cur_param = procedure->parameters; cur_param->link != NULL; cur_param = cur_param->link);
-        cur_param->parameters = param;
+        prev_param->link = param;
     }
 
     return param;
@@ -136,7 +136,7 @@ stack_node* pop_procedure() {
     assert(false);
 }
 
-stack_node* check_id(char* id, bool scope) {
+stack_node* check_id(const char* id, bool scope) {
     for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->link) {
         if (cur_stack->id == id) {
             return cur_stack;
@@ -157,8 +157,9 @@ stack_node* check_id(char* id, bool scope) {
     return NULL;
 }
 
-stack_node* check_add_id(char* id, type id_type) {
-    if (check_id(id, true)) {
+stack_node* check_add_id(const char* id, type id_type, bool scope) {
+    if (check_id(id, scope)) {
+        write_listing_symerr("Redeclaration of identifier \"%s\"", id);
         // id already exists
         return NULL;
     }
@@ -177,3 +178,16 @@ stack_node* check_add_id(char* id, type id_type) {
     stack = var;
     return stack;
 }
+
+stack_node* set_parameter_types(stack_node* params, type param_type) {
+    stack_node *prev_param = NULL;
+    for (stack_node *cur_param = params; cur_param != NULL; prev_param = cur_param, cur_param = cur_param->link) {
+        // Should only be setting the type of params that are currently none
+        assert(cur_param->id_type == NONE);
+        cur_param->id_type = param_type;
+    }
+
+    return prev_param;
+}
+
+

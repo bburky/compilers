@@ -15,4 +15,7 @@ void write_token(int lineno, token tok);
 
 void write_listing_synerr(int lineno, token tok, char* nonterminal, TOKEN_TYPE expected[], int expected_len);
 
+//void write_listing_symerr(char* message);
+#define write_listing_symerr(format, ...) fprintf(listing_file, "SYMERR:   " format "\n", __VA_ARGS__)
+
 #endif

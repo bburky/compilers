@@ -119,7 +119,8 @@ token idres_machine() {
                     }
 
                     /* return id token */
-                    return (token){ .lexeme = lexeme, .type = ID_TYPE, .attr.ptr = add_symbol(lexeme) };
+                    symbol_node *sym = add_symbol(lexeme);
+                    return (token){ .lexeme = sym->id, .type = ID_TYPE, .attr.ptr = sym };
                 }
                 break;
         }
