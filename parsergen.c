@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "compiler.h"
 #include "parser.h"
 #include "parsergen.h"
@@ -18,16 +20,23 @@ type parse_program() {
             // Grammar production: PROGRAM ID LPAREN identifier_list RPAREN SEMICOLON program_2
             if (!match(PROGRAM_TYPE))
                 goto synch;
+            token id_tok = tok;
             if (!match(ID_TYPE))
                 goto synch;
+            stack_node *procedure_node = check_add_id(id_tok.lexeme, PROCEDURE, false);
+            // check_add_id() should never fail here, procedure_node should not be NULL
+            assert(procedure_node);
             if (!match(LPAREN_TYPE))
                 goto synch;
-            type identifier_list_type = parse_identifier_list();
+            type identifier_list_type = parse_identifier_list(procedure_node);
             if (!match(RPAREN_TYPE))
                 goto synch;
             if (!match(SEMICOLON_TYPE))
                 goto synch;
             type program_2_type = parse_program_2();
+            stack_node *popped_procedure = pop_procedure();
+            // TODO: renable when subprocedures are popped too
+//            assert(popped_procedure == procedure_node);
             if (identifier_list_type == ERROR_STAR || identifier_list_type == ERROR || program_2_type == ERROR_STAR || program_2_type == ERROR)
                 return ERROR;
             return NONE;
@@ -133,7 +142,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_identifier_list() {
+type parse_identifier_list(stack_node *procedure_node) {
 	// first(identifier_list): ID
 	// follow(identifier_list): COLON, RPAREN
     
@@ -146,9 +155,17 @@ type parse_identifier_list() {
         case ID_TYPE:
 		{
             // Grammar production: ID identifier_list_2
+            token id_tok = tok;
             if (!match(ID_TYPE))
                 goto synch;
-            type identifier_list_2_type = parse_identifier_list_2();
+            stack_node *param_node = check_add_parameter(procedure_node, id_tok.lexeme);
+            if (!param_node) {
+                stack_node *param_fix_node = check_add_parameter(procedure_node, NULL);
+                // Ignore return value of parse_identifier_list_2(), return error regardless
+                parse_identifier_list_2(param_fix_node);
+                return ERROR_STAR;
+            }
+            type identifier_list_2_type = parse_identifier_list_2(param_node);
             if (identifier_list_2_type == ERROR_STAR || identifier_list_2_type == ERROR)
                 return ERROR;
             return NONE;
@@ -163,7 +180,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_identifier_list_2() {
+type parse_identifier_list_2(stack_node *prev_param_node) {
 	// first(identifier_list_2): EPSILON, COMMA
 	// follow(identifier_list_2): COLON, RPAREN
     
@@ -178,9 +195,17 @@ type parse_identifier_list_2() {
             // Grammar production: COMMA ID identifier_list_2
             if (!match(COMMA_TYPE))
                 goto synch;
+            token id_tok = tok;
             if (!match(ID_TYPE))
                 goto synch;
-            type identifier_list_2_type = parse_identifier_list_2();
+            stack_node *param_node = check_add_parameter(prev_param_node, id_tok.lexeme);
+            if (!param_node) {
+                stack_node *param_fix_node = check_add_parameter(prev_param_node, NULL);
+                // Ignore return value of parse_identifier_list_2(), return error regardless
+                parse_identifier_list_2(param_fix_node);
+                return ERROR_STAR;
+            }
+            type identifier_list_2_type = parse_identifier_list_2(param_node);
             if (identifier_list_2_type == ERROR_STAR || identifier_list_2_type == ERROR)
                 return ERROR;
             return NONE;
@@ -215,14 +240,22 @@ type parse_declarations() {
             // Grammar production: VAR ID COLON type SEMICOLON declarations_2
             if (!match(VAR_TYPE))
                 goto synch;
+            token id_tok = tok;
             if (!match(ID_TYPE))
                 goto synch;
             if (!match(COLON_TYPE))
                 goto synch;
             type type_type = parse_type();
+            type var_type = type_type;
+            if (var_type == ERROR_STAR) {
+                var_type = ERROR;
+            }
+            stack_node *var_node = check_add_id(id_tok.lexeme, var_type, true);
             if (!match(SEMICOLON_TYPE))
                 goto synch;
             type declarations_2_type = parse_declarations_2();
+            if (!var_node)
+                return ERROR_STAR;
             if (type_type == ERROR_STAR || type_type == ERROR || declarations_2_type == ERROR_STAR || declarations_2_type == ERROR)
                 return ERROR;
             return NONE;
@@ -257,14 +290,22 @@ type parse_declarations_2() {
             // Grammar production: VAR ID COLON type SEMICOLON declarations_2
             if (!match(VAR_TYPE))
                 goto synch;
+            token id_tok = tok;
             if (!match(ID_TYPE))
                 goto synch;
             if (!match(COLON_TYPE))
                 goto synch;
             type type_type = parse_type();
+            type var_type = type_type;
+            if (var_type == ERROR_STAR) {
+                var_type = ERROR;
+            }
+            stack_node *var_node = check_add_id(id_tok.lexeme, var_type, true);
             if (!match(SEMICOLON_TYPE))
                 goto synch;
             type declarations_2_type = parse_declarations_2();
+            if (!var_node)
+                return ERROR_STAR;
             if (type_type == ERROR_STAR || type_type == ERROR || declarations_2_type == ERROR_STAR || declarations_2_type == ERROR)
                 return ERROR;
             return NONE;
@@ -296,12 +337,16 @@ type parse_type() {
                 goto synch;
             if (!match(LBRACKET_TYPE))
                 goto synch;
+            token num1_tok = tok;
             if (!match(NUM_TYPE))
                 goto synch;
+            // TODO: verify num1_tok is an integer
             if (!match(ARRAY_RANGE_TYPE))
                 goto synch;
+            token num2_tok = tok;
             if (!match(NUM_TYPE))
                 goto synch;
+            // TODO: verify num2_tok is an integer
             if (!match(RBRACKET_TYPE))
                 goto synch;
             if (!match(OF_TYPE))
@@ -309,7 +354,13 @@ type parse_type() {
             type standard_type_type = parse_standard_type();
             if (standard_type_type == ERROR_STAR || standard_type_type == ERROR)
                 return ERROR;
-            return NONE;
+            if (standard_type_type == INTEGER)
+                return ARRAY_INTEGER;
+            if (standard_type_type == REAL)
+                return ARRAY_INTEGER;
+            // parse_standard_type() should never return anything other than INTEGER, REAL, or ERROR_STAR
+            assert(false);
+            return ERROR_STAR;
 		}
         case REAL_TYPE:
         case INTEGER_TYPE:
@@ -318,7 +369,7 @@ type parse_type() {
             type standard_type_type = parse_standard_type();
             if (standard_type_type == ERROR_STAR || standard_type_type == ERROR)
                 return ERROR;
-            return NONE;
+            return standard_type_type;
 		}
         default:
             write_listing_synerr(lineno, tok, "type", expected, sizeof(expected)/sizeof(expected[0]));
@@ -345,14 +396,14 @@ type parse_standard_type() {
             // Grammar production: INTEGER
             if (!match(INTEGER_TYPE))
                 goto synch;
-            return NONE;
+            return INTEGER;
 		}
         case REAL_TYPE:
 		{
             // Grammar production: REAL
             if (!match(REAL_TYPE))
                 goto synch;
-            return NONE;
+            return REAL;
 		}
         default:
             write_listing_synerr(lineno, tok, "standard_type", expected, sizeof(expected)/sizeof(expected[0]));
@@ -557,9 +608,13 @@ type parse_subprogram_head() {
             // Grammar production: PROCEDURE ID subprogram_head_2
             if (!match(PROCEDURE_TYPE))
                 goto synch;
+            token id_tok = tok;
             if (!match(ID_TYPE))
                 goto synch;
-            type subprogram_head_2_type = parse_subprogram_head_2();
+            stack_node *procedure_node = check_add_id(id_tok.lexeme, PROCEDURE, false);
+            // Should always sucessfully create node if not limiting scope
+            assert(procedure_node);
+            type subprogram_head_2_type = parse_subprogram_head_2(procedure_node);
             if (subprogram_head_2_type == ERROR_STAR || subprogram_head_2_type == ERROR)
                 return ERROR;
             return NONE;
@@ -574,7 +629,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_subprogram_head_2() {
+type parse_subprogram_head_2(stack_node *procedure_node) {
 	// first(subprogram_head_2): LPAREN, SEMICOLON
 	// follow(subprogram_head_2): VAR, BEGIN, PROCEDURE
     
@@ -594,7 +649,7 @@ type parse_subprogram_head_2() {
         case LPAREN_TYPE:
 		{
             // Grammar production: arguments SEMICOLON
-            type arguments_type = parse_arguments();
+            type arguments_type = parse_arguments(procedure_node);
             if (!match(SEMICOLON_TYPE))
                 goto synch;
             if (arguments_type == ERROR_STAR || arguments_type == ERROR)
@@ -611,7 +666,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_arguments() {
+type parse_arguments(stack_node *procedure_node) {
 	// first(arguments): LPAREN
 	// follow(arguments): SEMICOLON
     
@@ -626,7 +681,7 @@ type parse_arguments() {
             // Grammar production: LPAREN parameter_list RPAREN
             if (!match(LPAREN_TYPE))
                 goto synch;
-            type parameter_list_type = parse_parameter_list();
+            type parameter_list_type = parse_parameter_list(procedure_node);
             if (!match(RPAREN_TYPE))
                 goto synch;
             if (parameter_list_type == ERROR_STAR || parameter_list_type == ERROR)
@@ -643,7 +698,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_parameter_list() {
+type parse_parameter_list(stack_node *procedure_node) {
 	// first(parameter_list): ID
 	// follow(parameter_list): RPAREN
     
@@ -656,11 +711,18 @@ type parse_parameter_list() {
         case ID_TYPE:
 		{
             // Grammar production: identifier_list COLON type parameter_list_2
-            type identifier_list_type = parse_identifier_list();
+            type identifier_list_type = parse_identifier_list(procedure_node);
+            // parse_identifier_list() should have set some parameters
+            assert(procedure_node->parameters);
             if (!match(COLON_TYPE))
                 goto synch;
             type type_type = parse_type();
-            type parameter_list_2_type = parse_parameter_list_2();
+            type param_type = type_type;
+            if (param_type == ERROR_STAR) {
+                param_type = ERROR;
+            }
+            stack_node *last_param = set_parameter_types(procedure_node->parameters, param_type);
+            type parameter_list_2_type = parse_parameter_list_2(last_param);
             if (identifier_list_type == ERROR_STAR || identifier_list_type == ERROR || type_type == ERROR_STAR || type_type == ERROR || parameter_list_2_type == ERROR_STAR || parameter_list_2_type == ERROR)
                 return ERROR;
             return NONE;
@@ -675,7 +737,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_parameter_list_2() {
+type parse_parameter_list_2(stack_node *prev_param) {
 	// first(parameter_list_2): EPSILON, SEMICOLON
 	// follow(parameter_list_2): RPAREN
     
@@ -694,11 +756,18 @@ type parse_parameter_list_2() {
             // Grammar production: SEMICOLON identifier_list COLON type parameter_list_2
             if (!match(SEMICOLON_TYPE))
                 goto synch;
-            type identifier_list_type = parse_identifier_list();
+            type identifier_list_type = parse_identifier_list(prev_param);
+            // parse_identifier_list() should have set some parameters
+            assert(prev_param->link);
             if (!match(COLON_TYPE))
                 goto synch;
             type type_type = parse_type();
-            type parameter_list_2_type = parse_parameter_list_2();
+            type param_type = type_type;
+            if (param_type == ERROR_STAR) {
+                param_type = ERROR;
+            }
+            stack_node *last_param = set_parameter_types(prev_param->link, param_type);
+            type parameter_list_2_type = parse_parameter_list_2(last_param);
             if (identifier_list_type == ERROR_STAR || identifier_list_type == ERROR || type_type == ERROR_STAR || type_type == ERROR || parameter_list_2_type == ERROR_STAR || parameter_list_2_type == ERROR)
                 return ERROR;
             return NONE;
