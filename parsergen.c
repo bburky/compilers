@@ -163,6 +163,7 @@ type parse_identifier_list(stack_node *procedure_node) {
             if (!param_node) {
                 stack_node *param_fix_node = check_add_parameter(procedure_node, NULL);
                 // Ignore return value of parse_identifier_list_2(), return error regardless
+                // Error written to listing file by check_add_parameter
                 parse_identifier_list_2(param_fix_node);
                 return ERROR_STAR;
             }
@@ -203,6 +204,7 @@ type parse_identifier_list_2(stack_node *prev_param_node) {
             if (!param_node) {
                 stack_node *param_fix_node = check_add_parameter(prev_param_node, NULL);
                 // Ignore return value of parse_identifier_list_2(), return error regardless
+                // Error written to listing file by check_add_parameter
                 parse_identifier_list_2(param_fix_node);
                 return ERROR_STAR;
             }
@@ -256,6 +258,7 @@ type parse_declarations() {
                 goto synch;
             type declarations_2_type = parse_declarations_2();
             if (!var_node)
+                // Error written to listing file by check_add_id
                 return ERROR_STAR;
             if (type_type == ERROR_STAR || type_type == ERROR || declarations_2_type == ERROR_STAR || declarations_2_type == ERROR)
                 return ERROR;
@@ -306,6 +309,7 @@ type parse_declarations_2() {
                 goto synch;
             type declarations_2_type = parse_declarations_2();
             if (!var_node)
+                // Error written to listing file by check_add_id
                 return ERROR_STAR;
             if (type_type == ERROR_STAR || type_type == ERROR || declarations_2_type == ERROR_STAR || declarations_2_type == ERROR)
                 return ERROR;
@@ -976,12 +980,17 @@ type parse_statement() {
             if (!match(IF_TYPE))
                 goto synch;
             type expression_type = parse_expression();
+            if (expression_type != BOOLEAN) {
+                write_listing_symerr("If statement condition expression is not boolean", NULL);
+            }
             if (!match(THEN_TYPE))
                 goto synch;
             type statement_type = parse_statement();
             type statement_2_type = parse_statement_2();
             if (expression_type == ERROR_STAR || expression_type == ERROR || statement_type == ERROR_STAR || statement_type == ERROR || statement_2_type == ERROR_STAR || statement_2_type == ERROR)
                 return ERROR;
+            if (expression_type != BOOLEAN)
+                return ERROR_STAR;
             return NONE;
 		}
         case WHILE_TYPE:
@@ -990,11 +999,16 @@ type parse_statement() {
             if (!match(WHILE_TYPE))
                 goto synch;
             type expression_type = parse_expression();
+            if (expression_type != BOOLEAN) {
+                write_listing_symerr("While statement condition expression is not boolean", NULL);
+            }
             if (!match(DO_TYPE))
                 goto synch;
             type statement_type = parse_statement();
             if (expression_type == ERROR_STAR || expression_type == ERROR || statement_type == ERROR_STAR || statement_type == ERROR)
                 return ERROR;
+            if (expression_type != BOOLEAN)
+                return ERROR_STAR;
             return NONE;
 		}
         case BEGIN_TYPE:
@@ -1084,12 +1098,20 @@ type parse_variable() {
         case ID_TYPE:
 		{
             // Grammar production: ID variable_2
+            token var_tok = tok;
             if (!match(ID_TYPE))
                 goto synch;
-            type variable_2_type = parse_variable_2();
+            stack_node *var_node = check_id(var_tok.lexeme, false);
+            if (var_node->id_type == PROCEDURE) {
+                write_listing_symerr("Procedure \"%s\" cannot be used for assignment", var_tok.lexeme);
+                // Ignore return type of parse_variable_2(), error regardless
+                parse_variable_2(var_node);
+                return ERROR_STAR;
+            }
+            type variable_2_type = parse_variable_2(var_node);
             if (variable_2_type == ERROR_STAR || variable_2_type == ERROR)
                 return ERROR;
-            return NONE;
+            return variable_2_type;
 		}
         default:
             write_listing_synerr(lineno, tok, "variable", expected, sizeof(expected)/sizeof(expected[0]));
@@ -1101,7 +1123,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_variable_2() {
+type parse_variable_2(stack_node *var_node) {
 	// first(variable_2): LBRACKET, EPSILON
 	// follow(variable_2): ASSIGNOP
     
@@ -1114,18 +1136,35 @@ type parse_variable_2() {
         case ASSIGNOP_TYPE:
             // Grammar production: EPSILON
             // Epslion production
-            return NONE;
+            return var_node->id_type;
         case LBRACKET_TYPE:
 		{
+            bool error = false;
+            if (!(var_node->id_type == ARRAY_INTEGER || var_node->id_type == ARRAY_REAL)) {
+                write_listing_symerr("Identifier \"%s\" is not an array type", var_node->id);
+                error = true;
+            }
             // Grammar production: LBRACKET expression RBRACKET
             if (!match(LBRACKET_TYPE))
                 goto synch;
             type expression_type = parse_expression();
+            if (expression_type != INTEGER) {
+                write_listing_symerr("Array subscript must be an integer expression", NULL);
+                error = true;
+            }
             if (!match(RBRACKET_TYPE))
                 goto synch;
+            if (error)
+                return ERROR_STAR;
             if (expression_type == ERROR_STAR || expression_type == ERROR)
                 return ERROR;
-            return NONE;
+            if (var_node->id_type == ARRAY_INTEGER) {
+                return INTEGER;
+            } else if (var_node->id_type == ARRAY_REAL) {
+                return REAL;
+            }
+            // Type of var_node is PROCEDURE, could be ERROR instead
+            return ERROR_STAR;
 		}
         default:
             write_listing_synerr(lineno, tok, "variable_2", expected, sizeof(expected)/sizeof(expected[0]));
