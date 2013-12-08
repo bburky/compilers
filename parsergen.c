@@ -980,7 +980,7 @@ type parse_statement() {
             if (!match(IF_TYPE))
                 goto synch;
             type expression_type = parse_expression();
-            if (expression_type != BOOLEAN) {
+            if (expression_type != ERROR_STAR && expression_type != ERROR && expression_type != BOOLEAN) {
                 write_listing_symerr("If statement condition expression is not boolean", NULL);
             }
             if (!match(THEN_TYPE))
@@ -999,7 +999,7 @@ type parse_statement() {
             if (!match(WHILE_TYPE))
                 goto synch;
             type expression_type = parse_expression();
-            if (expression_type != BOOLEAN) {
+            if (expression_type != ERROR_STAR && expression_type != ERROR && expression_type != BOOLEAN) {
                 write_listing_symerr("While statement condition expression is not boolean", NULL);
             }
             if (!match(DO_TYPE))
@@ -1357,10 +1357,10 @@ type parse_expression() {
 		{
             // Grammar production: simple_expression expression_2
             type simple_expression_type = parse_simple_expression();
-            type expression_2_type = parse_expression_2();
+            type expression_2_type = parse_expression_2(simple_expression_type);
             if (simple_expression_type == ERROR_STAR || simple_expression_type == ERROR || expression_2_type == ERROR_STAR || expression_2_type == ERROR)
                 return ERROR;
-            return NONE;
+            return expression_2_type;
 		}
         default:
             write_listing_synerr(lineno, tok, "expression", expected, sizeof(expected)/sizeof(expected[0]));
@@ -1372,7 +1372,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_expression_2() {
+type parse_expression_2(type prev_simple_expression_type) {
 	// first(expression_2): EPSILON, RELOP
 	// follow(expression_2): DO, END, SEMICOLON, THEN, ELSE, COMMA, RPAREN, RBRACKET
     
@@ -1392,16 +1392,23 @@ type parse_expression_2() {
         case RBRACKET_TYPE:
             // Grammar production: EPSILON
             // Epslion production
-            return NONE;
+            if (prev_simple_expression_type == ERROR_STAR || prev_simple_expression_type == ERROR)
+                return ERROR;
+            return prev_simple_expression_type;
         case RELOP_TYPE:
 		{
             // Grammar production: RELOP simple_expression
             if (!match(RELOP_TYPE))
                 goto synch;
             type simple_expression_type = parse_simple_expression();
-            if (simple_expression_type == ERROR_STAR || simple_expression_type == ERROR)
+            if (prev_simple_expression_type == ERROR_STAR || prev_simple_expression_type == ERROR || simple_expression_type == ERROR_STAR || simple_expression_type == ERROR)
                 return ERROR;
-            return NONE;
+            // TODO: could allow boolean == boolean or boolean != boolean
+            if ((prev_simple_expression_type != INTEGER && prev_simple_expression_type != REAL) || (simple_expression_type != INTEGER && simple_expression_type != REAL)) {
+                write_listing_symerr("Relop operands must be numeric", NULL);
+                return ERROR_STAR;
+            }
+            return BOOLEAN;
 		}
         default:
             write_listing_synerr(lineno, tok, "expression_2", expected, sizeof(expected)/sizeof(expected[0]));
@@ -1429,10 +1436,15 @@ type parse_simple_expression() {
             // Grammar production: sign term simple_expression_2
             type sign_type = parse_sign();
             type term_type = parse_term();
-            type simple_expression_2_type = parse_simple_expression_2();
+            if (term_type != ERROR_STAR && term_type != ERROR && term_type != INTEGER && term_type != REAL) {
+                write_listing_symerr("Sign operand must be numeric", NULL);
+                parse_simple_expression_2(ERROR);
+                return ERROR_STAR;
+            }
+            type simple_expression_2_type = parse_simple_expression_2(term_type);
             if (sign_type == ERROR_STAR || sign_type == ERROR || term_type == ERROR_STAR || term_type == ERROR || simple_expression_2_type == ERROR_STAR || simple_expression_2_type == ERROR)
                 return ERROR;
-            return NONE;
+            return simple_expression_2_type;
 		}
         case NUM_TYPE:
         case LPAREN_TYPE:
@@ -1441,10 +1453,10 @@ type parse_simple_expression() {
 		{
             // Grammar production: term simple_expression_2
             type term_type = parse_term();
-            type simple_expression_2_type = parse_simple_expression_2();
+            type simple_expression_2_type = parse_simple_expression_2(term_type);
             if (term_type == ERROR_STAR || term_type == ERROR || simple_expression_2_type == ERROR_STAR || simple_expression_2_type == ERROR)
                 return ERROR;
-            return NONE;
+            return simple_expression_2_type;
 		}
         default:
             write_listing_synerr(lineno, tok, "simple_expression", expected, sizeof(expected)/sizeof(expected[0]));
@@ -1456,7 +1468,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_simple_expression_2() {
+type parse_simple_expression_2(type prev_term_type) {
 	// first(simple_expression_2): ADDOP, PLUS, MINUS, EPSILON
 	// follow(simple_expression_2): DO, END, RELOP, SEMICOLON, THEN, ELSE, COMMA, RPAREN, RBRACKET
     
@@ -1469,13 +1481,33 @@ type parse_simple_expression_2() {
         case ADDOP_TYPE:
 		{
             // Grammar production: ADDOP term simple_expression_2
+            token addop_tok = tok;
             if (!match(ADDOP_TYPE))
                 goto synch;
             type term_type = parse_term();
-            type simple_expression_2_type = parse_simple_expression_2();
-            if (term_type == ERROR_STAR || term_type == ERROR || simple_expression_2_type == ERROR_STAR || simple_expression_2_type == ERROR)
+            type simple_expression_2_type;
+            if (addop_tok.attr.addop == OR_ADDOP) {
+                if (!(term_type == ERROR_STAR || term_type == ERROR || prev_term_type == ERROR_STAR || prev_term_type == ERROR) && (prev_term_type != BOOLEAN || term_type != BOOLEAN)) {
+                    write_listing_symerr("Addop OR must be applied to boolean operands", NULL);
+                    parse_simple_expression_2(ERROR);
+                    return ERROR_STAR;
+                }
+                simple_expression_2_type = parse_simple_expression_2(BOOLEAN);
+            } else {
+                if (!(term_type == ERROR_STAR || term_type == ERROR || prev_term_type == ERROR_STAR || prev_term_type == ERROR) && !(term_type == INTEGER || term_type == REAL) && !(prev_term_type == INTEGER || prev_term_type == REAL)) {
+                    write_listing_symerr("Addop \"%s\" must be applied to numeric operands", addop_tok.lexeme);
+                    parse_simple_expression_2(ERROR);
+                    return ERROR_STAR;
+                }
+                if (prev_term_type == INTEGER && term_type == INTEGER) {
+                    simple_expression_2_type = parse_simple_expression_2(INTEGER);
+                } else {
+                    simple_expression_2_type = parse_simple_expression_2(REAL);
+                }
+            }
+            if (prev_term_type == ERROR_STAR || prev_term_type == ERROR || term_type == ERROR_STAR || term_type == ERROR || simple_expression_2_type == ERROR_STAR || simple_expression_2_type == ERROR)
                 return ERROR;
-            return NONE;
+            return simple_expression_2_type;
 		}
         case END_TYPE:
         case RELOP_TYPE:
@@ -1488,17 +1520,29 @@ type parse_simple_expression_2() {
         case RPAREN_TYPE:
             // Grammar production: EPSILON
             // Epslion production
-            return NONE;
+            if (prev_term_type == ERROR_STAR || prev_term_type == ERROR)
+                return ERROR;
+            return prev_term_type;
         case MINUS_TYPE:
 		{
             // Grammar production: MINUS term simple_expression_2
             if (!match(MINUS_TYPE))
                 goto synch;
             type term_type = parse_term();
-            type simple_expression_2_type = parse_simple_expression_2();
-            if (term_type == ERROR_STAR || term_type == ERROR || simple_expression_2_type == ERROR_STAR || simple_expression_2_type == ERROR)
+            if (!(term_type == ERROR_STAR || term_type == ERROR || prev_term_type == ERROR_STAR || prev_term_type == ERROR) && !(term_type == INTEGER || term_type == REAL) && !(prev_term_type == INTEGER || prev_term_type == REAL)) {
+                write_listing_symerr("Addop \"-\" must be applied to numeric operands", NULL);
+                parse_simple_expression_2(ERROR);
+                return ERROR_STAR;
+            }
+            type simple_expression_2_type;
+            if (prev_term_type == INTEGER && term_type == INTEGER) {
+                simple_expression_2_type = parse_simple_expression_2(INTEGER);
+            } else {
+                simple_expression_2_type = parse_simple_expression_2(REAL);
+            }
+            if (prev_term_type == ERROR_STAR || prev_term_type == ERROR || term_type == ERROR_STAR || term_type == ERROR || simple_expression_2_type == ERROR_STAR || simple_expression_2_type == ERROR)
                 return ERROR;
-            return NONE;
+            return simple_expression_2_type;
 		}
         case PLUS_TYPE: 
 		{
@@ -1506,10 +1550,20 @@ type parse_simple_expression_2() {
             if (!match(PLUS_TYPE))
                 goto synch;
             type term_type = parse_term();
-            type simple_expression_2_type = parse_simple_expression_2();
-            if (term_type == ERROR_STAR || term_type == ERROR || simple_expression_2_type == ERROR_STAR || simple_expression_2_type == ERROR)
+            if (!(term_type == ERROR_STAR || term_type == ERROR || prev_term_type == ERROR_STAR || prev_term_type == ERROR) && !(term_type == INTEGER || term_type == REAL) && !(prev_term_type == INTEGER || prev_term_type == REAL)) {
+                write_listing_symerr("Addop \"+\" must be applied to numeric operands", NULL);
+                parse_simple_expression_2(ERROR);
+                return ERROR_STAR;
+            }
+            type simple_expression_2_type;
+            if (prev_term_type == INTEGER && term_type == INTEGER) {
+                simple_expression_2_type = parse_simple_expression_2(INTEGER);
+            } else {
+                simple_expression_2_type = parse_simple_expression_2(REAL);
+            }
+            if (prev_term_type == ERROR_STAR || prev_term_type == ERROR || term_type == ERROR_STAR || term_type == ERROR || simple_expression_2_type == ERROR_STAR || simple_expression_2_type == ERROR)
                 return ERROR;
-            return NONE;
+            return simple_expression_2_type;
 		}
         default:
             write_listing_synerr(lineno, tok, "simple_expression_2", expected, sizeof(expected)/sizeof(expected[0]));
@@ -1538,10 +1592,10 @@ type parse_term() {
 		{
             // Grammar production: factor term_2
             type factor_type = parse_factor();
-            type term_2_type = parse_term_2();
+            type term_2_type = parse_term_2(factor_type);
             if (factor_type == ERROR_STAR || factor_type == ERROR || term_2_type == ERROR_STAR || term_2_type == ERROR)
                 return ERROR;
-            return NONE;
+            return term_2_type;
 		}
         default:
             write_listing_synerr(lineno, tok, "term", expected, sizeof(expected)/sizeof(expected[0]));
@@ -1553,7 +1607,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_term_2() {
+type parse_term_2(type prev_factor_type) {
 	// first(term_2): EPSILON, MULOP
 	// follow(term_2): DO, END, RELOP, SEMICOLON, THEN, ELSE, ADDOP, PLUS, RPAREN, RBRACKET, COMMA, MINUS
     
@@ -1577,17 +1631,39 @@ type parse_term_2() {
         case MINUS_TYPE: 
             // Grammar production: EPSILON
             // Epslion production
-            return NONE;
+            if (prev_factor_type == ERROR_STAR)
+                return ERROR;
+            return prev_factor_type;
         case MULOP_TYPE: 
 		{
             // Grammar production: MULOP factor term_2
+            token mulop_tok = tok;
             if (!match(MULOP_TYPE))
                 goto synch;
             type factor_type = parse_factor();
-            type term_2_type = parse_term_2();
-            if (factor_type == ERROR_STAR || factor_type == ERROR || term_2_type == ERROR_STAR || term_2_type == ERROR)
+            type term_2_type;
+            if (mulop_tok.attr.mulop == AND_MULOP) {
+                if (!(prev_factor_type == ERROR_STAR || prev_factor_type == ERROR || factor_type == ERROR_STAR || factor_type == ERROR) && prev_factor_type != BOOLEAN && factor_type != BOOLEAN) {
+                    write_listing_symerr("Mulop AND must be applied to boolean operands", NULL);
+                    parse_term_2(ERROR);
+                    return ERROR_STAR;
+                }
+                term_2_type = parse_term_2(BOOLEAN);
+            } else {
+                if (!(prev_factor_type == ERROR_STAR || prev_factor_type == ERROR || factor_type == ERROR_STAR || factor_type == ERROR) && !(prev_factor_type == INTEGER || prev_factor_type == REAL) && !(factor_type == INTEGER || factor_type == REAL)) {
+                    write_listing_symerr("Mulop \"%s\" must be applied to numeric operands", mulop_tok.lexeme);
+                    parse_term_2(ERROR);
+                    return ERROR_STAR;
+                }
+                if (prev_factor_type == INTEGER && factor_type == INTEGER) {
+                    term_2_type = parse_term_2(INTEGER);
+                } else {
+                    term_2_type = parse_term_2(REAL);
+                }
+            }
+            if (prev_factor_type == ERROR_STAR || prev_factor_type == ERROR || factor_type == ERROR_STAR || factor_type == ERROR || term_2_type == ERROR_STAR || term_2_type == ERROR)
                 return ERROR;
-            return NONE;
+            return term_2_type;
 		}
         default:
             write_listing_synerr(lineno, tok, "term_2", expected, sizeof(expected)/sizeof(expected[0]));
@@ -1612,12 +1688,19 @@ type parse_factor() {
         case ID_TYPE: 
 		{
             // Grammar production: ID factor_2
+            token id_tok = tok;
             if (!match(ID_TYPE))
                 goto synch;
-            type factor_2_type = parse_factor_2();
+            stack_node *id_node = check_id(id_tok.lexeme, false);
+            if (!id_node) {
+                write_listing_symerr("Use of undeclared identifier \"%s\"", id_tok.lexeme);
+                parse_factor_2(NULL);
+                return ERROR_STAR;
+            }
+            type factor_2_type = parse_factor_2(id_node);
             if (factor_2_type == ERROR_STAR || factor_2_type == ERROR)
                 return ERROR;
-            return NONE;
+            return factor_2_type;
 		}
         case LPAREN_TYPE: 
 		{
@@ -1629,7 +1712,7 @@ type parse_factor() {
                 goto synch;
             if (expression_type == ERROR_STAR || expression_type == ERROR)
                 return ERROR;
-            return NONE;
+            return expression_type;
 		}
         case NOT_TYPE: 
 		{
@@ -1637,16 +1720,21 @@ type parse_factor() {
             if (!match(NOT_TYPE))
                 goto synch;
             type factor_type = parse_factor();
+            if (!(factor_type == ERROR_STAR || factor_type == ERROR) && factor_type != BOOLEAN) {
+                write_listing_symerr("NOT must be applied to boolean operand", NULL);
+                return ERROR_STAR;
+            }
             if (factor_type == ERROR_STAR || factor_type == ERROR)
                 return ERROR;
-            return NONE;
+            return BOOLEAN;
 		}
         case NUM_TYPE: 
 		{
             // Grammar production: NUM
             if (!match(NUM_TYPE))
                 goto synch;
-            return NONE;
+            // TODO: check if lexer found literal INTEGER or REAL here
+            return INTEGER;
 		}
         default:
             write_listing_synerr(lineno, tok, "factor", expected, sizeof(expected)/sizeof(expected[0]));
@@ -1658,7 +1746,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_factor_2() {
+type parse_factor_2(stack_node *id_node) {
 	// first(factor_2): LBRACKET, EPSILON
 	// follow(factor_2): DO, END, RELOP, SEMICOLON, THEN, ELSE, ADDOP, PLUS, MULOP, RPAREN, RBRACKET, COMMA, MINUS
     
@@ -1683,18 +1771,38 @@ type parse_factor_2() {
         case MINUS_TYPE: 
             // Grammar production: EPSILON
             // Epslion production
-            return NONE;
+            if (!id_node) {
+                return ERROR;
+            } else if (!(id_node->id_type == INTEGER || id_node->id_type == REAL)) {
+                write_listing_symerr("The type of the identifier \"%s\" cannot be used as a factor", id_node->id);
+                return ERROR_STAR;
+            }
+            return id_node->id_type;
         case LBRACKET_TYPE: 
 		{
+            bool error = false;
             // Grammar production: LBRACKET expression RBRACKET
             if (!match(LBRACKET_TYPE))
                 goto synch;
+            if (id_node && !(id_node->id_type == ARRAY_INTEGER && id_node->id_type == ARRAY_REAL)) {
+                write_listing_symerr("Identifier \"%s\" is not an array", id_node->id);
+            }
             type expression_type = parse_expression();
+            if (expression_type != INTEGER) {
+                write_listing_symerr("Array subscript must be an integer expression", NULL);
+                error = true;
+            }
             if (!match(RBRACKET_TYPE))
                 goto synch;
-            if (expression_type == ERROR_STAR || expression_type == ERROR)
+            if (!id_node || expression_type == ERROR_STAR || expression_type == ERROR)
                 return ERROR;
-            return NONE;
+            if (error || id_node->id_type != ARRAY_INTEGER || id_node->id_type != ARRAY_REAL) {
+                return ERROR_STAR;
+            }
+            if (id_node->id_type == ARRAY_INTEGER) {
+                return INTEGER;
+            }
+            return REAL;
 		}
         default:
             write_listing_synerr(lineno, tok, "factor_2", expected, sizeof(expected)/sizeof(expected[0]));
