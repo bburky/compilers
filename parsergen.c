@@ -362,7 +362,7 @@ type parse_type() {
             if (standard_type_type == INTEGER)
                 return ARRAY_INTEGER;
             if (standard_type_type == REAL)
-                return ARRAY_INTEGER;
+                return ARRAY_REAL;
             // parse_standard_type() should never return anything other than INTEGER, REAL, or ERROR_STAR
             assert(false);
             return ERROR_STAR;
@@ -1773,10 +1773,12 @@ type parse_factor_2(stack_node *id_node) {
             // Epslion production
             if (!id_node) {
                 return ERROR;
-            } else if (!(id_node->id_type == INTEGER || id_node->id_type == REAL)) {
-                write_listing_symerr("The type of the identifier \"%s\" cannot be used as a factor", id_node->id);
-                return ERROR_STAR;
             }
+            // TODO: should this be checked? Need to allow passing arrays to functions though
+//            else if (!(id_node->id_type == INTEGER || id_node->id_type == REAL)) {
+//                write_listing_symerr("The type of the identifier \"%s\" cannot be used as a factor", id_node->id);
+//                return ERROR_STAR;
+//            }
             return id_node->id_type;
         case LBRACKET_TYPE: 
 		{
@@ -1784,7 +1786,7 @@ type parse_factor_2(stack_node *id_node) {
             // Grammar production: LBRACKET expression RBRACKET
             if (!match(LBRACKET_TYPE))
                 goto synch;
-            if (id_node && !(id_node->id_type == ARRAY_INTEGER && id_node->id_type == ARRAY_REAL)) {
+            if (id_node && !(id_node->id_type == ARRAY_INTEGER || id_node->id_type == ARRAY_REAL)) {
                 write_listing_symerr("Identifier \"%s\" is not an array", id_node->id);
             }
             type expression_type = parse_expression();
@@ -1796,7 +1798,7 @@ type parse_factor_2(stack_node *id_node) {
                 goto synch;
             if (!id_node || expression_type == ERROR_STAR || expression_type == ERROR)
                 return ERROR;
-            if (error || id_node->id_type != ARRAY_INTEGER || id_node->id_type != ARRAY_REAL) {
+            if (error || !(id_node->id_type == ARRAY_INTEGER || id_node->id_type == ARRAY_REAL)) {
                 return ERROR_STAR;
             }
             if (id_node->id_type == ARRAY_INTEGER) {
