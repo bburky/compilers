@@ -338,6 +338,7 @@ type parse_type() {
         case ARRAY_TYPE:
 		{
             // Grammar production: ARRAY LBRACKET NUM ARRAY_RANGE NUM RBRACKET OF standard_type
+            bool error = false;
             if (!match(ARRAY_TYPE))
                 goto synch;
             if (!match(LBRACKET_TYPE))
@@ -345,13 +346,19 @@ type parse_type() {
             token num1_tok = tok;
             if (!match(NUM_TYPE))
                 goto synch;
-            // TODO: verify num1_tok is an integer
+            if (num1_tok.attr.num != INTEGER_NUM) {
+                error = true;
+                write_listing_symerr("Number \"%s\" must be an integer", num1_tok.lexeme);
+            }
             if (!match(ARRAY_RANGE_TYPE))
                 goto synch;
             token num2_tok = tok;
             if (!match(NUM_TYPE))
                 goto synch;
-            // TODO: verify num2_tok is an integer
+            if (num2_tok.attr.num != INTEGER_NUM) {
+                error = true;
+                write_listing_symerr("Number \"%s\" must be an integer", num2_tok.lexeme);
+            }
             if (!match(RBRACKET_TYPE))
                 goto synch;
             if (!match(OF_TYPE))
@@ -359,6 +366,8 @@ type parse_type() {
             type standard_type_type = parse_standard_type();
             if (standard_type_type == ERROR_STAR || standard_type_type == ERROR)
                 return ERROR;
+            if (error)
+                return ERROR_STAR;
             if (standard_type_type == INTEGER)
                 return ARRAY_INTEGER;
             if (standard_type_type == REAL)
@@ -1731,10 +1740,13 @@ type parse_factor() {
         case NUM_TYPE: 
 		{
             // Grammar production: NUM
+            token num_tok = tok;
             if (!match(NUM_TYPE))
                 goto synch;
-            // TODO: check if lexer found literal INTEGER or REAL here
-            return INTEGER;
+            if (num_tok.attr.num == INTEGER_NUM) {
+                return INTEGER;
+            }
+            return REAL;
 		}
         default:
             write_listing_synerr(lineno, tok, "factor", expected, sizeof(expected)/sizeof(expected[0]));
