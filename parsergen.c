@@ -34,7 +34,7 @@ type parse_program() {
             if (!match(SEMICOLON_TYPE))
                 goto synch;
             type program_2_type = parse_program_2();
-            stack_node *popped_children = pop_procedure(procedure_node);
+            pop_procedure(procedure_node);
             // TODO: renable when subprocedures are popped too
             assert(stack == procedure_node);
             if (identifier_list_type == ERROR_STAR || identifier_list_type == ERROR || program_2_type == ERROR_STAR || program_2_type == ERROR)
@@ -512,7 +512,7 @@ type parse_subprogram_declaration() {
             type subprogram_declaration_2_type = parse_subprogram_declaration_2();
             // subprogram_node may be NULL if syntax error in subprogram_head
             if (subprogram_node) {
-                stack_node *popped_children = pop_procedure(subprogram_node);;
+                pop_procedure(subprogram_node);
             }
             if (subprogram_head_type == ERROR_STAR || subprogram_head_type == ERROR || subprogram_declaration_2_type == ERROR_STAR || subprogram_declaration_2_type == ERROR)
                 return ERROR;

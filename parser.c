@@ -119,7 +119,7 @@ stack_node* check_add_parameter(stack_node *prev_param, const char *id) {
 }
 
 
-stack_node* pop_procedure(stack_node *procedure) {
+void pop_procedure(stack_node *procedure) {
     stack_node *cur_stack = stack;
     stack_node *temp;
     stack_node *previous = NULL;
@@ -131,10 +131,41 @@ stack_node* pop_procedure(stack_node *procedure) {
         cur_stack = temp;
     }
     
+    write_address_procedure(procedure->id);
+    
+    int address = 0;
+    for (stack_node* cur_var = previous; cur_var != NULL; cur_var = cur_var->link) {
+        // Skip procedures
+        if (cur_var->id_type != PROCEDURE) {
+            write_address_variable(cur_var->id, address);
+            switch (cur_var->id_type) {
+                case INTEGER:
+                    address += 4;
+                    break;
+
+                case REAL:
+                    address += 8;
+                    break;
+
+                case ARRAY_INTEGER:
+                    address += 100;
+                    break;
+
+                case ARRAY_REAL:
+                    address += 1000;
+                    break;
+
+                default:
+                    // Should not be reached
+                    assert(false);
+                    break;
+            }
+        }
+    }
+
+    
     current_procedure = procedure->parent;
     stack = procedure;
-
-    return cur_stack;
 }
 
 stack_node* check_id(const char* id, bool scope) {

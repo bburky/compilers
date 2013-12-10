@@ -37,7 +37,7 @@ stack_node* check_parameter(stack_node *procedure, const char *id);
 
 stack_node* check_add_parameter(stack_node *prev_param, const char *id);
 
-stack_node* pop_procedure(stack_node* procedure);
+void pop_procedure(stack_node* procedure);
 
 stack_node* check_id(const char* id, bool scope);
 

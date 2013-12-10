@@ -35,7 +35,15 @@ void init_output(const char *filename) {
         perror(tmpfilename);
         exit(1);
     }
-
+    
+    strcpy(tmpfilename, filename);
+    strcat(tmpfilename, ".add");
+    address_file = fopen(tmpfilename, "w");
+    if (!address_file) {
+        perror(tmpfilename);
+        exit(1);
+    }
+    
     free(tmpfilename);
     fprintf(token_file, "%-10s%-20s%-20s%s\n", "Line No.", "Lexeme", "TOKEN-TYPE", "ATTRIBUTE");
 }
@@ -150,4 +158,12 @@ void write_token(int lineno, token tok) {
             
     }
     
+}
+
+void write_address_procedure(const char* procedure) {
+    fprintf(address_file, "\nProcedure %s:\n", procedure);
+}
+
+void write_address_variable(const char* variable, int addr) {
+    fprintf(address_file, "%s\t%d\n", variable, addr);
 }
