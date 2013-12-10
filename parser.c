@@ -105,6 +105,7 @@ stack_node* check_add_parameter(stack_node *prev_param, const char *id) {
         .id_type = NONE,
         .parameters = NULL,
         .link = NULL,
+        .array_size = 0, // TODO could set array size
         .parent = current_procedure
     };
 
@@ -148,11 +149,11 @@ void pop_procedure(stack_node *procedure) {
                     break;
 
                 case ARRAY_INTEGER:
-                    address += 100;
+                    address += 4 * cur_var->array_size;
                     break;
 
                 case ARRAY_REAL:
-                    address += 1000;
+                    address += 8 * cur_var->array_size;
                     break;
 
                 default:
@@ -199,7 +200,7 @@ stack_node* check_id(const char* id, bool scope) {
     return NULL;
 }
 
-stack_node* check_add_id(const char* id, type id_type, bool scope) {
+stack_node* check_add_id(const char* id, type id_type, bool scope, int array_size) {
     if (check_id(id, scope)) {
         write_listing_symerr("Redeclaration of identifier \"%s\"", id);
         // id already exists
@@ -216,6 +217,7 @@ stack_node* check_add_id(const char* id, type id_type, bool scope) {
         .id_type = id_type,
         .parameters = NULL,
         .link = stack,
+        .array_size = array_size,
         .parent = current_procedure
     };
     stack = var;

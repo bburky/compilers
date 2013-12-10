@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdlib.h>
 
 #include "compiler.h"
 #include "parser.h"
@@ -23,7 +24,7 @@ type parse_program() {
             token id_tok = tok;
             if (!match(ID_TYPE))
                 goto synch;
-            stack_node *procedure_node = check_add_id(id_tok.lexeme, PROCEDURE, false);
+            stack_node *procedure_node = check_add_id(id_tok.lexeme, PROCEDURE, false, 0);
             // check_add_id() should never fail here, procedure_node should not be NULL
             assert(procedure_node);
             if (!match(LPAREN_TYPE))
@@ -247,12 +248,13 @@ type parse_declarations() {
                 goto synch;
             if (!match(COLON_TYPE))
                 goto synch;
-            type type_type = parse_type();
+            int array_size;
+            type type_type = parse_type(&array_size);
             type var_type = type_type;
             if (var_type == ERROR_STAR) {
                 var_type = ERROR;
             }
-            stack_node *var_node = check_add_id(id_tok.lexeme, var_type, true);
+            stack_node *var_node = check_add_id(id_tok.lexeme, var_type, true, array_size);
             if (!match(SEMICOLON_TYPE))
                 goto synch;
             type declarations_2_type = parse_declarations_2();
@@ -298,12 +300,13 @@ type parse_declarations_2() {
                 goto synch;
             if (!match(COLON_TYPE))
                 goto synch;
-            type type_type = parse_type();
+            int array_size = 0;
+            type type_type = parse_type(&array_size);
             type var_type = type_type;
             if (var_type == ERROR_STAR) {
                 var_type = ERROR;
             }
-            stack_node *var_node = check_add_id(id_tok.lexeme, var_type, true);
+            stack_node *var_node = check_add_id(id_tok.lexeme, var_type, true, array_size);
             if (!match(SEMICOLON_TYPE))
                 goto synch;
             type declarations_2_type = parse_declarations_2();
@@ -324,7 +327,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_type() {
+type parse_type(int *size) {
 	// first(type): REAL, INTEGER, ARRAY
 	// follow(type): RPAREN, SEMICOLON
     
@@ -367,6 +370,9 @@ type parse_type() {
                 return ERROR;
             if (error)
                 return ERROR_STAR;
+
+            *size = atoi(num2_tok.lexeme) - atoi(num1_tok.lexeme);
+            
             if (standard_type_type == INTEGER)
                 return ARRAY_INTEGER;
             if (standard_type_type == REAL)
@@ -629,7 +635,7 @@ type parse_subprogram_head(stack_node **subprogram_node) {
             token id_tok = tok;
             if (!match(ID_TYPE))
                 goto synch;
-            stack_node *procedure_node = check_add_id(id_tok.lexeme, PROCEDURE, false);
+            stack_node *procedure_node = check_add_id(id_tok.lexeme, PROCEDURE, false, 0);
             *subprogram_node = procedure_node;
             // Should always sucessfully create node if not limiting scope
             assert(procedure_node);
@@ -735,7 +741,9 @@ type parse_parameter_list(stack_node *procedure_node) {
             assert(procedure_node->parameters);
             if (!match(COLON_TYPE))
                 goto synch;
-            type type_type = parse_type();
+            // Ignore returned size, not needed for parameters
+            int size = 0;
+            type type_type = parse_type(&size);
             type param_type = type_type;
             if (param_type == ERROR_STAR) {
                 param_type = ERROR;
@@ -780,7 +788,9 @@ type parse_parameter_list_2(stack_node *prev_param) {
             assert(prev_param->link);
             if (!match(COLON_TYPE))
                 goto synch;
-            type type_type = parse_type();
+            // Ignore returned size, not needed for parameters
+            int size;
+            type type_type = parse_type(&size);
             type param_type = type_type;
             if (param_type == ERROR_STAR) {
                 param_type = ERROR;

@@ -13,6 +13,7 @@ typedef enum {
 typedef struct stack_node {
     const char *id;
     type id_type;
+    int array_size;
     struct stack_node *parameters;
     struct stack_node *link;
     struct stack_node *parent;
@@ -41,7 +42,7 @@ void pop_procedure(stack_node* procedure);
 
 stack_node* check_id(const char* id, bool scope);
 
-stack_node* check_add_id(const char* id, type id_type, bool scope);
+stack_node* check_add_id(const char* id, type id_type, bool scope, int array_size);
 
 stack_node* set_parameter_types(stack_node* params, type param_type);
 
