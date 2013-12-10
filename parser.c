@@ -119,13 +119,22 @@ stack_node* check_add_parameter(stack_node *prev_param, const char *id) {
 }
 
 
-stack_node* pop_procedure(stack_node* procedure) {
-    stack_node* old_stack = stack;
+stack_node* pop_procedure(stack_node *procedure) {
+    stack_node *cur_stack = stack;
+    stack_node *temp;
+    stack_node *previous = NULL;
+
+    while(cur_stack != NULL && cur_stack != procedure) {
+        temp = cur_stack->link;
+        cur_stack->link = previous;
+        previous = cur_stack;
+        cur_stack = temp;
+    }
     
     current_procedure = procedure->parent;
     stack = procedure;
 
-    return old_stack;
+    return cur_stack;
 }
 
 stack_node* check_id(const char* id, bool scope) {
