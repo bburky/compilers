@@ -15,6 +15,7 @@ typedef struct stack_node {
     type id_type;
     struct stack_node *parameters;
     struct stack_node *link;
+    struct stack_node *parent;
 } stack_node;
 
 token tok;
@@ -36,14 +37,12 @@ stack_node* check_parameter(stack_node *procedure, const char *id);
 
 stack_node* check_add_parameter(stack_node *prev_param, const char *id);
 
-stack_node* pop_procedure();
+stack_node* pop_procedure(stack_node* procedure);
 
 stack_node* check_id(const char* id, bool scope);
 
 stack_node* check_add_id(const char* id, type id_type, bool scope);
 
 stack_node* set_parameter_types(stack_node* params, type param_type);
-
-stack_node* pop_children(stack_node* node);
 
 #endif

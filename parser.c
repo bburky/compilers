@@ -12,6 +12,8 @@ token tok = NONE_MATCHED;
 
 stack_node *stack = NULL;
 
+stack_node *current_procedure = NULL;
+
 bool parse() {
     tok = get_next_token();
     type program_type = parse_program();
@@ -59,10 +61,6 @@ stack_node* check_procedure(char *id) {
     return NULL;
 }
 
-//stack_node* check_add_procedure(char *id) {
-//    
-//}
-
 stack_node* get_procedure() {
     for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->link) {
         if (cur_stack->id_type == PROCEDURE) {
@@ -106,7 +104,8 @@ stack_node* check_add_parameter(stack_node *prev_param, const char *id) {
         .id = id,
         .id_type = NONE,
         .parameters = NULL,
-        .link = NULL
+        .link = NULL,
+        .parent = current_procedure
     };
 
     if (procedure == prev_param) {
@@ -120,36 +119,39 @@ stack_node* check_add_parameter(stack_node *prev_param, const char *id) {
 }
 
 
-stack_node* pop_procedure() {
-    // Don't pop empty stack
-    if (!stack) {
-        return NULL;
-    }
-    // Find the first procedure on the stack, and set the stack to point before it
-    for (stack_node *cur_stack = stack->link, *cur_stack_next = stack; cur_stack_next != NULL; cur_stack_next = cur_stack, cur_stack = cur_stack->link) {
-        if (cur_stack_next->id_type == PROCEDURE) {
-            stack = cur_stack;
-            return cur_stack_next;
-        }
-    }
-    // Should not be reached: stack was not empty and did not contain a procedure
-    assert(false);
+stack_node* pop_procedure(stack_node* procedure) {
+    stack_node* old_stack = stack;
+    
+    current_procedure = procedure->parent;
+    stack = procedure;
+
+    return old_stack;
 }
 
 stack_node* check_id(const char* id, bool scope) {
+    bool above_current_procedure = false;
+    
     for (stack_node* cur_stack = stack; cur_stack != NULL; cur_stack = cur_stack->link) {
         if (cur_stack->id == id) {
             return cur_stack;
         } else if (cur_stack->id_type == PROCEDURE) {
-            // Reached end of current scope
-            for (stack_node* cur_param = cur_stack->parameters; cur_param != NULL; cur_param = cur_param->link) {
-                if (cur_param->id == id) {
-                    return cur_param;
-                }
+            if (current_procedure == cur_stack) {
+                // Don't examine parameters until we are at or above the current procedure
+                above_current_procedure = true;
             }
-            // Didn't find id in parameters: if searching current scope only, stop
-            if (scope) {
-                return NULL;
+            
+            if (above_current_procedure) {
+                // Check parameters if it matches the procedure we are interested in
+                for (stack_node* cur_param = cur_stack->parameters; cur_param != NULL; cur_param = cur_param->link) {
+                    if (cur_param->id == id) {
+                        return cur_param;
+                    }
+                }
+                
+                // Didn't find id in parameters: if searching current scope only, stop
+                if (scope) {
+                    return NULL;
+                }
             }
         }
     }
@@ -173,9 +175,15 @@ stack_node* check_add_id(const char* id, type id_type, bool scope) {
         .id = id,
         .id_type = id_type,
         .parameters = NULL,
-        .link = stack
+        .link = stack,
+        .parent = current_procedure
     };
     stack = var;
+    
+    if (id_type == PROCEDURE) {
+        current_procedure = var;
+    }
+    
     return stack;
 }
 
@@ -189,11 +197,3 @@ stack_node* set_parameter_types(stack_node* params, type param_type) {
 
     return prev_param;
 }
-
-stack_node* pop_children(stack_node* node) {
-    // TODO: probably do address calculation at this point
-    stack = node;
-    
-    return node;
-}
-

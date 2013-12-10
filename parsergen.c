@@ -34,10 +34,9 @@ type parse_program() {
             if (!match(SEMICOLON_TYPE))
                 goto synch;
             type program_2_type = parse_program_2();
-            stack_node *popped_children = pop_children(procedure_node);
-            stack_node *popped_procedure = pop_procedure();
+            stack_node *popped_children = pop_procedure(procedure_node);
             // TODO: renable when subprocedures are popped too
-            assert(popped_procedure == procedure_node);
+            assert(stack == procedure_node);
             if (identifier_list_type == ERROR_STAR || identifier_list_type == ERROR || program_2_type == ERROR_STAR || program_2_type == ERROR)
                 return ERROR;
             return NONE;
@@ -513,7 +512,7 @@ type parse_subprogram_declaration() {
             type subprogram_declaration_2_type = parse_subprogram_declaration_2();
             // subprogram_node may be NULL if syntax error in subprogram_head
             if (subprogram_node) {
-                stack_node *popped_children = pop_children(subprogram_node);
+                stack_node *popped_children = pop_procedure(subprogram_node);;
             }
             if (subprogram_head_type == ERROR_STAR || subprogram_head_type == ERROR || subprogram_declaration_2_type == ERROR_STAR || subprogram_declaration_2_type == ERROR)
                 return ERROR;
@@ -1255,13 +1254,17 @@ type parse_procedure_statement_2(stack_node *procedure_node) {
         case ELSE_TYPE:
             // Grammar production: EPSILON
             // Epslion production
+            if (procedure_node && procedure_node->parameters != NULL) {
+                write_listing_symerr("Procedure \"%s\" called without required parameters", procedure_node->id);
+                return ERROR_STAR;
+            }
             return NONE;
         case LPAREN_TYPE:
 		{
             // Grammar production: LPAREN expression_list RPAREN
             if (!match(LPAREN_TYPE))
                 goto synch;
-            type expression_list_type = parse_expression_list();
+            type expression_list_type = parse_expression_list(procedure_node);
             if (!match(RPAREN_TYPE))
                 goto synch;
             if (expression_list_type == ERROR_STAR || expression_list_type == ERROR)
@@ -1278,7 +1281,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_expression_list() {
+type parse_expression_list(stack_node *procedure_node) {
 	// first(expression_list): NUM, PLUS, LPAREN, NOT, MINUS, ID
 	// follow(expression_list): RPAREN
     
@@ -1296,10 +1299,31 @@ type parse_expression_list() {
         case ID_TYPE:
 		{
             // Grammar production: expression expression_list_2
+            bool error = false;
+            stack_node *parameter_node = NULL;
+            stack_node *next_parameter_node = NULL;
+            if (procedure_node) {
+                // Allow NULL procedure_node if procedure does not exist
+                parameter_node = procedure_node->parameters;
+
+                if (!parameter_node) {
+                    write_listing_symerr("Procedure \"%s\" called with parameters, but defined with none", procedure_node->id);
+                    error = true;
+                } else {
+                    next_parameter_node = parameter_node->link;
+                }
+            }
             type expression_type = parse_expression();
-            type expression_list_2_type = parse_expression_list_2();
+            if (procedure_node && parameter_node && expression_type != ERROR_STAR && expression_type != ERROR && expression_type != parameter_node->id_type) {
+                // TODO: include types in error message
+                write_listing_symerr("Procedure \"%s\" called with parameter of incorrect type", procedure_node->id);
+                error = true;
+            }
+            type expression_list_2_type = parse_expression_list_2(procedure_node, next_parameter_node);
             if (expression_type == ERROR_STAR || expression_type == ERROR || expression_list_2_type == ERROR_STAR || expression_list_2_type == ERROR)
                 return ERROR;
+            if (error)
+                return ERROR_STAR;
             return NONE;
 		}
         default:
@@ -1312,7 +1336,7 @@ synch:
 	return ERROR_STAR;
 }
 
-type parse_expression_list_2() {
+type parse_expression_list_2(stack_node *procedure_node, stack_node *parameter_node) {
 	// first(expression_list_2): EPSILON, COMMA
 	// follow(expression_list_2): RPAREN
     
@@ -1325,17 +1349,38 @@ type parse_expression_list_2() {
         case COMMA_TYPE:
 		{
             // Grammar production: COMMA expression expression_list_2
+            bool error = false;
+            stack_node *next_parameter_node = NULL;
+            if (procedure_node) {
+                if (!parameter_node) {
+                    write_listing_symerr("Procedure \"%s\" called with too many parameters", procedure_node->id);
+                    error = true;
+                } else {
+                    next_parameter_node = parameter_node->link;
+                }
+            }
             if (!match(COMMA_TYPE))
                 goto synch;
             type expression_type = parse_expression();
-            type expression_list_2_type = parse_expression_list_2();
+            if (procedure_node && parameter_node && expression_type != ERROR_STAR && expression_type != ERROR && expression_type != parameter_node->id_type) {
+                // TODO: include types in error message
+                write_listing_symerr("Procedure \"%s\" called with parameter of incorrect type", procedure_node->id);
+                error = true;
+            }
+            type expression_list_2_type = parse_expression_list_2(procedure_node, next_parameter_node);
             if (expression_type == ERROR_STAR || expression_type == ERROR || expression_list_2_type == ERROR_STAR || expression_list_2_type == ERROR)
                 return ERROR;
+            if (error)
+                return ERROR_STAR;
             return NONE;
 		}
         case RPAREN_TYPE:
             // Grammar production: EPSILON
             // Epslion production
+            if (parameter_node) {
+                write_listing_symerr("Procedure \"%s\" called with too few parameters", procedure_node->id);
+                return ERROR_STAR;
+            }
             return NONE;
         default:
             write_listing_synerr(lineno, tok, "expression_list_2", expected, sizeof(expected)/sizeof(expected[0]));
